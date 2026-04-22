@@ -1,30 +1,32 @@
 import { useQuery } from '@tanstack/react-query';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Image, ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { MotorcycleApiResponseSchema, MotorcycleListResponseSchema } from '@motogram/shared';
+import type { z } from 'zod';
 
 import { apiRequest } from '../../lib/api-client';
 
-// Spec 2.6 - Profil -> Garaj (motosikletler listesi).
+// Spec 2.6 - Profil -> Garaj. Backend: GET /v1/motorcycles/me
 
-interface MotorcycleDto {
-  id: string;
-  make: string;
-  model: string;
-  year: number | null;
-  nickname: string | null;
-  isPrimary: boolean;
-  photoUrl: string | null;
-}
+type MotorcycleRow = z.infer<typeof MotorcycleApiResponseSchema>;
 
 export function GarageTab() {
-  const { data, isLoading } = useQuery<MotorcycleDto[]>({
+  const { data, isLoading, isError } = useQuery<MotorcycleRow[]>({
     queryKey: ['my-motorcycles'],
-    queryFn: () => apiRequest('/motorcycles'),
+    queryFn: () => apiRequest('/motorcycles/me', MotorcycleListResponseSchema),
   });
 
   if (isLoading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator color="#ff6a00" />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={styles.empty}>
+        <Text style={styles.emptyText}>Garaj yuklenemedi. Baglanti veya oturumu kontrol et.</Text>
       </View>
     );
   }
@@ -43,18 +45,25 @@ export function GarageTab() {
       data={bikes}
       keyExtractor={(b) => b.id}
       contentContainerStyle={styles.list}
-      renderItem={({ item }) => (
-        <View style={styles.card}>
-          <View style={styles.photo} />
-          <View style={styles.info}>
-            <Text style={styles.title}>
-              {item.make} {item.model} {item.year ?? ''}
-            </Text>
-            {item.nickname ? <Text style={styles.nick}>"{item.nickname}"</Text> : null}
-            {item.isPrimary ? <Text style={styles.primary}>BIRINCIL</Text> : null}
+      renderItem={({ item }) => {
+        const thumb = item.photos[0] ?? null;
+        return (
+          <View style={styles.card}>
+            {thumb ? (
+              <Image source={{ uri: thumb }} style={styles.photo} />
+            ) : (
+              <View style={[styles.photo, styles.photoPlaceholder]} />
+            )}
+            <View style={styles.info}>
+              <Text style={styles.title}>
+                {item.brand} {item.model} {item.year}
+              </Text>
+              {item.nickname ? <Text style={styles.nick}>&quot;{item.nickname}&quot;</Text> : null}
+              {item.isPrimary ? <Text style={styles.primary}>BIRINCIL</Text> : null}
+            </View>
           </View>
-        </View>
-      )}
+        );
+      }}
     />
   );
 }
@@ -72,6 +81,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   photo: { width: 96, height: 72, backgroundColor: '#333' },
+  photoPlaceholder: { backgroundColor: '#333' },
   info: { flex: 1, padding: 12 },
   title: { color: '#fff', fontWeight: '700' },
   nick: { color: '#aaa', fontSize: 12, marginTop: 2 },
