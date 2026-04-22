@@ -14,26 +14,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BadgesTab } from '../../features/profile/BadgesTab';
 import { GarageTab } from '../../features/profile/GarageTab';
 import { QuestsTab } from '../../features/profile/QuestsTab';
-import { apiRequest } from '../../lib/api-client';
+import { getCurrentUser, type MeResponse } from '../../api/users.api';
 import { useAuthStore } from '../../store/auth.store';
 
 type ProfileTab = 'badges' | 'garage' | 'quests';
 
-// Spec 2.6 - Profil: sticky garaj banner + sayilar + ridingStyle chipleri
-
-interface MeResponse {
-  id: string;
-  username: string;
-  name: string | null;
-  bio: string | null;
-  avatarUrl: string | null;
-  ridingStyle: string[];
-  followersCount: number;
-  followingCount: number;
-  postsCount: number;
-  xp: number;
-  level: number;
-}
+// Spec 2.6 - Profil: sticky garaj banner + sayilar + ridingStyle chipleri; `GET /users/me` = UserMeResponseSchema
 
 export function ProfileScreen() {
   const { t } = useTranslation();
@@ -42,7 +28,7 @@ export function ProfileScreen() {
 
   const { data, isLoading } = useQuery<MeResponse>({
     queryKey: ['me'],
-    queryFn: () => apiRequest<MeResponse>('/users/me'),
+    queryFn: getCurrentUser,
   });
 
   if (isLoading || !data) {
