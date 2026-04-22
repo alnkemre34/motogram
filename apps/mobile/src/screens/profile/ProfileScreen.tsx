@@ -26,12 +26,23 @@ export function ProfileScreen() {
   const clearSession = useAuthStore((s) => s.clearSession);
   const [tab, setTab] = useState<ProfileTab>('badges');
 
-  const { data, isLoading } = useQuery<MeResponse>({
+  const { data, isPending, isError, refetch } = useQuery<MeResponse>({
     queryKey: ['me'],
     queryFn: getCurrentUser,
   });
 
-  if (isLoading || !data) {
+  if (isError) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <Text style={styles.errorText}>Profil yuklenemedi. Tekrar dene.</Text>
+        <Pressable style={styles.signOut} onPress={() => void refetch()}>
+          <Text style={styles.signOutText}>Yenile</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
+
+  if (isPending || !data) {
     return (
       <SafeAreaView style={styles.center}>
         <ActivityIndicator color="#ff6a00" />
@@ -150,4 +161,5 @@ const styles = StyleSheet.create({
   tabContent: { minHeight: 260 },
   signOut: { marginTop: 24, paddingVertical: 14, borderWidth: 1, borderColor: '#444', borderRadius: 12, alignItems: 'center' },
   signOutText: { color: '#fff', fontWeight: '600' },
+  errorText: { color: '#e66', textAlign: 'center', marginBottom: 16, paddingHorizontal: 24 },
 });
