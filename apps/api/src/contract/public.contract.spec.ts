@@ -1,0 +1,140 @@
+/**
+ * Contract-style checks — HTTP JSON govdesini shared Zod ile dogrular.
+ * Postgres + Redis + uygulanmis migration gerekir (bos DB'de register icin tablolar).
+ */
+import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import request from 'supertest';
+import {
+  ApiErrorSchema,
+  AuthResultSchema,
+  HealthLivezSchema,
+  HealthReadyzSchema,
+  MapShardStatsResponseSchema,
+  NearbyRidersResponseSchema,
+  PostFeedPageSchema,
+} from '@motogram/shared';
+
+import { GlobalExceptionFilter } from '../common/filters/global-exception.filter';
+import { AppModule } from '../app.module';
+
+/**
+ * Full App bootstrap needs Postgres+Redis.
+ * Varsayilan `pnpm test` (apps/api) `src/contract` altini atlar; suite
+ * `describeContract` ile yalnizca `CONTRACT_TESTS=1` iken calisir.
+ * Yerel/CI: `$env:CONTRACT_TESTS='1'; pnpm run test:contract` (apps/api).
+ */
+const describeContract = process.env.CONTRACT_TESTS === '1' ? describe : describe.skip;
+
+describeContract('Contract: public HTTP', () => {
+  let app: INestApplication;
+  /** Bir JWT ile feed / map / media senaryolari (register once, sonra tum istekler). */
+  let accessToken!: string;
+
+  const UNKNOWN_MEDIA_UUID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('v1');
+    app.useGlobalFilters(new GlobalExceptionFilter());
+    await app.init();
+
+    const suffix = Date.now().toString(36);
+    const username = `ct_${suffix}`.slice(0, 30);
+    const regRes = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: `ctr9-${suffix}@example.com`,
+        username,
+        password: 'Contract1!z',
+        eulaAccepted: true,
+        preferredLanguage: 'tr',
+      })
+      .expect(201);
+    const auth = AuthResultSchema.parse(regRes.body);
+    accessToken = auth.tokens.accessToken;
+  }, 120_000);
+
+  afterAll(async () => {
+    await app?.close();
+  });
+
+  it('GET /v1/livez matches HealthLivezSchema', async () => {
+    const res = await request(app.getHttpServer()).get('/v1/livez').expect(200);
+    HealthLivezSchema.parse(res.body);
+  });
+
+  it('GET /v1/readyz matches HealthReadyzSchema (200 veya 503 gövdesi)', async () => {
+    const res = await request(app.getHttpServer()).get('/v1/readyz');
+    expect([200, 503]).toContain(res.status);
+    HealthReadyzSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/login — gecersiz govde 400 + ApiErrorSchema (ZodBody)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/login')
+      .send({ identifier: '', password: '' })
+      .expect(400);
+    ApiErrorSchema.parse(res.body);
+    expect(res.body.error).toBeDefined();
+    expect(res.body.code).toBeDefined();
+  });
+
+  it('POST /v1/auth/register — EULA olmadan 400 + ApiErrorSchema', async () => {
+    const suffix = Date.now().toString(36);
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: `contract-${suffix}@example.com`,
+        username: `cu_${suffix}`,
+        password: 'password1',
+        eulaAccepted: false,
+        preferredLanguage: 'tr',
+      })
+      .expect(400);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('GET /v1/posts/feed — JWT ile PostFeedPageSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/v1/posts/feed')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    PostFeedPageSchema.parse(res.body);
+  });
+
+  it('GET /v1/map/shards — JWT ile MapShardStatsResponseSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/v1/map/shards')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    MapShardStatsResponseSchema.parse(res.body);
+  });
+
+  it('GET /v1/map/nearby — JWT ile NearbyRidersResponseSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/v1/map/nearby')
+      .query({ lat: '41.0082', lng: '28.9784' })
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    NearbyRidersResponseSchema.parse(res.body);
+  });
+
+  it('GET /v1/media/:id — Authorization yok 401 + ApiErrorSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/v1/media/${UNKNOWN_MEDIA_UUID}`)
+      .expect(401);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('GET /v1/media/:id — bilinmeyen asset 404 + ApiErrorSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/v1/media/${UNKNOWN_MEDIA_UUID}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(404);
+    ApiErrorSchema.parse(res.body);
+  });
+});

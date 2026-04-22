@@ -1,0 +1,45 @@
+# Motogram Prometheus alert rules (Faz 9) — wire via prometheus.yml rule_files
+groups:
+  - name: motogram-api
+    rules:
+      - alert: High5xxRate
+        expr: |
+          sum(rate(http_requests_total{status_code=~"5.."}[5m]))
+            / sum(rate(http_requests_total[5m])) > 0.02
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elevated HTTP 5xx rate (>2% over 5m)"
+
+      - alert: ZodResponseMismatch
+        expr: increase(zod_response_mismatch_total[15m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Zod HTTP response mismatch detected"
+
+      - alert: ZodInboundValidationErrors
+        expr: increase(zod_inbound_validation_errors_total[15m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Zod inbound validation errors (events/queues)"
+
+      - alert: DLQGrowing
+        expr: max(bullmq_dlq_size) > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "BullMQ failed jobs present on at least one queue"
+
+      - alert: WsDisconnectSpike
+        expr: sum(rate(websocket_disconnections_total[5m])) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "WebSocket disconnect rate spike"

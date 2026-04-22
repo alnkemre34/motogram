@@ -1,0 +1,11 @@
+{
+  "name": "@motogram/config-eslint",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Motogram Paylasilan ESLint Konfigleri (base, nest, expo, next)",
+  "main": "index.js",
+  "scripts": {
+    "lint": "echo \"[config-eslint] no self-lint\" && exit 0",
+    "clean": "echo \"[config-eslint] clean\" && exit 0"
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "app": {
+    "name": "Motogram"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "continue": "Continue",
+    "back": "Back",
+    "done": "Done"
+  },
+  "auth": {
+    "welcome": {
+      "tagline": "The social universe for motorcycle riders",
+      "ctaLogin": "Log In",
+      "ctaRegister": "Create Account"
+    },
+    "login": {
+      "title": "Log In",
+      "identifier": "Username or email",
+      "password": "Password",
+      "submit": "Log In",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "goRegister": "Sign Up"
+    },
+    "register": {
+      "title": "Create Account",
+      "email": "Email",
+      "username": "Username",
+      "password": "Password (min 8 chars)",
+      "name": "Full Name (optional)",
+      "eula": "I accept the Terms of Service and Privacy Policy.",
+      "eulaRequired": "You must accept the agreement to continue.",
+      "submit": "Continue",
+      "hasAccount": "Already have an account?",
+      "goLogin": "Log In"
+    },
+    "otp": {
+      "title": "Verification Code",
+      "subtitle": "Enter the 6-digit code sent to {{phone}}.",
+      "resend": "Resend code",
+      "verify": "Verify"
+    },
+    "errors": {
+      "email_invalid": "Invalid email",
+      "username_too_short": "Username must be at least 3 characters",
+      "username_too_long": "Username is too long",
+      "username_invalid_chars": "Username can only contain letters, numbers, dot, underscore",
+      "password_too_short": "Password must be at least 8 characters",
+      "password_too_long": "Password is too long",
+      "identifier_required": "Username or email required",
+      "password_required": "Password required",
+      "eula_required": "You must accept the agreement",
+      "invalid_credentials": "Invalid email or password",
+      "user_already_exists": "User already exists"
+    }
+  },
+  "tabs": {
+    "home": "Home",
+    "discover": "Discover",
+    "map": "Map",
+    "inbox": "Inbox",
+    "profile": "Profile"
+  },
+  "home": {
+    "storiesTitle": "Stories",
+    "emptyFeed": "No posts yet. Follow someone to fill your feed.",
+    "like": "Like",
+    "comment": "Comment",
+    "share": "Share"
+  },
+  "profile": {
+    "editProfile": "Edit Profile",
+    "followers": "Followers",
+    "following": "Following",
+    "posts": "Posts",
+    "xp": "XP",
+    "level": "Level",
+    "garage": "Garage",
+    "signOut": "Sign Out"
+  },
+  "map": {
+    "segments": {
+      "discover": "Discover",
+      "ride": "Ride"
+    },
+    "filters": {
+      "nearby": "Nearby",
+      "friends": "Friends",
+      "parties": "Parties",
+      "events": "Events"
+    },
+    "panel": {
+      "handle": "Toggle panel",
+      "title": {
+        "nearby": "Nearby Riders",
+        "friends": "Friends",
+        "parties": "Active Parties",
+        "events": "Upcoming Events"
+      }
+    },
+    "rider": {
+      "inParty": "In party"
+    },
+    "empty": {
+      "title": "No active riders around.",
+      "body": "Be the first one out on the road!",
+      "createParty": "Create Party"
+    },
+    "partyCreate": {
+      "title": "New party",
+      "name": "Party name",
+      "namePlaceholder": "e.g. Night Bosphorus run",
+      "maxMembers": "Member limit (2–50)",
+      "private": "Private party",
+      "submit": "Create",
+      "cancel": "Cancel",
+      "loadError": "Party was created but details could not be loaded."
+    },
+    "ride": {
+      "noPartyTitle": "No active party",
+      "noPartyBody": "Check invites in Inbox or create a new party.",
+      "createPartyCta": "Create party"
+    },
+    "fallback": {
+      "title": "Mapbox token is missing",
+      "body": "Add EXPO_PUBLIC_MAPBOX_TOKEN to your .env file."
+    },
+    "sharing": {
+      "title": "Location Sharing",
+      "subtitle": "Choose who can see you on the map.",
+      "modes": {
+        "OFF": "Off",
+        "FOLLOWERS_ONLY": "Followers",
+        "MUTUAL_FOLLOWERS": "Mutuals",
+        "GROUP_MEMBERS": "Group Members",
+        "PARTY_ONLY": "Party Only",
+        "PUBLIC": "Everyone"
+      },
+      "descriptions": {
+        "OFF": "No one can see your location.",
+        "FOLLOWERS_ONLY": "People who follow you can see you.",
+        "MUTUAL_FOLLOWERS": "Only mutual follows can see you.",
+        "GROUP_MEMBERS": "Your communities (Phase 4).",
+        "PARTY_ONLY": "Only party members can see you.",
+        "PUBLIC": "Everyone on Motogram can see you."
+      }
+    }
+  }
+}

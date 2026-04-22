@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+dist-seed/
+build/
+.next/
+.turbo/
+out/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Native platform builds (Expo + EAS generates these on demand; never commit)
+apps/mobile/android/
+apps/mobile/ios/
+android/app/build/
+android/build/
+android/.gradle/
+ios/Pods/
+ios/build/
+ios/DerivedData/
+
+# Logs & caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.eslintcache
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+
+# Prisma (Faz 1+)
+apps/api/prisma/migrations/dev/
+
+# Local test/typecheck output dumps
+test-output.txt
+typecheck-output.txt
+*.output.txt

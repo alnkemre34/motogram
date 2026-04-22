@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+.github
+
+# IDE / OS
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+.cursor
+.cursorrules
+
+# Node / package manager
+**/node_modules
+**/.pnpm-store
+**/.pnpm-debug.log
+
+# Build outputs (her Docker stage kendi olusturacak)
+**/dist
+**/build
+**/.next
+**/.turbo
+**/out
+**/*.tsbuildinfo
+
+# Native platform build
+**/android/app/build
+**/android/build
+**/android/.gradle
+**/ios/Pods
+**/ios/build
+**/ios/DerivedData
+
+# Expo
+**/.expo
+**/.expo-shared
+**/web-build
+
+# Test + coverage
+**/coverage
+**/*.output.txt
+**/test-output.txt
+**/typecheck-output.txt
+
+# Local env
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Docs / local only (spec ve panel dosyalarini runtime'a koymuyoruz)
+docs
+motogram-spec.md
+docker-compose.dev.yml

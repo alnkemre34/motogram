@@ -1,0 +1,1078 @@
+// Motogram Prisma Schema — Faz 1 modelleri (Spec 3.2)
+// NOT: Faz 1 icin sosyal katman modelleri + auth. Parti/Community/Event/Mesaj
+// modelleri Faz 3-4'te eklenecektir. Ancak forward-compatible olmalari icin
+// zaten tanimli iliskilerde placeholder yok - sonraki fazda sema extend edilir.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // Spec 3.1 - PostGIS eklentisi Faz 2'de location tablolari icin aktiflesecek.
+  extensions = [postgis]
+}
+
+// ============ USER & SETTINGS ============
+model User {
+  id              String    @id @default(uuid())
+  username        String    @unique
+  email           String    @unique
+  phoneNumber     String?   @unique
+  passwordHash    String?
+  name            String?
+  bio             String?
+  avatarUrl       String?
+  coverImageUrl   String?
+  city            String?
+  country         String?
+  ridingStyle     String[]  @default([])
+  isPrivate       Boolean   @default(false)
+  locationSharing LocationSharingMode @default(OFF)
+  isVerified      Boolean   @default(false)
+  isBanned        Boolean   @default(false)
+  shadowBanned    Boolean   @default(false)
+  // Spec 5.4 + 9.2 - Admin paneli rol tabanli yetkilendirme. USER default.
+  role            UserRole  @default(USER)
+  followersCount  Int       @default(0)
+  followingCount  Int       @default(0)
+  postsCount      Int       @default(0)
+  xp              Int       @default(0)
+  level           Int       @default(1)
+  preferredLanguage String  @default("tr")
+  eulaAcceptedAt  DateTime?
+  lastSeenAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  settings        UserSettings?
+  motorcycles     Motorcycle[]
+  posts           Post[]
+  stories         Story[]
+  comments        Comment[]
+  likes           Like[]
+  followers       Follow[]  @relation("UserFollowers")
+  following       Follow[]  @relation("UserFollowing")
+  notifications   Notification[]
+  blocksInitiated Block[]   @relation("BlockInitiator")
+  blocksReceived  Block[]   @relation("BlockTarget")
+  reports         Report[]  @relation("ReporterUser")
+  auditLogs       AuditLog[]
+
+  // Faz 2 - Harita ve Redis Konum Motoru (Spec 3.2)
+  liveSession     LiveLocationSession?
+  locationPings   LocationPing[]
+
+  // Faz 3 - Surus Partisi (Spec 3.2 + 4.1)
+  partyMemberships PartyMember[]
+  ledParties       Party[]       @relation("PartyLeader")
+  createdRoutes    Route[]       @relation("RouteCreator")
+  partyInvitesSent PartyInvite[] @relation("PartyInviteInviter")
+  partyInvitesRecv PartyInvite[] @relation("PartyInviteInvitee")
+
+  // Faz 4 - Topluluklar ve Mesajlasma (Spec 2.4-2.6 + 3.2 + 3.5 + 7.2.2 + 9.3)
+  communities          CommunityMember[]
+  ownedCommunities     Community[]              @relation("CommunityOwner")
+  organizedEvents      Event[]                  @relation("EventOrganizer")
+  eventParticipations  EventParticipant[]
+  conversations        ConversationParticipant[]
+  sentMessages         Message[]                @relation("MessageSender")
+  messageReactions     MessageReaction[]
+  deviceTokens         DeviceToken[]
+
+  // Faz 5 - Acil Durum + Gamification + Medya (Spec 2.3.2 + 3.2 + 3.4 + 3.6 + 4.4 + 5.2)
+  emergencyAlerts      EmergencyAlert[]         @relation("EmergencyRequester")
+  emergencyResponses   EmergencyResponder[]     @relation("EmergencyResponderUser")
+  badges               UserBadge[]
+  questProgress        QuestProgress[]
+  mediaAssets          MediaAsset[]             @relation("MediaOwner")
+  accountDeletion      AccountDeletion?
+
+  @@index([username])
+  @@index([email])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model UserSettings {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language           String   @default("tr")
+  unitsMetric        Boolean  @default(true)
+  theme              String   @default("system")
+  notificationPrefs  Json     @default("{}")
+  privacyPrefs       Json     @default("{}")
+  mapVisibilityPrefs Json     @default("{}")
+  safetyPrefs        Json     @default("{}")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("user_settings")
+}
+
+// Spec 5.4 - Admin paneli rol hiyerarsisi. ADMIN > MODERATOR > USER.
+// ADMIN: Tum yetkiler (quest/badge CRUD, feature flag, A/B test, user role atama).
+// MODERATOR: Rapor inceleme + ban/shadow-ban + audit okuma (CRUD yetki yok).
+// USER: Normal kullanici (admin paneline erisemez).
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum LocationSharingMode {
+  OFF
+  FOLLOWERS_ONLY
+  MUTUAL_FOLLOWERS
+  GROUP_MEMBERS
+  PARTY_ONLY
+  PUBLIC
+}
+
+// ============ CANLI KONUM (Faz 2 - Spec 3.2 + 3.3 + 8.1) ============
+// Redis (user_locations sorted-set) ana depo; Postgres sadece arsiv (write-behind).
+// LocationPing UNIQUE(user_id, timestamp) Spec 8.1.2 - idempotent insert icin.
+
+model LiveLocationSession {
+  id             String              @id @default(uuid())
+  userId         String              @unique
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceType     SessionSource
+  sourceId       String?
+  visibilityMode LocationSharingMode
+  startedAt      DateTime            @default(now())
+  expiresAt      DateTime
+  isActive       Boolean             @default(true)
+
+  pings          LocationPing[]
+
+  @@index([isActive])
+  @@index([expiresAt])
+  @@map("live_location_sessions")
+}
+
+enum SessionSource {
+  GLOBAL_VISIBILITY
+  PARTY
+  EMERGENCY
+}
+
+model LocationPing {
+  id           String              @id @default(uuid())
+  sessionId    String
+  session      LiveLocationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  latitude     Float
+  longitude    Float
+  heading      Float?
+  speed        Float?
+  batteryLevel Float?
+  accuracy     Float?
+  partyId      String?             // Spec 8.1.2 - parti flush transactionu icin selector
+  timestamp    DateTime            @default(now()) @db.Timestamptz
+
+  @@unique([userId, timestamp], name: "unique_user_timestamp") // Spec 8.1.2
+  @@index([timestamp])
+  @@index([userId, timestamp])
+  @@index([sessionId])
+  @@index([partyId])
+  @@map("location_pings")
+}
+
+// ============ FAZ 3 - SURUS PARTISI (Spec 3.2 + 4.1 + 8.2) ============
+// Redis party:{partyId}:members seti ana canli depo; Postgres sadece metadata
+// + parti sonunda flush edilen LocationPing'ler.
+
+model Route {
+  id                String       @id @default(uuid())
+  creatorId         String
+  creator           User         @relation("RouteCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  name              String
+  description       String?
+  waypoints         Json         // [{lat,lng,label?}, ...]
+  distance          Float        // metre
+  estimatedDuration Int          // saniye
+  difficulty        String?
+  terrain           String[]     @default([])
+  roadStyle         String[]     @default([])
+  privacy           RoutePrivacy @default(PUBLIC)
+  usageCount        Int          @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
+
+  parties           Party[]
+
+  @@index([creatorId])
+  @@index([deletedAt])
+  @@map("routes")
+}
+
+enum RoutePrivacy {
+  PUBLIC
+  FOLLOWERS_ONLY
+  PRIVATE
+}
+
+model Party {
+  id          String      @id @default(uuid())
+  name        String
+  leaderId    String
+  leader      User        @relation("PartyLeader", fields: [leaderId], references: [id], onDelete: Cascade)
+  coLeaderIds String[]    @default([])
+  routeId     String?
+  route       Route?      @relation(fields: [routeId], references: [id], onDelete: SetNull)
+  eventId     String?
+  status      PartyStatus @default(WAITING)
+  isPrivate   Boolean     @default(false) // Spec 2.4.2 - katilim davet gerektiriyor mu
+  maxMembers  Int         @default(20)
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?   // Spec 4.1 - ENDED 1 saat sonra soft delete
+
+  members PartyMember[]
+  invites PartyInvite[]
+
+  @@index([leaderId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("parties")
+}
+
+enum PartyStatus {
+  WAITING
+  RIDING
+  PAUSED
+  ENDED
+}
+
+model PartyMember {
+  partyId         String
+  party           Party     @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role            PartyRole @default(MEMBER)
+  isOnline        Boolean   @default(true)
+  joinedAt        DateTime  @default(now())
+  leftAt          DateTime?
+  /// WebSocket sunucusu DNS adi (coklu API replica fanout)
+  serverHostname  String?   @map("server_hostname")
+
+  @@id([partyId, userId])
+  @@index([userId, leftAt])
+  @@index([serverHostname])
+  @@map("party_members")
+}
+
+enum PartyRole {
+  LEADER
+  CO_LEADER
+  MEMBER
+}
+
+// Spec 2.4.2 - Ozel parti davetiyeleri + PARTY_INVITE push notification.
+model PartyInvite {
+  id         String            @id @default(uuid())
+  partyId    String
+  party      Party             @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  inviterId  String
+  inviter    User              @relation("PartyInviteInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviteeId  String
+  invitee    User              @relation("PartyInviteInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  status     PartyInviteStatus @default(PENDING)
+  createdAt  DateTime          @default(now())
+  respondedAt DateTime?
+
+  @@unique([partyId, inviteeId])
+  @@index([inviteeId, status])
+  @@map("party_invites")
+}
+
+enum PartyInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+// ============ GARAJ ============
+model Motorcycle {
+  id            String     @id @default(uuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand         String
+  model         String
+  year          Int
+  displacement  Int?
+  nickname      String?
+  photos        String[]   @default([])
+  modifications String?
+  status        BikeStatus @default(ACTIVE)
+  isPrimary     Boolean    @default(false)
+  mileage       Int?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("motorcycles")
+}
+
+enum BikeStatus {
+  ACTIVE
+  SOLD
+  WISHLIST
+  PROJECT_BUILD
+}
+
+// ============ SOSYAL GRAFIK ============
+model Follow {
+  id          String       @id @default(uuid())
+  followerId  String
+  follower    User         @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User         @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  status      FollowStatus @default(ACCEPTED)
+  createdAt   DateTime     @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+enum FollowStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+// ============ BLOCK (Spec 7.2.2 - zorunlu icin Faz 1'de aktif) ============
+model Block {
+  id          String   @id @default(uuid())
+  initiatorId String
+  initiator   User     @relation("BlockInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  targetId    String
+  target      User     @relation("BlockTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([initiatorId, targetId])
+  @@index([targetId])
+  @@map("blocks")
+}
+
+// ============ GONDERILER ============
+model Post {
+  id               String    @id @default(uuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  caption          String?
+  mediaUrls        String[]  @default([])
+  mediaType        MediaType
+  routeId          String?
+  eventId          String?
+  groupId          String?
+  likesCount       Int       @default(0)
+  commentsCount    Int       @default(0)
+  sharesCount      Int       @default(0)
+  latitude         Float?
+  longitude        Float?
+  locationName     String?
+  hashtags         String[]  @default([])
+  mentionedUserIds String[]  @default([])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  comments Comment[]
+  likes    Like[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("posts")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+  ROUTE_RECAP
+}
+
+// ============ HIKAYELER ============
+model Story {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaUrl        String
+  mediaType       StoryMediaType
+  caption         String?
+  locationSticker Json?
+  garageSticker   Json?
+  viewsCount      Int            @default(0)
+  createdAt       DateTime       @default(now())
+  expiresAt       DateTime
+
+  views StoryView[]
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("stories")
+}
+
+enum StoryMediaType {
+  IMAGE
+  VIDEO
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  storyId  String
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewedAt DateTime @default(now())
+
+  @@unique([storyId, viewerId])
+  @@index([storyId])
+  @@map("story_views")
+}
+
+// ============ YORUMLAR ============
+model Comment {
+  id               String    @id @default(uuid())
+  postId           String
+  post             Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content          String
+  mentionedUserIds String[]  @default([])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  @@index([postId])
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("comments")
+}
+
+// ============ BEGENI ============
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("likes")
+}
+
+// ============ BILDIRIMLER ============
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  FOLLOW
+  LIKE
+  COMMENT
+  MENTION
+  MESSAGE
+  EVENT_INVITE
+  PARTY_INVITE
+  EMERGENCY_NEARBY
+  QUEST_COMPLETED
+  BADGE_EARNED
+  GROUP_INVITE
+  SYSTEM
+}
+
+model NotificationTemplate {
+  id            String           @id @default(uuid())
+  type          NotificationType
+  language      String           @default("tr")
+  titleTemplate String
+  bodyTemplate  String
+  isActive      Boolean          @default(true)
+
+  @@unique([type, language])
+  @@map("notification_templates")
+}
+
+// ============ DENETIM (Spec 8.11.4 - soft delete + audit) ============
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String?
+  actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  action      String
+  targetType  String?
+  targetId    String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Report {
+  id          String           @id @default(uuid())
+  reporterId  String
+  reporter    User             @relation("ReporterUser", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType  ReportTargetType
+  targetId    String
+  reason      String
+  description String?
+  status      ReportStatus     @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@index([status])
+  @@index([reporterId])
+  @@map("reports")
+}
+
+enum ReportTargetType {
+  USER
+  POST
+  COMMENT
+  MESSAGE
+  GROUP
+  EVENT
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+// ============ FAZ 4 - TOPLULUKLAR (Spec 2.4.2 + 2.4.3 + 3.2 + 8.1) ============
+// Community kalici gruplar (Party ephemeral). PostGIS: latitude/longitude Float
+// + raw SQL migration'da geography(Point,4326) kolonu + GiST index. Radius
+// sorgulari ST_DWithin ile yapilir (Spec 8.1).
+
+model Community {
+  id              String              @id @default(uuid())
+  name            String
+  description     String?
+  avatarUrl       String?
+  coverImageUrl   String?
+  visibility      CommunityVisibility @default(PUBLIC)
+  region          String?
+  tags            String[]            @default([])
+  rules           String?
+  ownerId         String
+  owner           User                @relation("CommunityOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  latitude        Float?              // Spec 2.4.2 - Yakindaki Onerilen Topluluklar
+  longitude       Float?              // PostGIS geography kolonu migration'da eklenir
+  membersCount    Int                 @default(0)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+
+  members         CommunityMember[]
+  events          Event[]
+  conversations   Conversation[]
+
+  @@index([ownerId])
+  @@index([visibility])
+  @@index([deletedAt])
+  @@map("communities")
+}
+
+enum CommunityVisibility {
+  PUBLIC
+  PRIVATE
+  HIDDEN
+}
+
+model CommunityMember {
+  communityId String
+  community   Community     @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        CommunityRole @default(MEMBER)
+  status      MemberStatus  @default(ACTIVE)
+  joinedAt    DateTime      @default(now())
+
+  @@id([communityId, userId])
+  @@index([userId, status])
+  @@index([communityId, role])
+  @@map("community_members")
+}
+
+enum CommunityRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum MemberStatus {
+  PENDING
+  ACTIVE
+  BANNED
+}
+
+// ============ FAZ 4 - ETKINLIKLER (Spec 2.4.3 + 3.2 + 8.1) ============
+model Event {
+  id                String           @id @default(uuid())
+  title             String
+  description       String?
+  organizerId       String
+  organizer         User             @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  coHostIds         String[]         @default([])
+  communityId       String?
+  community         Community?       @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  routeId           String?
+  meetingPointLat   Float
+  meetingPointLng   Float
+  meetingPointName  String
+  startTime         DateTime
+  endTime           DateTime?
+  visibility        EventVisibility  @default(PUBLIC)
+  difficulty        String?
+  distance          Float?
+  category          String?
+  maxParticipants   Int?
+  rules             String?
+  participantsCount Int              @default(0)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  deletedAt         DateTime?
+
+  participants      EventParticipant[]
+
+  @@index([organizerId])
+  @@index([communityId])
+  @@index([startTime])
+  @@index([visibility])
+  @@index([deletedAt])
+  @@map("events")
+}
+
+enum EventVisibility {
+  PUBLIC
+  PRIVATE
+  GROUP_ONLY
+}
+
+model EventParticipant {
+  eventId    String
+  event      Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rsvpStatus RsvpStatus @default(GOING)
+  checkedIn  Boolean    @default(false)
+  joinedAt   DateTime   @default(now())
+
+  @@id([eventId, userId])
+  @@index([userId, rsvpStatus])
+  @@map("event_participants")
+}
+
+enum RsvpStatus {
+  GOING
+  INTERESTED
+  NOT_GOING
+  WAITLIST
+}
+
+// ============ FAZ 4 - MESAJLASMA (Spec 2.5 + 3.2 + 3.5) ============
+model Conversation {
+  id             String                    @id @default(uuid())
+  type           ConversationType
+  name           String?
+  avatarUrl      String?
+  communityId    String?
+  community      Community?                @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  createdById    String?
+  lastMessageAt  DateTime?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  deletedAt      DateTime?
+
+  participants   ConversationParticipant[]
+  messages       Message[]
+
+  @@index([communityId])
+  @@index([lastMessageAt])
+  @@index([deletedAt])
+  @@map("conversations")
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP_CHAT
+  COMMUNITY_CHAT
+}
+
+model ConversationParticipant {
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isMuted        Boolean      @default(false)
+  lastReadAt     DateTime?
+  joinedAt       DateTime     @default(now())
+  leftAt         DateTime?
+
+  @@id([conversationId, userId])
+  @@index([userId, leftAt])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String            @id @default(uuid())
+  conversationId String
+  conversation   Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  clientId       String?           // Optimistic UI - Spec 7.1.1 (dedupe için)
+  content        String?
+  mediaUrls      String[]          @default([])
+  messageType    MessageType       @default(TEXT)
+  inviteData     Json?             // RIDE_INVITE / EVENT_INVITE payload (Spec 2.5)
+  isDeleted      Boolean           @default(false)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  reactions      MessageReaction[]
+
+  @@unique([conversationId, clientId]) // Idempotent resend
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@map("messages")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  FILE
+  RIDE_INVITE
+  EVENT_INVITE
+  SYSTEM
+}
+
+model MessageReaction {
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji     String
+  createdAt DateTime @default(now())
+
+  @@id([messageId, userId, emoji])
+  @@index([messageId])
+  @@map("message_reactions")
+}
+
+// ============ FAZ 4 - PUSH NOTIFICATIONS (Spec 9.3 - Faz 1 Adim 24) ============
+// Expo Push / FCM / APNs device registration + platform tanimi.
+model DeviceToken {
+  id         String       @id @default(uuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String       @unique
+  platform   DevicePlatform
+  appVersion String?
+  lastSeenAt DateTime     @default(now())
+  createdAt  DateTime     @default(now())
+  revokedAt  DateTime?
+
+  @@index([userId, revokedAt])
+  @@map("device_tokens")
+}
+
+enum DevicePlatform {
+  IOS
+  ANDROID
+  WEB
+  EXPO
+}
+
+// ============ FAZ 5 - ACIL DURUM / SOS (Spec 2.3.2 + 3.2 + 4.4 + 8.7.1) ============
+// EmergencyAlert: 3sn basili tutarak yaratilan SOS cagrisi.
+// 10 dk'da 3'ten fazla cagri -> hesap kisitlama (MessageService.sendToUsers ile admin bildirim).
+
+model EmergencyAlert {
+  id             String                 @id @default(uuid())
+  userId         String
+  user           User                   @relation("EmergencyRequester", fields: [userId], references: [id], onDelete: Cascade)
+  type           EmergencyType          @default(GENERAL)
+  description    String?
+  latitude       Float
+  longitude      Float
+  accuracyMeters Float?
+  radiusMeters   Int                    @default(5000) // Spec: 5 km varsayilan
+  city           String?
+  status         EmergencyStatus        @default(OPEN)
+  notifiedCount  Int                    @default(0)
+  createdAt      DateTime               @default(now())
+  resolvedAt     DateTime?
+  cancelledAt    DateTime?
+  deletedAt      DateTime?              // Spec 8.11.4 - soft delete
+
+  responders     EmergencyResponder[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([deletedAt])
+  @@map("emergency_alerts")
+}
+
+enum EmergencyType {
+  GENERAL
+  ACCIDENT
+  MECHANICAL
+  MEDICAL
+  FUEL
+  OTHER
+}
+
+enum EmergencyStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+  CANCELLED
+  FALSE_ALARM
+}
+
+model EmergencyResponder {
+  id             String                 @id @default(uuid())
+  alertId        String
+  alert          EmergencyAlert         @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  responderId    String
+  responder      User                   @relation("EmergencyResponderUser", fields: [responderId], references: [id], onDelete: Cascade)
+  status         ResponderStatus        @default(NOTIFIED)
+  distanceMeters Int?
+  etaSeconds     Int?
+  notifiedAt     DateTime               @default(now())
+  acknowledgedAt DateTime?
+  arrivedAt      DateTime?
+  declinedAt     DateTime?
+
+  @@unique([alertId, responderId])
+  @@index([responderId, status])
+  @@map("emergency_responders")
+}
+
+enum ResponderStatus {
+  NOTIFIED
+  ACKNOWLEDGED
+  EN_ROUTE
+  ARRIVED
+  DECLINED
+}
+
+// ============ FAZ 5 - GAMIFICATION (Spec 3.2 + 3.6 + 3.7) ============
+// Event-driven: NestJS EventEmitter2 tetikleyicisi -> GamificationService.triggerQuest.
+// Quest -> QuestProgress -> (tamamlaninca) XP + Badge unlock + Notification.
+
+model Badge {
+  id          String     @id @default(uuid())
+  code        String     @unique // Stable identifier (e.g. "FIRST_RIDE", "SOCIAL_BUTTERFLY")
+  name        String
+  description String
+  iconUrl     String?
+  category    String?    // "social", "riding", "community", "event", "emergency"
+  rarity      BadgeRarity @default(COMMON)
+  xpReward    Int        @default(0)
+  criteria    Json       // { trigger: QuestTrigger, threshold: number, metadata: {} }
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+
+  users       UserBadge[]
+  quests      Quest[]
+
+  @@index([category])
+  @@index([isActive])
+  @@map("badges")
+}
+
+enum BadgeRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+model UserBadge {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  earnedAt  DateTime @default(now())
+  source    String?  // Hangi quest tamamlandi (quest.id)
+  showcased Boolean  @default(false) // Profil vitrininde gozuksun mu
+
+  @@id([userId, badgeId])
+  @@index([userId, earnedAt])
+  @@map("user_badges")
+}
+
+model Quest {
+  id          String         @id @default(uuid())
+  code        String         @unique // "DAILY_STORY", "FIRST_POST", "PARTY_LEADER_X3"
+  name        String
+  description String
+  trigger     QuestTrigger
+  targetValue Int            @default(1) // Kac defa tetikleyicinin tetiklenmesi gerek
+  xpReward    Int            @default(10)
+  badgeId     String?
+  badge       Badge?         @relation(fields: [badgeId], references: [id], onDelete: SetNull)
+  repeatable  Boolean        @default(false) // Gunluk/haftalik gorev
+  resetPeriod QuestResetPeriod @default(NONE)
+  metadata    Json?          // Trigger-specific filtreler
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+
+  progress    QuestProgress[]
+
+  @@index([trigger, isActive])
+  @@map("quests")
+}
+
+// Spec 3.6 - 12 tetikleyici + Faz 5'te eklenen MEDIA_UPLOADED + SOS_RESOLVED.
+enum QuestTrigger {
+  POST_CREATED
+  STORY_CREATED
+  FOLLOW_GAINED
+  EVENT_JOINED
+  EVENT_HOSTED
+  PARTY_COMPLETED
+  PARTY_LEAD
+  ROUTE_CREATED
+  EMERGENCY_ACKNOWLEDGED
+  PROFILE_COMPLETED
+  BIKE_ADDED
+  COMMUNITY_JOINED
+}
+
+enum QuestResetPeriod {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model QuestProgress {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId     String
+  quest       Quest     @relation(fields: [questId], references: [id], onDelete: Cascade)
+  progress    Int       @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  resetAt     DateTime? // DAILY/WEEKLY icin bir sonraki sifirlanma
+  updatedAt   DateTime  @updatedAt
+
+  @@id([userId, questId])
+  @@index([userId, completed])
+  @@map("quest_progress")
+}
+
+// ============ FAZ 5 - MEDYA (Spec 3.4 + 7.3.4 + 7.3.7) ============
+// MediaAsset: MinIO'ya yuklenmis bir medyanin kendine ait kayit. Post/Story/Garaj
+// bu tabloya refer eder (mediaUrls array'i url string'i tutar, MediaAsset ek detay).
+
+model MediaAsset {
+  id              String         @id @default(uuid())
+  ownerId         String
+  owner           User           @relation("MediaOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  originalFilename String
+  mimeType        String
+  category        MediaCategory
+  parentType      String?        // "post", "story", "motorcycle", "profile", "cover", "community", "event"
+  parentId        String?
+  status          MediaStatus    @default(UPLOADING)
+  bucket          String         @default("motogram-media")
+  originalKey     String?        // /users/{id}/tmp/{uuid}.jpg (silindi sonrasi null)
+  thumbnailKey    String?        // 300x300 WebP key
+  mediumKey       String?        // 1080w WebP key
+  hlsPlaylistKey  String?        // Video HLS m3u8
+  width           Int?
+  height          Int?
+  sizeBytes       Int?
+  durationMs      Int?           // Video icin
+  processingError String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?      // Spec 8.11.4 soft delete
+
+  @@index([ownerId, category])
+  @@index([parentType, parentId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("media_assets")
+}
+
+enum MediaCategory {
+  PROFILE_AVATAR
+  PROFILE_COVER
+  POST_IMAGE
+  POST_VIDEO
+  STORY_IMAGE
+  STORY_VIDEO
+  MOTORCYCLE_PHOTO
+  COMMUNITY_COVER
+  EVENT_COVER
+  MESSAGE_ATTACHMENT
+}
+
+enum MediaStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+// ============ FAZ 5 - VERI IMHA POLITIKASI (Spec 5.2 + 8.11.4) ============
+// Hesap silme istegi: 30 gun icinde fiziksel silme gerceklesir. User.deletedAt isaretlenir,
+// AccountDeletion kaydi olusturulur, BullMQ 30 gun sonra run eder.
+
+model AccountDeletion {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestedAt    DateTime  @default(now())
+  scheduledFor   DateTime  // requestedAt + 30 gun
+  reason         String?
+  cancelledAt    DateTime?
+  executedAt     DateTime?
+  jobId          String?
+
+  @@index([scheduledFor, executedAt])
+  @@map("account_deletions")
+}
+

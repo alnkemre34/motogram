@@ -1,0 +1,17 @@
+{
+  "name": "@motogram/config-tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Motogram Paylasilan TSConfig dosyalari (base, nest, expo, next)",
+  "main": "index.js",
+  "files": [
+    "base.json",
+    "nest.json",
+    "expo.json",
+    "next.json"
+  ],
+  "scripts": {
+    "lint": "echo \"[config-tsconfig] no self-lint\" && exit 0",
+    "clean": "echo \"[config-tsconfig] clean\" && exit 0"
+  }
+}

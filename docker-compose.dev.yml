@@ -1,0 +1,43 @@
+# Motogram Development Stack — Spec 3.1 (PostgreSQL/PostGIS + Redis 7)
+# Usage: docker compose -f docker-compose.dev.yml up -d
+
+services:
+  postgres:
+    # Spec 3.1 - PostgreSQL 15+ with PostGIS extension (zorunlu)
+    image: postgis/postgis:15-3.4
+    container_name: motogram_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: motogram
+      POSTGRES_PASSWORD: motogram_dev_password
+      POSTGRES_DB: motogram
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U motogram -d motogram"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    # Spec 3.1 - Redis 7+ with GEO komutlari (Faz 2'de aktif kullanim)
+    # Faz 1 icin: refresh token storage + rate limiting
+    image: redis:7-alpine
+    container_name: motogram_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_data:
+  redis_data:

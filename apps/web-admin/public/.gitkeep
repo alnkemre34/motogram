@@ -1,0 +1,4 @@
+# Next.js standalone build icin public/ klasorunun varolmasi gerekir.
+# Dockerfile COPY apps/web-admin/public ./apps/web-admin/public satirinda
+# bu dizin bulunamazsa build fail olur. Favicon/statik asset eklenene
+# kadar placeholder olarak tutuluyor.

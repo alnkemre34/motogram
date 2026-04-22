@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck-test:
+    name: Lint + Typecheck + Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4
+        env:
+          POSTGRES_USER: motogram
+          POSTGRES_PASSWORD: motogram_test_password
+          POSTGRES_DB: motogram_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U motogram -d motogram_test"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+      minio:
+        image: minio/minio:latest
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        ports: ["9000:9000"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.20.0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Security audit (high+)
+        run: pnpm audit --audit-level=high
+
+      - name: Build shared package
+        run: pnpm --filter @motogram/shared build
+
+      - name: Generate Prisma client
+        working-directory: apps/api
+        run: pnpm exec prisma generate
+
+      - name: Prisma migrate deploy (test DB)
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgres://motogram:motogram_test_password@localhost:5432/motogram_test?schema=public
+        run: pnpm exec prisma migrate deploy
+
+      - name: Prisma seed (gamification + test RBAC users)
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgres://motogram:motogram_test_password@localhost:5432/motogram_test?schema=public
+        run: pnpm run db:seed && pnpm run db:seed:test-users
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test (API unit)
+        run: pnpm --filter @motogram/api test
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://motogram:motogram_test_password@localhost:5432/motogram_test?schema=public
+          REDIS_URL: redis://localhost:6379/0
+          JWT_ACCESS_SECRET: test_access_secret_minimum_32_chars_long_ok
+          JWT_REFRESH_SECRET: test_refresh_secret_minimum_32_chars_long_ok
+          SERVER_HOSTNAME: api-test-local
+          INTERNAL_API_SHARED_SECRET: internal_shared_secret_minimum_32_chars_ok
+          CORS_ALLOWED_ORIGINS: http://localhost:3000
+          MINIO_ENDPOINT: localhost
+          MINIO_PORT: "9000"
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+          MINIO_BUCKET: motogram-media
+          MINIO_USE_SSL: "false"
+
+      - name: Test (API contract)
+        run: pnpm --filter @motogram/api run test:contract
+        env:
+          CONTRACT_TESTS: '1'
+          NODE_ENV: test
+          DATABASE_URL: postgres://motogram:motogram_test_password@localhost:5432/motogram_test?schema=public
+          REDIS_URL: redis://localhost:6379/0
+          JWT_ACCESS_SECRET: test_access_secret_minimum_32_chars_long_ok
+          JWT_REFRESH_SECRET: test_refresh_secret_minimum_32_chars_long_ok
+          SERVER_HOSTNAME: api-test-local
+          INTERNAL_API_SHARED_SECRET: internal_shared_secret_minimum_32_chars_ok
+          CORS_ALLOWED_ORIGINS: http://localhost:3000
+          MINIO_ENDPOINT: localhost
+          MINIO_PORT: "9000"
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+          MINIO_BUCKET: motogram-media
+          MINIO_USE_SSL: "false"
+
+      - name: Test (API edge-to-edge E2E)
+        run: pnpm --filter @motogram/api run test:e2e
+        env:
+          E2E_TESTS: '1'
+          NODE_ENV: test
+          DATABASE_URL: postgres://motogram:motogram_test_password@localhost:5432/motogram_test?schema=public
+          REDIS_URL: redis://localhost:6379/0
+          JWT_ACCESS_SECRET: test_access_secret_minimum_32_chars_long_ok
+          JWT_REFRESH_SECRET: test_refresh_secret_minimum_32_chars_long_ok
+          SERVER_HOSTNAME: api-test-local
+          INTERNAL_API_SHARED_SECRET: internal_shared_secret_minimum_32_chars_ok
+          CORS_ALLOWED_ORIGINS: http://localhost:3000
+          MINIO_ENDPOINT: localhost
+          MINIO_PORT: "9000"
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+          MINIO_BUCKET: motogram-media
+          MINIO_USE_SSL: "false"
+
+      - name: Test (shared + web-admin)
+        run: pnpm --filter @motogram/shared test && pnpm --filter @motogram/web-admin test

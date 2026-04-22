@@ -1,0 +1,21 @@
+# Kopyala: `cp infra/pgbackrest/pgbackrest.conf.example /etc/pgbackrest/pgbackrest.conf` (VPS)
+# veya repo kokunden: `.env.prod` ile `docker compose --profile backup` kullan.
+
+[global]
+# Yerel POSIX repo (Docker: /var/lib/pgbackrest/repo volume)
+repo1-path=/var/lib/pgbackrest/repo
+repo1-retention-full=4
+log-path=/var/lib/pgbackrest/log
+
+# MinIO/S3 uyumlu depo ornegi (bucket + endpoint doldur):
+# repo1-type=s3
+# repo1-s3-bucket=motogram-backups
+# repo1-s3-endpoint=minio:9000
+# repo1-s3-region=us-east-1
+# repo1-s3-uri-style=path
+
+[motogram]
+pg1-host=postgres
+pg1-port=5432
+pg1-path=/var/lib/postgresql/data
+pg1-user=motogram

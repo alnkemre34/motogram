@@ -1,0 +1,292 @@
+# Motogram Production Stack - Spec 8.11
+# Usage: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+#
+# .env.prod icindeki minimum degiskenler:
+#   POSTGRES_PASSWORD, REDIS_PASSWORD, MINIO_ROOT_USER, MINIO_ROOT_PASSWORD
+#   JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, NEXTAUTH_SECRET
+#   MAPBOX_TOKEN, FCM_CREDENTIALS_PATH, APNS_AUTH_KEY_PATH, SENTRY_DSN
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.4
+    container_name: motogram_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-motogram}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-motogram}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - motogram
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-motogram} -d ${POSTGRES_DB:-motogram}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  pgbouncer:
+    image: docker.io/bitnami/pgbouncer:1.23.1
+    container_name: motogram_pgbouncer
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGBOUNCER_DATABASE: ${POSTGRES_DB:-motogram}
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_CLIENT_CONN: "2000"
+      PGBOUNCER_DEFAULT_POOL_SIZE: "25"
+      POSTGRESQL_HOST: postgres
+      POSTGRESQL_PORT_NUMBER: "5432"
+      POSTGRESQL_USERNAME: ${POSTGRES_USER:-motogram}
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - motogram
+
+  redis:
+    image: redis:7-alpine
+    container_name: motogram_redis
+    restart: unless-stopped
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--requirepass",
+        "${REDIS_PASSWORD}"
+      ]
+    volumes:
+      - redis_data:/data
+    networks:
+      - motogram
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    # Spec 3.4 - Media assets (Sharp pipeline output)
+    image: minio/minio:RELEASE.2024-10-29T16-01-48Z
+    container_name: motogram_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    networks:
+      - motogram
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: motogram-api:latest
+    container_name: motogram_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://${POSTGRES_USER:-motogram}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-motogram}?schema=public&pgbouncer=true
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: ${MINIO_BUCKET:-motogram-media}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      MAPBOX_TOKEN: ${MAPBOX_TOKEN}
+      FCM_CREDENTIALS_PATH: ${FCM_CREDENTIALS_PATH:-}
+      APNS_AUTH_KEY_PATH: ${APNS_AUTH_KEY_PATH:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      LOG_LEVEL: info
+      SERVER_HOSTNAME: ${SERVER_HOSTNAME:-motogram-api}
+      INTERNAL_API_SHARED_SECRET: ${INTERNAL_API_SHARED_SECRET}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://api.motogram.app}
+    networks:
+      - motogram
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/v1/readyz').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    stop_grace_period: 45s
+    # Faz 7 Asama 1 Adim 7 (2026-04-21): API dis dunyaya acilmaz.
+    # Tum trafik nginx (port 80/443) uzerinden gelir. Eski 3000:3000
+    # publish'i kaldirildi (Spec 8.11).
+
+  # Faz 7 Asama 0 Adim 4 - Tooling profili
+  # One-shot operasyonlar (migrate / seed / prisma console) icin ayri
+  # servis. 'profiles' tanimli oldugu icin 'docker compose up' ile
+  # otomatik baslamaz; sadece 'compose --profile tooling run --rm ...'
+  # ile ayaga kalkar. scripts/bootstrap.sh bu servisi kullanir.
+  api-migrate:
+    profiles: ["tooling"]
+    image: motogram-api:latest
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-motogram}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-motogram}?schema=public
+    networks:
+      - motogram
+    entrypoint: []
+    command: ["node", "--version"]
+
+  web-admin:
+    build:
+      context: .
+      dockerfile: apps/web-admin/Dockerfile
+    image: motogram-web-admin:latest
+    container_name: motogram_web_admin
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: production
+      PORT: 3100
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://api.motogram.app/v1}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-https://admin.motogram.app}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+    networks:
+      - motogram
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: motogram_nginx
+    restart: unless-stopped
+    depends_on:
+      - api
+      - web-admin
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Faz 7 Asama 1: NGINX_CONF env var ile TLS (nginx.prod.conf) veya
+      # TLS-siz (nginx.http.conf) konfigurasyon secilir. .env.prod'da
+      # NGINX_CONF=nginx.http.conf yazarak HTTP-only moda gecilir.
+      - ./infra/nginx/${NGINX_CONF:-nginx.prod.conf}:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/proxy_common.conf:/etc/nginx/proxy_common.conf:ro
+      - ./infra/nginx/certs:/etc/nginx/certs:ro
+      - nginx_cache:/var/cache/nginx
+    networks:
+      - motogram
+
+  prometheus:
+    # Spec 8.10 - Observability stack
+    image: prom/prometheus:v2.55.0
+    container_name: motogram_prometheus
+    restart: unless-stopped
+    depends_on:
+      - api
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - motogram
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: motogram_alertmanager
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    volumes:
+      - ./infra/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - motogram
+
+  loki:
+    image: grafana/loki:3.2.0
+    container_name: motogram_loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/loki
+    networks:
+      - motogram
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: motogram_grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+      - loki
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-changeme}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - motogram
+
+  # R11 — pgBackRest CLI sidecar (full / diff yedek; PITR icin Postgres WAL arsivi gerekir)
+  # Kullanim: `docker compose -f docker-compose.prod.yml --env-file .env.prod --profile backup up -d pgbackrest`
+  # Sonra: `scripts/pgbackrest-exec.sh --stanza=motogram stanza-create` (ilk kurulum)
+  pgbackrest:
+    profiles: ["backup"]
+    build:
+      context: ./infra/pgbackrest
+      dockerfile: Dockerfile
+    image: motogram-pgbackrest:latest
+    container_name: motogram_pgbackrest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:ro
+      - pgbackrest_repo:/var/lib/pgbackrest
+      - ./infra/pgbackrest/pgbackrest.docker.conf:/etc/pgbackrest/pgbackrest.conf:ro
+    networks:
+      - motogram
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  nginx_cache:
+  pgbackrest_repo:
+
+networks:
+  motogram:
+    driver: bridge

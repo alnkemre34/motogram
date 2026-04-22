@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  body {
+    font-feature-settings: 'ss01', 'cv11';
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-border bg-surface p-5 shadow-sm;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-background transition hover:brightness-110 disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text transition hover:bg-surfaceHover disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-lg bg-accentDanger px-4 py-2 text-sm font-medium text-white transition hover:brightness-110 disabled:opacity-50;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full border border-border bg-surfaceHover px-2.5 py-0.5 text-xs font-medium text-textMuted;
+  }
+  .input {
+    @apply w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-textMuted focus:border-accent focus:outline-none;
+  }
+  .table-row {
+    @apply border-b border-border transition hover:bg-surfaceHover;
+  }
+}

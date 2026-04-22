@@ -1,0 +1,40 @@
+# Tam backend test suite (scripts/test-all.sh) — Postgres + Redis + MinIO.
+# CI ile ayni kimlik bilgileri (apps/api/test/jest-env.setup.ts).
+# Not: docker-compose.e2e.yml ile ayni portlari kullanir; ayni anda tek stack calistirin.
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.4
+    container_name: motogram_postgres_test
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: motogram
+      POSTGRES_PASSWORD: motogram_test_password
+      POSTGRES_DB: motogram_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U motogram -d motogram_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: motogram_redis_test
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: motogram_minio_test
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"

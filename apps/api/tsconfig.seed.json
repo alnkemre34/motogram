@@ -1,0 +1,19 @@
+{
+  "extends": "@motogram/config-tsconfig/nest.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDir": "./prisma",
+    "outDir": "./dist-seed",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "isolatedModules": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "noEmit": false,
+    "composite": false,
+    "incremental": false
+  },
+  "include": ["prisma/**/*.ts"],
+  "exclude": ["node_modules", "dist", "dist-seed", "test", "src"]
+}

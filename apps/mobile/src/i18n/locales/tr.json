@@ -1,0 +1,156 @@
+{
+  "app": {
+    "name": "Motogram"
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "retry": "Tekrar dene",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "continue": "Devam et",
+    "back": "Geri",
+    "done": "Tamam"
+  },
+  "auth": {
+    "welcome": {
+      "tagline": "Motosiklet tutkunlarının sosyal evreni",
+      "ctaLogin": "Giriş Yap",
+      "ctaRegister": "Hesap Oluştur"
+    },
+    "login": {
+      "title": "Giriş Yap",
+      "identifier": "Kullanıcı adı veya e-posta",
+      "password": "Şifre",
+      "submit": "Giriş Yap",
+      "forgotPassword": "Şifremi Unuttum",
+      "noAccount": "Hesabın yok mu?",
+      "goRegister": "Kayıt Ol"
+    },
+    "register": {
+      "title": "Hesap Oluştur",
+      "email": "E-posta",
+      "username": "Kullanıcı adı",
+      "password": "Şifre (en az 8 karakter)",
+      "name": "Ad Soyad (opsiyonel)",
+      "eula": "Kullanım Koşulları ve Gizlilik Sözleşmesi'ni kabul ediyorum.",
+      "eulaRequired": "Devam etmek için sözleşmeyi kabul etmelisiniz.",
+      "submit": "Devam Et",
+      "hasAccount": "Zaten hesabın var mı?",
+      "goLogin": "Giriş Yap"
+    },
+    "otp": {
+      "title": "Doğrulama Kodu",
+      "subtitle": "{{phone}} numarasına gönderilen 6 haneli kodu giriniz.",
+      "resend": "Kodu tekrar gönder",
+      "verify": "Doğrula"
+    },
+    "errors": {
+      "email_invalid": "Geçersiz e-posta",
+      "username_too_short": "Kullanıcı adı en az 3 karakter olmalı",
+      "username_too_long": "Kullanıcı adı çok uzun",
+      "username_invalid_chars": "Kullanıcı adı sadece harf, rakam, nokta ve alt çizgi içerebilir",
+      "password_too_short": "Şifre en az 8 karakter olmalı",
+      "password_too_long": "Şifre çok uzun",
+      "identifier_required": "Kullanıcı adı veya e-posta gerekli",
+      "password_required": "Şifre gerekli",
+      "eula_required": "Sözleşmeyi kabul etmelisiniz",
+      "invalid_credentials": "E-posta veya şifre hatalı",
+      "user_already_exists": "Bu kullanıcı zaten kayıtlı"
+    }
+  },
+  "tabs": {
+    "home": "Ana Sayfa",
+    "discover": "Keşfet",
+    "map": "Harita",
+    "inbox": "Gelen Kutusu",
+    "profile": "Profil"
+  },
+  "home": {
+    "storiesTitle": "Hikayeler",
+    "emptyFeed": "Henüz gönderi yok. Birilerini takip ederek akışını doldur.",
+    "like": "Beğen",
+    "comment": "Yorum",
+    "share": "Paylaş"
+  },
+  "profile": {
+    "editProfile": "Profili Düzenle",
+    "followers": "Takipçi",
+    "following": "Takip",
+    "posts": "Gönderi",
+    "xp": "XP",
+    "level": "Seviye",
+    "garage": "Garaj",
+    "signOut": "Çıkış Yap"
+  },
+  "map": {
+    "segments": {
+      "discover": "Keşif",
+      "ride": "Sürüş"
+    },
+    "filters": {
+      "nearby": "Yakındakiler",
+      "friends": "Arkadaşlar",
+      "parties": "Partiler",
+      "events": "Etkinlikler"
+    },
+    "panel": {
+      "handle": "Paneli aç/kapat",
+      "title": {
+        "nearby": "Yakındaki Sürücüler",
+        "friends": "Arkadaşlar",
+        "parties": "Aktif Partiler",
+        "events": "Yakındaki Etkinlikler"
+      }
+    },
+    "rider": {
+      "inParty": "Partide"
+    },
+    "empty": {
+      "title": "Etrafta aktif sürücü görünmüyor.",
+      "body": "Sürüşe çıkan ilk kişi sen ol!",
+      "createParty": "Parti Oluştur"
+    },
+    "partyCreate": {
+      "title": "Yeni parti",
+      "name": "Parti adı",
+      "namePlaceholder": "Örn. Gece Boğaz turu",
+      "maxMembers": "Üye limiti (2–50)",
+      "private": "Özel parti",
+      "submit": "Oluştur",
+      "cancel": "Vazgeç",
+      "loadError": "Parti oluşturuldu; ayrıntılar yüklenemedi."
+    },
+    "ride": {
+      "noPartyTitle": "Aktif parti yok",
+      "noPartyBody": "Gelen kutundan davetlere bak veya yeni parti oluştur.",
+      "createPartyCta": "Parti oluştur"
+    },
+    "fallback": {
+      "title": "Mapbox token tanımlı değil",
+      "body": "EXPO_PUBLIC_MAPBOX_TOKEN değerini .env dosyasına ekle."
+    },
+    "sharing": {
+      "title": "Konum Paylaşımı",
+      "subtitle": "Haritada seni kimlerin görebileceğini seç.",
+      "modes": {
+        "OFF": "Kapalı",
+        "FOLLOWERS_ONLY": "Takipçilerim",
+        "MUTUAL_FOLLOWERS": "Karşılıklı Takip",
+        "GROUP_MEMBERS": "Topluluk Üyeleri",
+        "PARTY_ONLY": "Sadece Parti",
+        "PUBLIC": "Herkese Açık"
+      },
+      "descriptions": {
+        "OFF": "Kimse konumunu göremez.",
+        "FOLLOWERS_ONLY": "Seni takip edenler konumunu görür.",
+        "MUTUAL_FOLLOWERS": "Karşılıklı takipleştiklerin görür.",
+        "GROUP_MEMBERS": "Topluluk üyeleri görür (Faz 4 ile aktif).",
+        "PARTY_ONLY": "Sadece aktif parti üyeleri görür.",
+        "PUBLIC": "Motogram'daki herkes görebilir."
+      }
+    }
+  }
+}

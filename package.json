@@ -1,0 +1,50 @@
+{
+  "name": "motogram",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Motogram v4.2 — Harita oncelikli motosiklet sosyal platformu (Monorepo)",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean",
+    "slo:check": "bash scripts/check-slo.sh",
+    "k6:baseline": "k6 run k6/http-baseline.js",
+    "e2e:stack:up": "docker compose -f docker-compose.e2e.yml up -d",
+    "e2e:stack:down": "docker compose -f docker-compose.e2e.yml down",
+    "test:backend:all": "bash scripts/test-all.sh"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "@sentry/cli",
+      "bcrypt",
+      "esbuild",
+      "msgpackr-extract",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ],
+    "overrides": {
+      "@types/react": "18.3.12",
+      "@types/react-dom": "18.3.1",
+      "@sentry/browser": "7.119.1",
+      "@xmldom/xmldom": "0.8.12",
+      "send": "0.19.0",
+      "tar": "7.5.11"
+    }
+  }
+}

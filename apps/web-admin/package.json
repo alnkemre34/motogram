@@ -1,0 +1,48 @@
+{
+  "name": "@motogram/web-admin",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Motogram Admin Paneli (Next.js 14 App Router + Tailwind + NextAuth.js) — Spec 3.1, 5.4",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "lint": "next lint --max-warnings=0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --passWithNoTests",
+    "clean": "rimraf .next .turbo tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@motogram/shared": "workspace:*",
+    "@tanstack/react-query": "^5.62.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "15.5.15",
+    "next-auth": "^4.24.11",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "^7.73.1",
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.24.1",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "15.5.15",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "postcss": "^8.4.49",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "^3.4.17",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.3"
+  }
+}
