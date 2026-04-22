@@ -16,8 +16,8 @@
 | Expo password | (senin şifren) | hatırla |
 | Expo project ID | `46eb0ac3-3d27-4421-9b4b-d8cde63002ee` | ✅ `apps/mobile/app.json`’da |
 | Expo project slug | `motogram` | ✅ |
-| Mapbox PUBLIC token | `pk.eyJ1IjoiYWxua2VtcmUzNCIs…dBw` | ✅ sende |
-| Mapbox SECRET token | `sk.eyJ1IjoiYWxua2VtcmUzNCIs…KoA` | ✅ sende (Downloads:Read scope) |
+| Mapbox PUBLIC token | (Mapbox hesabından `pk.` ile başlayan) | ✅ sende, repoda tutma |
+| Mapbox SECRET token | (Mapbox’tan `sk.` ile başlayan, Downloads:Read) | ✅ sende, repoda tutma |
 | GitHub PAT (yeni) | Aşağıda oluşturacaksın | ❌ |
 | Android Studio + AVD | Evdeki PC’de kurulu | kontrol et |
 
@@ -145,11 +145,11 @@ Değerleri **cloud’a** yüklüyorsun, repo’ya değil:
 ```powershell
 cd C:\motogram\apps\mobile
 
-# SECRET token (Downloads:Read scope’lu) — Gradle build için
-eas secret:create --scope project --name RNMAPBOX_MAPS_DOWNLOAD_TOKEN --value "sk.eyJ1IjoiYWxua2VtcmUzNCIsImEiOiJjbW85enpsbTQwMXA4MnBzaGVqazM0dnQ0In0.n6vK-BnA69VQ0KfU946KoA"
+# SECRET token (Downloads:Read scope’lu) — Gradle build için (değeri kendi token’ınla doldur; repoya koyma)
+eas secret:create --scope project --name RNMAPBOX_MAPS_DOWNLOAD_TOKEN --value "YOUR_MAPBOX_DOWNLOADS_SECRET_TOKEN"
 
 # PUBLIC token — uygulama runtime’da tile çekerken
-eas secret:create --scope project --name EXPO_PUBLIC_MAPBOX_TOKEN --value "pk.eyJ1IjoiYWxua2VtcmUzNCIsImEiOiJjbW85emI0cHcwMWhwMnFzZ3lvbmprMnFmIn0.7oTgQdv-SemCayXVOO2dBw"
+eas secret:create --scope project --name EXPO_PUBLIC_MAPBOX_TOKEN --value "YOUR_EXPO_PUBLIC_MAPBOX_TOKEN"
 
 # Doğrula (değerler listelenmez, sadece isim + tarih)
 eas secret:list
