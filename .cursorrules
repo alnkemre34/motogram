@@ -30,6 +30,11 @@ Bu araçlar dışında alternatif kullanmak KESİNLİKLE YASAKTIR:
 - **Dil Desteği:** `react-i18next` kullanılacak. Koda doğrudan metin yazmak (hardcoding) yasaktır.
 - **Hata İzleme:** Frontend için `sentry-react-native` zorunludur.
 
+## 3.1 GİT: ASIL REPO İLE PUBLIC/GEÇİCİ REPO — ASLA KARIŞTIRMA
+- **Tek asıl (canonical) çalışma reponu:** `alnkemre34/motogram` (origin). Tüm feature çalışması, PR, CI, tag ve günlük `git push` **yalnız buna** yöneliktir.
+- **Public / geçici ayna** (`alnkemre34/motogram-final` veya benzeri): sadece kullanıcı açıkça “public kopya yükle / snapshot” dediğinde ve **tek taraflı, izole** işlem olarak düşünülür. İki remotedan aynı branch’e alternatif push, history birleştirme, `main` ↔ `public-mirror` eşitleme gibi “çift taraflı” akış **YAPILMAZ**; agent bu repoya rutin push önerme veya iki repoyu tek workflow’da eşleme.
+- Yanlış anlaşılmayı önlemek için: doküman ve komutlarda “asıl repodan fark” veya “ikinci remote” cümleleri **kullanıcı tarafından net talep yoksa** açılmaz; varsayılan daima **sadece motogram**.
+
 ## 4. ONAYLI İŞ AKIŞI (ADIM ADIM İLERLEME)
 Bütün projeyi veya modülü tek seferde yazmaya ÇALIŞMA. Aşağıdaki döngüyü takip et:
 1. **Planlama:** Bir görev verildiğinde önce klasör yapısını, eklenecek paketleri ve adım adım planını (Görev 1, Görev 2) yaz.
