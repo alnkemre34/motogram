@@ -6,7 +6,6 @@ import { z, type ZodSchema, type ZodTypeAny } from 'zod';
 
 import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator';
 import { ROLES_KEY } from '../common/decorators/roles.decorator';
-import { ZodBody } from '../common/pipes/zod-body.pipe';
 import { ZOD_RESPONSE_KEY } from '../common/interceptors/zod-serializer.interceptor';
 
 export interface RouteRecord {
@@ -69,26 +68,32 @@ function buildSchemaNameMap(): Map<ZodTypeAny, string> {
 }
 
 function getZodBodySchemaName(
-  controllerProto: object,
+  controllerClass: new (...args: any[]) => any,
   methodName: string,
   schemaNameByRef: Map<ZodTypeAny, string>,
 ): string | undefined {
-  const routeArgs: Record<
-    string,
-    { pipes?: unknown[] }
-  > | undefined = Reflect.getMetadata(ROUTE_ARGS_METADATA, controllerProto, methodName) as
-    | Record<string, { pipes?: unknown[] }>
-    | undefined;
+  // Nest 11 + TS: @Body() arg metadata çoğu projede `controllerClass` üzerinde;
+  // yalnızca `prototype` okumak requestBodySchema'yı boş bırakıyordu (API_Contract + OpenAPI).
+  const routeArgs: Record<string, { pipes?: unknown[] }> | undefined =
+    (Reflect.getMetadata(ROUTE_ARGS_METADATA, controllerClass.prototype, methodName) as
+      | Record<string, { pipes?: unknown[] }>
+      | undefined) ??
+    (Reflect.getMetadata(ROUTE_ARGS_METADATA, controllerClass, methodName) as
+      | Record<string, { pipes?: unknown[] }>
+      | undefined);
 
   if (!routeArgs) return undefined;
 
   for (const arg of Object.values(routeArgs)) {
     const pipes = arg.pipes ?? [];
     for (const p of pipes) {
-      if (p instanceof ZodBody) {
-        const schema = (p as unknown as { schema?: ZodSchema }).schema;
-        if (!schema) return undefined;
-        return schemaNameByRef.get(schema as ZodTypeAny);
+      if (!p || typeof p !== 'object') continue;
+      // `instanceof ZodBody` bazen çift modül yüklemesinde false döner; şema örnek
+      // eşleşmesi SSOT haritada varsa request body adını üret (API_Contract + OpenAPI).
+      const schema = (p as { schema?: unknown }).schema;
+      if (schema instanceof z.ZodType) {
+        const name = schemaNameByRef.get(schema as ZodTypeAny);
+        if (name) return name;
       }
     }
   }
@@ -146,7 +151,7 @@ export function collectRouteRecords(ctx: INestApplicationContext): RouteRecord[]
       const responseStatus =
         (Reflect.getMetadata(HTTP_CODE_METADATA, handler) as number | undefined) ?? 200;
 
-      const requestBodySchemaName = getZodBodySchemaName(proto, methodName, schemaNameByRef);
+      const requestBodySchemaName = getZodBodySchemaName(metatype, methodName, schemaNameByRef);
 
       records.push({
         method: reqMethod,

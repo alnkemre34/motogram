@@ -54,6 +54,7 @@
   {
     "method": "POST",
     "path": "/account/deletion",
+    "requestBodySchema": "RequestAccountDeletionSchema",
     "responseSchema": "AccountDeletionStatusSchema",
     "responseStatus": 200,
     "auth": true
@@ -148,6 +149,7 @@
   {
     "method": "POST",
     "path": "/auth/login",
+    "requestBodySchema": "LoginSchema",
     "responseSchema": "AuthResultSchema",
     "responseStatus": 200,
     "auth": false
@@ -161,6 +163,7 @@
   {
     "method": "POST",
     "path": "/auth/password/change",
+    "requestBodySchema": "ChangePasswordSchema",
     "responseSchema": "ChangePasswordResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -168,6 +171,7 @@
   {
     "method": "POST",
     "path": "/auth/password/forgot",
+    "requestBodySchema": "ForgotPasswordSchema",
     "responseSchema": "ForgotPasswordResponseSchema",
     "responseStatus": 200,
     "auth": false
@@ -175,6 +179,7 @@
   {
     "method": "POST",
     "path": "/auth/password/reset",
+    "requestBodySchema": "ResetPasswordSchema",
     "responseSchema": "ResetPasswordResponseSchema",
     "responseStatus": 200,
     "auth": false
@@ -182,6 +187,7 @@
   {
     "method": "POST",
     "path": "/auth/refresh",
+    "requestBodySchema": "RefreshTokenSchema",
     "responseSchema": "TokenPairResponseSchema",
     "responseStatus": 200,
     "auth": false
@@ -189,6 +195,7 @@
   {
     "method": "POST",
     "path": "/auth/register",
+    "requestBodySchema": "RegisterSchema",
     "responseSchema": "AuthResultSchema",
     "responseStatus": 200,
     "auth": false
@@ -196,6 +203,7 @@
   {
     "method": "POST",
     "path": "/comments",
+    "requestBodySchema": "CreateCommentSchema",
     "responseSchema": "CommentRowResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -210,6 +218,7 @@
   {
     "method": "PATCH",
     "path": "/comments/:id",
+    "requestBodySchema": "UpdateCommentSchema",
     "responseSchema": "CommentRowResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -224,6 +233,7 @@
   {
     "method": "POST",
     "path": "/communities",
+    "requestBodySchema": "CreateCommunitySchema",
     "responseSchema": "CommunityDetailSchema",
     "responseStatus": 201,
     "auth": true
@@ -238,6 +248,7 @@
   {
     "method": "PUT",
     "path": "/communities/:id",
+    "requestBodySchema": "UpdateCommunitySchema",
     "responseSchema": "CommunityDetailSchema",
     "responseStatus": 200,
     "auth": true
@@ -307,6 +318,7 @@
   {
     "method": "POST",
     "path": "/conversations",
+    "requestBodySchema": "CreateConversationSchema",
     "responseSchema": "ConversationDetailSchema",
     "responseStatus": 200,
     "auth": true
@@ -348,6 +360,7 @@
   {
     "method": "POST",
     "path": "/devices",
+    "requestBodySchema": "RegisterDeviceTokenSchema",
     "responseSchema": "DeviceTokenDtoResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -368,6 +381,7 @@
   {
     "method": "POST",
     "path": "/emergency/alerts",
+    "requestBodySchema": "CreateEmergencyAlertSchema",
     "responseSchema": "EmergencyAlertDtoSchema",
     "responseStatus": 200,
     "auth": true
@@ -382,6 +396,7 @@
   {
     "method": "POST",
     "path": "/emergency/alerts/:id/resolve",
+    "requestBodySchema": "ResolveEmergencyAlertSchema",
     "responseSchema": "EmergencyAlertDtoSchema",
     "responseStatus": 200,
     "auth": true
@@ -389,6 +404,7 @@
   {
     "method": "POST",
     "path": "/emergency/alerts/:id/respond",
+    "requestBodySchema": "RespondEmergencyAlertSchema",
     "responseSchema": "EmergencyResponderDtoSchema",
     "responseStatus": 200,
     "auth": true
@@ -396,6 +412,7 @@
   {
     "method": "POST",
     "path": "/events",
+    "requestBodySchema": "CreateEventSchema",
     "responseSchema": "EventDetailSchema",
     "responseStatus": 201,
     "auth": true
@@ -416,6 +433,7 @@
   {
     "method": "PUT",
     "path": "/events/:id",
+    "requestBodySchema": "UpdateEventSchema",
     "responseSchema": "EventDetailSchema",
     "responseStatus": 200,
     "auth": true
@@ -510,6 +528,7 @@
   {
     "method": "POST",
     "path": "/gamification/badges/showcase",
+    "requestBodySchema": "ShowcaseUserBadgeSchema",
     "responseSchema": "UserBadgeDtoSchema",
     "responseStatus": 200,
     "auth": true
@@ -559,6 +578,7 @@
   {
     "method": "POST",
     "path": "/location/session/start",
+    "requestBodySchema": "StartLiveSessionSchema",
     "responseSchema": "LiveLocationSessionResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -572,6 +592,7 @@
   {
     "method": "PUT",
     "path": "/location/sharing",
+    "requestBodySchema": "UpdateLocationSharingSchema",
     "responseSchema": "LocationSharingUserResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -579,6 +600,7 @@
   {
     "method": "PUT",
     "path": "/location/update",
+    "requestBodySchema": "UpdateLocationSchema",
     "responseSchema": "UpdateLocationHttpResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -613,6 +635,7 @@
   {
     "method": "POST",
     "path": "/media/uploads",
+    "requestBodySchema": "InitiateMediaUploadSchema",
     "responseSchema": "InitiateMediaUploadResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -620,6 +643,7 @@
   {
     "method": "POST",
     "path": "/media/uploads/finalize",
+    "requestBodySchema": "FinalizeMediaUploadSchema",
     "responseSchema": "MediaAssetDtoSchema",
     "responseStatus": 200,
     "auth": true
@@ -647,6 +671,7 @@
   {
     "method": "POST",
     "path": "/motorcycles",
+    "requestBodySchema": "CreateMotorcycleSchema",
     "responseSchema": "MotorcycleApiResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -661,6 +686,7 @@
   {
     "method": "PATCH",
     "path": "/motorcycles/:id",
+    "requestBodySchema": "UpdateMotorcycleSchema",
     "responseSchema": "MotorcycleApiResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -682,6 +708,7 @@
   {
     "method": "POST",
     "path": "/notifications/mark-read",
+    "requestBodySchema": "MarkNotificationReadSchema",
     "responseSchema": "SuccessTrueSchema",
     "responseStatus": 200,
     "auth": true
@@ -703,6 +730,7 @@
   {
     "method": "POST",
     "path": "/parties",
+    "requestBodySchema": "CreatePartySchema",
     "responseSchema": "PartySummarySchema",
     "responseStatus": 201,
     "auth": true
@@ -745,6 +773,7 @@
   {
     "method": "POST",
     "path": "/parties/invites/respond",
+    "requestBodySchema": "RespondPartyInviteSchema",
     "responseSchema": "PartyRespondInviteHttpResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -752,6 +781,7 @@
   {
     "method": "POST",
     "path": "/posts",
+    "requestBodySchema": "CreatePostSchema",
     "responseSchema": "PostApiResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -773,6 +803,7 @@
   {
     "method": "PATCH",
     "path": "/posts/:id",
+    "requestBodySchema": "UpdatePostSchema",
     "responseSchema": "PostApiResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -801,6 +832,7 @@
   {
     "method": "POST",
     "path": "/stories",
+    "requestBodySchema": "CreateStorySchema",
     "responseSchema": "StoryRowResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -843,6 +875,7 @@
   {
     "method": "PATCH",
     "path": "/users/me",
+    "requestBodySchema": "UpdateProfileSchema",
     "responseSchema": "UserPublicApiResponseSchema",
     "responseStatus": 200,
     "auth": true
@@ -857,6 +890,7 @@
   {
     "method": "PATCH",
     "path": "/users/me/username",
+    "requestBodySchema": "ChangeUsernameSchema",
     "responseSchema": "UserPublicApiResponseSchema",
     "responseStatus": 200,
     "auth": true

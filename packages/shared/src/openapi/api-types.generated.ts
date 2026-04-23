@@ -166,7 +166,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RequestAccountDeletionSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -492,7 +496,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LoginSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -560,7 +568,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangePasswordSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -595,7 +607,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ForgotPasswordSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -630,7 +646,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ResetPasswordSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -665,7 +685,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RefreshTokenSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -700,7 +724,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RegisterSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -735,7 +763,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateCommentSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -828,7 +860,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateCommentSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -859,7 +895,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateCommunitySchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 201: {
@@ -982,7 +1022,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateCommunitySchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -1245,7 +1289,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateConversationSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -1421,7 +1469,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RegisterDeviceTokenSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -1508,7 +1560,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateEmergencyAlertSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -1578,7 +1634,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ResolveEmergencyAlertSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -1613,7 +1673,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RespondEmergencyAlertSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -1648,7 +1712,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateEventSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 201: {
@@ -1771,7 +1839,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateEventSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2110,7 +2182,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShowcaseUserBadgeSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2339,7 +2415,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StartLiveSessionSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2406,7 +2486,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateLocationSharingSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2441,7 +2525,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateLocationSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2547,7 +2635,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InitiateMediaUploadSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2582,7 +2674,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FinalizeMediaUploadSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2772,7 +2868,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateMotorcycleSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2865,7 +2965,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateMotorcycleSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2931,7 +3035,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MarkNotificationReadSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -3020,7 +3128,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreatePartySchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 201: {
@@ -3090,7 +3202,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RespondPartyInviteSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -3265,7 +3381,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreatePostSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -3412,7 +3532,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdatePostSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -3478,7 +3602,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateStorySchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -3625,7 +3753,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateProfileSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -3695,7 +3827,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeUsernameSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
