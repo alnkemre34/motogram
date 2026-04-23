@@ -1,13 +1,21 @@
 import type {
   AppleSignInDto,
   AuthResult,
+  ChangeEmailRequestDto,
+  ChangeEmailVerifyDto,
   ChangePasswordDto,
   GoogleSignInDto,
   LoginDto,
   RefreshTokenDto,
   RegisterDto,
 } from '@motogram/shared';
-import { AuthResultSchema, ChangePasswordResponseSchema, TokenPairSchema } from '@motogram/shared';
+import {
+  AuthResultSchema,
+  ChangeEmailResponseSchema,
+  ChangeEmailVerifyResponseSchema,
+  ChangePasswordResponseSchema,
+  TokenPairSchema,
+} from '@motogram/shared';
 
 import { authPaths } from './auth-paths';
 import { apiRequest } from '../lib/api-client';
@@ -66,5 +74,17 @@ export function changePasswordRequest(dto: ChangePasswordDto) {
   return apiRequest('/auth/password/change', ChangePasswordResponseSchema, {
     method: 'POST',
     body: dto,
+  });
+}
+
+export function requestEmailChange(dto: ChangeEmailRequestDto) {
+  return apiRequest('/auth/email/change', ChangeEmailResponseSchema, { method: 'POST', body: dto });
+}
+
+export function verifyEmailChange(dto: ChangeEmailVerifyDto) {
+  return apiRequest('/auth/email/verify', ChangeEmailVerifyResponseSchema, {
+    method: 'POST',
+    body: dto,
+    skipAuth: true,
   });
 }

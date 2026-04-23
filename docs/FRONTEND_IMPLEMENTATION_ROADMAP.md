@@ -1,6 +1,6 @@
 # Motogram — Frontend uygulama yol haritası
 
-> Tarih: 2026-04-24 (§7 + A5 public profil)  
+> Tarih: 2026-04-23 (§7 + A5 ardıl: e-posta / cihaz / kullanıcı adı + topluluk oluştur + story video)  
 > İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
 > Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
 > **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
@@ -24,8 +24,8 @@
 | A2 | Gelen kutusu (Inbox) | DM bölümlü + Topluluk + Parti; `GET /v1/conversations?type=` (B-02) | Uygulandı (v1.2) |
 | A3 | Home + story rail + üst bar | Feed, hikayeler, bildirim/mesaj kısayolu | Uygulandı (2026-04-23: tren + `StoryViewer` + `GET /stories/feed` + görüntülenme) |
 | A4 | 4 sekme / navigasyon hedefi | `FRONTEND_UI_UX_BLUEPRINT` §navigasyon; TabNavigator sadeleştirme | Uygulandı (P4) |
-| A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Uygulandı (P5 + 2026-04-24: `UserProfile` `GET /users/:username`, takip, engel; feed/story’den açılış; `ChangePassword` B-04; **ardıl:** cihaz/e-posta, `expo-av` video) |
-| A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | Kısmi (2026-04-24: Topluluk sekmesi `nearby`/`me`/`search` + `CommunityDetail` AppStack; harita parti çıkış i18n) |
+| A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Uygulandı (P5 + `UserProfile` + `ChangePassword` + **2026-04-23:** `ChangeEmail` / `VerifyEmail` B-07, `ChangeUsername` B-06, `Devices` GET/DELETE push, hikâye **video** `expo-av`) |
+| A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | Kısmi (Topluluk `nearby`/`me`/`search` + `CommunityDetail` + **`CreateCommunity`**; `RideModeHUD` i18n; harita/ parti ek polish sırada) |
 | A7 | WS yüzeyleri | `/messaging` tam, `/realtime` sürüş, gamification/emergency | Kısmi |
 
 Detay: Blueprint §17.4 “İdeal uygulama sırası” ile uyumludur; Inbox aşaması netleştirilerek yukarı taşındı.
@@ -40,13 +40,13 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 |-----|----|-----------------|-----------|
 | **P1** | Auth OAuth + sözleşme | `FRONTEND_UI_UX_BLUEPRINT` §6; `auth.schema` Apple/Google | Apple/Google/şifre giriş; EULA; hata i18n |
 | **P2** | (A2) Gelen kutusu | §10 Inbox | `?type=` DM / topluluk / parti; i18n |
-| **P3** | Home + üst bar | Story rail, bildirim/mesaj kısayolu (root stack) | Tamam: tren, tam ekran yürütücü, video için geçici metin, bildirimler ayrılırken okundu |
+| **P3** | Home + üst bar | Story rail, bildirim/mesaj kısayolu (root stack) | Tamam: tren, tam ekran yürütücü, **video** `expo-av`, bildirimler ayrılırken okundu |
 | **P4** | Tab navigasyon 4 | `FRONTEND_UI_UX_BLUEPRINT` §5; Inbox tab’dan kaldır | Tamam: `AppStack` + 4 tab |
 | **P5** | Profil + ayarlar | §11, Settings | Tamam: `Settings` + alt ekranlar, `PATCH /users/me`, tercihler, acil, blocks, `account/deletion` |
-| **P6** | Harita + topluluk/parti polish | §8–9 | Kısmi: topluluk listesi + detay; harita/ parti polish devam |
+| **P6** | Harita + topluluk/parti polish | §8–9 | Kısmi: topluluk + detay + **oluşturma**; `RideModeHUD` i18n; harita/ parti derin polish sırada |
 | **P7** | WS + gamification + acil | §14 | Namespace’ler blueprint ile |
 
-**Aktif sıra (2026-04-24):** P1–P5 tam; **P6** ilerleme (Topluluk sekmesi + `CommunityDetail`); **ardıl:** `expo-av` hikâye; harita/ parti derin polish; cihaz/e-posta ayar UI.
+**Aktif sıra (2026-04-23):** P1–P5 tam; **P6** ilerleme (Topluluk + topluluk oluştur + harita ride HUD i18n + story video); cihaz/e-posta/kullanıcı adı ardılları kapatıldı.
 
 ---
 

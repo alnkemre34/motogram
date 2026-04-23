@@ -20,6 +20,19 @@ export type AppStackParamList = {
   /** GET /v1/users/:username — büyük/küçük harf; path’te encode. */
   UserProfile: { username: string };
   ChangePassword: undefined;
+  /** POST /auth/email/change (B-07). */
+  ChangeEmail: undefined;
+  /**
+   * POST /auth/email/verify — token (opsiyonel) derin link veya ayarlardan.
+   * Path: `email-verify/:token?`
+   */
+  VerifyEmail: { token?: string };
+  /** PATCH /users/me/username (B-06). */
+  ChangeUsername: undefined;
+  /** GET/DELETE /devices (Spec 9.3). */
+  Devices: undefined;
+  /** POST /communities — yeni topluluk. */
+  CreateCommunity: undefined;
   CommunityDetail: { id: string };
 };
 

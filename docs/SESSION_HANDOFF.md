@@ -8,31 +8,30 @@
 
 ---
 
-## Mobil on uc — nerede kaldik? (2026-04-24 guncel)
+## Mobil on uc — nerede kaldik? (2026-04-23 guncel)
 
 | Konu | Durum |
 |------|--------|
-| **Mobil yol haritasi (P1–P7)** | **P1–P5 tamam; P6 basladi** — Topluluk sekmesi + `CommunityDetail`; tam P6 (harita/parti polish) + P7 sırada. |
-| **P6 (2026-04-24)** | `DiscoverScreen`: `nearby` + `me` + metin arama (`/communities/search`); `CommunityDetail` AppStack; `motogram://community/:id`; `discover-search` Jest; harita parti `Alert` i18n. |
-| **A5 (profil + public)** | `UserProfile`, `follows`, `ChangePassword` (onceki commit). |
-| **Onceki ref. commit** | P5 paketi: `4b54e62`; son ozellik bu oturumda — `git log -1 --oneline` ile dogrula. |
-| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **16 suite / 62 test** (son kosum 2026-04-24). |
+| **Mobil yol haritasi (P1–P7)** | **P1–P5 tamam; P6 ileri** — Topluluk + `CreateCommunity` + cihaz/e-posta/kullanici adi ekranlari; P7 sırada. |
+| **P6 (2026-04-23 batch)** | `StoryViewer` **video** `expo-av`; `ChangeEmail` / `VerifyEmail` / `ChangeUsername` / `Devices`; `CreateCommunity` + Discover CTA; `RideModeHUD` i18n; derin link (`settings/*`, `email-verify`, `community/create`). |
+| **A5 (profil + public)** | `UserProfile`, `follows`, `ChangePassword` + yukaridaki ayar ekranlari. |
+| **Onceki ref. commit** | `git log -1 --oneline` ile dogrula. |
+| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **16 suite / 62 test** (son kosum 2026-04-23). |
 | **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §7, `docs/FRONTEND_UI_UX_BLUEPRINT.md` v1.5+, `docs/PROJECT_BOARD.md` §1. |
 
 **Ardil / acik isler (oncelik secimi):**
 
-- Hikâye **video** in-app: `expo-av` (P3’te sadece placeholder + metin).
-- Ayarlar §11.5: **e-posta** / **push cihaz** listeleri (endpoint mevcut, UI yok); istege bagli: `PATCH /users/me/username` ekrani.
-- **P6 (kalan):** Harita / parti ekranlari ek polish; istege bagli topluluk `create` UI.
+- **P6 (kalan):** Harita / parti ekranlari ek polish (baska sabit metin taramasi); istege bagli: `GET /devices` yanitina token/id ile satir bazli silme (sunucu sozlesmesi).
+- **P7:** WS + oyun/odul yuzeyleri (blueprint).
 
-**Kod giris noktalari (mobil):** `UserProfile` + `ChangePassword` `AppStack`; `getUserByUsername` `users.api.ts`; `follows.api.ts`; `HomeScreen` / `StoryRail` navigasyon.
+**Kod giris noktalari (mobil):** `AppStackNavigator` + `linking.ts`; `SettingsScreen` satirlari; `DiscoverScreen` `CreateCommunity`; `StoryViewerScreen` video; `RideModeHUD`.
 
 ---
 
 ## Son Guncelleme
 
-- **Tarih:** 2026-04-24 (ustteki tablo + bu blok senkron)
-- **Repo durumu:** Yerel / `main` — `git log -1 --oneline`; P5: `4b54e62`; A5 public + sifre bu oturum commit’inde.
+- **Tarih:** 2026-04-23 (ustteki tablo + bu blok senkron)
+- **Repo durumu:** Yerel / `main` — `git log -1 --oneline` ile dogrula.
 - **Zod R9 (backend contract):** `apps/api/src/contract/public.contract.spec.ts` — health +
   auth hatalari + kayit/JWT ile feed + map (`shards`, `nearby`) + media 401/404;
   CI’da **`prisma migrate deploy`** + `pnpm test` (contract haric) + `pnpm run test:contract`

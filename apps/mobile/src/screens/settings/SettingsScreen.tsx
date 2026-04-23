@@ -10,7 +10,11 @@ import type { AppStackParamList } from '../../navigation/types';
 const SETTINGS_ROWS = [
   'EditProfile',
   'ChangePassword',
+  'ChangeEmail',
+  'ChangeUsername',
+  'VerifyEmail',
   'NotificationPreferences',
+  'Devices',
   'EmergencyContacts',
   'BlockedUsers',
   'AccountDeletion',
@@ -19,7 +23,11 @@ const SETTINGS_ROWS = [
 const labels: Record<(typeof SETTINGS_ROWS)[number], { titleKey: string; descKey?: string }> = {
   EditProfile: { titleKey: 'settings.rowEditProfile' },
   ChangePassword: { titleKey: 'settings.rowChangePassword', descKey: 'settings.rowChangePasswordDesc' },
+  ChangeEmail: { titleKey: 'settings.rowChangeEmail', descKey: 'settings.rowChangeEmailDesc' },
+  ChangeUsername: { titleKey: 'settings.rowChangeUsername', descKey: 'settings.rowChangeUsernameDesc' },
+  VerifyEmail: { titleKey: 'settings.rowVerifyEmail', descKey: 'settings.rowVerifyEmailDesc' },
   NotificationPreferences: { titleKey: 'settings.rowNotificationPrefs' },
+  Devices: { titleKey: 'settings.rowDevices', descKey: 'settings.rowDevicesDesc' },
   EmergencyContacts: { titleKey: 'settings.rowEmergencyContacts' },
   BlockedUsers: { titleKey: 'settings.rowBlocked' },
   AccountDeletion: { titleKey: 'settings.rowAccountDeletion', descKey: 'settings.rowAccountDeletionDesc' },
@@ -38,7 +46,9 @@ export function SettingsScreen() {
           return (
             <Pressable
               key={name}
-              onPress={() => navigation.navigate(name)}
+              onPress={() =>
+                name === 'VerifyEmail' ? navigation.navigate('VerifyEmail', {}) : navigation.navigate(name)
+              }
               style={({ pressed }) => [styles.row, pressed && styles.pressed]}
               accessibilityRole="button"
             >

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { PartySignalType } from '@motogram/shared';
 
@@ -18,15 +19,14 @@ export interface RideModeHUDProps {
 
 interface Btn {
   type: PartySignalType;
-  label: string;
   color: string;
   emojiFallback: string;
 }
 
 const BUTTONS: Btn[] = [
-  { type: 'REGROUP', label: 'TOPLAN', color: '#2ecc71', emojiFallback: '⟳' },
-  { type: 'STOP', label: 'DUR', color: '#e74c3c', emojiFallback: '■' },
-  { type: 'FUEL', label: 'YAKIT', color: '#f39c12', emojiFallback: '⛽' },
+  { type: 'REGROUP', color: '#2ecc71', emojiFallback: '⟳' },
+  { type: 'STOP', color: '#e74c3c', emojiFallback: '■' },
+  { type: 'FUEL', color: '#f39c12', emojiFallback: '⛽' },
 ];
 
 export function RideModeHUD({
@@ -38,14 +38,24 @@ export function RideModeHUD({
   connected,
   onLeave,
 }: RideModeHUDProps) {
+  const { t } = useTranslation();
+  const labelFor = (type: PartySignalType) => {
+    if (type === 'REGROUP') return t('map.rideHud.signalRegroup');
+    if (type === 'STOP') return t('map.rideHud.signalStop');
+    return t('map.rideHud.signalFuel');
+  };
+  const leaderLine = useMemo(() => {
+    if (isLeader) return t('map.rideHud.leaderYou');
+    if (leaderName) return t('map.rideHud.leaderNamed', { name: leaderName });
+    return t('map.rideHud.leaderEmpty');
+  }, [isLeader, leaderName, t]);
+
   return (
     <View style={styles.root} pointerEvents="box-none" accessible accessibilityLabel="Ride Mode HUD">
       <View style={styles.topBar} pointerEvents="auto">
         <View style={styles.leaderBadge}>
           <View style={[styles.statusDot, { backgroundColor: connected ? '#2ecc71' : '#e74c3c' }]} />
-          <Text style={styles.leaderText}>
-            {isLeader ? 'LIDER: SEN' : leaderName ? `LIDER: ${leaderName}` : 'LIDER: —'}
-          </Text>
+          <Text style={styles.leaderText}>{leaderLine}</Text>
           {typeof memberCount === 'number' && (
             <Text style={styles.memberCount}>• {memberCount}</Text>
           )}
@@ -55,9 +65,9 @@ export function RideModeHUD({
             onPress={onLeave}
             style={({ pressed }) => [styles.leaveBtn, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel="Partiden ayril"
+            accessibilityLabel={t('map.rideHud.a11yLeave')}
           >
-            <Text style={styles.leaveText}>AYRIL</Text>
+            <Text style={styles.leaveText}>{t('map.rideHud.leave')}</Text>
           </Pressable>
         )}
       </View>
@@ -75,11 +85,11 @@ export function RideModeHUD({
               disabled && styles.disabled,
             ]}
             accessibilityRole="button"
-            accessibilityLabel={`Sinyal ${b.label}`}
+            accessibilityLabel={t('map.rideHud.a11ySignal', { label: labelFor(b.type) })}
             testID={`ride-hud-${b.type.toLowerCase()}`}
           >
             <Text style={styles.signalGlyph}>{b.emojiFallback}</Text>
-            <Text style={styles.signalLabel}>{b.label}</Text>
+            <Text style={styles.signalLabel}>{labelFor(b.type)}</Text>
           </Pressable>
         ))}
       </View>

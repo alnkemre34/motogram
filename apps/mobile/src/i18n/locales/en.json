@@ -99,7 +99,8 @@
   },
   "story": {
     "unavailable": "This story is unavailable or may have expired.",
-    "videoHint": "In-app video playback is planned for a later release."
+    "videoHint": "Loading video…",
+    "videoError": "Couldn’t play this video."
   },
   "profile": {
     "editProfile": "Edit profile",
@@ -181,6 +182,34 @@
     "deletionError": "Action failed. Try again.",
     "rowChangePassword": "Change password",
     "rowChangePasswordDesc": "Update your account password",
+    "rowChangeEmail": "Change email",
+    "rowChangeEmailDesc": "Start email change (verify from your inbox)",
+    "rowChangeUsername": "Username",
+    "rowChangeUsernameDesc": "Change your @handle",
+    "rowVerifyEmail": "Confirm email change",
+    "rowVerifyEmailDesc": "Paste the token from the verification email",
+    "rowDevices": "Devices & push",
+    "rowDevicesDesc": "Registered notification devices",
+    "changeEmailTitle": "Change email",
+    "changeEmailIntro": "Enter your new email and current password. We’ll send a confirmation link.",
+    "changeEmailSuccessTitle": "Check your inbox",
+    "changeEmailSuccessBody": "Pending change to {{email}}. Open the link we sent to confirm.",
+    "verifyEmailTitle": "Confirm email",
+    "verifyEmailIntro": "Paste the one-time token from the verification email.",
+    "verifyEmailToken": "Verification token",
+    "verifyEmailSuccessBody": "Your email address is updated.",
+    "changeUsernameTitle": "Change username",
+    "changeUsernameIntro": "Pick a new username. Your old profile links will change.",
+    "devicesTitle": "Devices & push",
+    "devicesIntro": "Push tokens registered for your account. Revoke removes notifications for that token only.",
+    "devicesEmpty": "No devices registered yet.",
+    "devicesPlatform": "{{platform}}",
+    "devicesIdShort": "ID {{id}}…",
+    "devicesLastSeen": "Last seen: {{at}}",
+    "devicesThisDevice": "This device",
+    "devicesRevokeNote": "To remove push on the phone you’re holding, use the button below (uses the local Expo push token).",
+    "devicesRevokeThis": "Revoke push on this device",
+    "devicesNoLocalToken": "No push token on this device (simulator or notifications off).",
     "changePasswordTitle": "Change password",
     "changePasswordIntro": "You’ll stay signed in on this device. Other sessions may be signed out per server policy.",
     "currentPassword": "Current password",
@@ -270,7 +299,18 @@
     "partyLeaveTitle": "Leave party?",
     "partyLeaveBody": "You can only rejoin with a new invite after you leave.",
     "partyLeaveCancel": "Cancel",
-    "partyLeaveConfirm": "Leave"
+    "partyLeaveConfirm": "Leave",
+    "rideHud": {
+      "leaderYou": "LEADER: YOU",
+      "leaderNamed": "LEADER: {{name}}",
+      "leaderEmpty": "LEADER: —",
+      "leave": "LEAVE",
+      "a11yLeave": "Leave party",
+      "signalRegroup": "REGROUP",
+      "signalStop": "STOP",
+      "signalFuel": "FUEL",
+      "a11ySignal": "Signal {{label}}"
+    }
   },
   "discover": {
     "searchPlaceholder": "Search communities (2+ characters)",
@@ -282,7 +322,9 @@
     "emptySearch": "No communities match your search.",
     "locationDenied": "Location permission is needed to list nearby communities.",
     "locationPending": "Locating you…",
-    "memberCount": "{{n}} members"
+    "memberCount": "{{n}} members",
+    "createCommunity": "New",
+    "createCommunityA11y": "Create community"
   },
   "community": {
     "title": "Community",
@@ -299,7 +341,19 @@
     "rulesDefault": "No specific rules yet. Be respectful and ride safe.",
     "alertTitle": "Community",
     "joinedActive": "You have joined the community.",
-    "joinedPending": "Your request was sent to moderators."
+    "joinedPending": "Your request was sent to moderators.",
+    "createTitle": "New community",
+    "createIntro": "Create a permanent group with a name and visibility. You can edit details later.",
+    "createName": "Name",
+    "createDescription": "Description (optional)",
+    "createVisibility": "Visibility",
+    "createRegion": "Region (optional)",
+    "createSubmit": "Create community",
+    "visibility": {
+      "PUBLIC": "Public",
+      "PRIVATE": "Private",
+      "HIDDEN": "Hidden"
+    }
   },
   "inbox": {
     "tabDm": "DM",

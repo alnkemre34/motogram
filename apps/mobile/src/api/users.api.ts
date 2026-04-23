@@ -1,4 +1,5 @@
 import {
+  type ChangeUsernameDto,
   type UpdateProfileDto,
   UserMeResponseSchema,
   UserPublicApiResponseSchema,
@@ -21,6 +22,10 @@ export async function updateCurrentUser(dto: UpdateProfileDto) {
 export async function getUserByUsername(username: string) {
   const path = encodeURIComponent(username.trim());
   return apiRequest(`/users/${path}`, UserPublicApiResponseSchema);
+}
+
+export async function changeUsername(dto: ChangeUsernameDto) {
+  return apiRequest('/users/me/username', UserPublicApiResponseSchema, { method: 'PATCH', body: dto });
 }
 
 export type MeResponse = z.infer<typeof UserMeResponseSchema>;

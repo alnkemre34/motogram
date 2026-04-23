@@ -111,9 +111,19 @@ export function DiscoverScreen() {
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
-      <Text style={styles.title} accessibilityRole="header">
-        {t('tabs.community')}
-      </Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.title} accessibilityRole="header">
+          {t('tabs.community')}
+        </Text>
+        <Pressable
+          onPress={() => rootNav?.navigate('CreateCommunity')}
+          style={({ pressed }) => [styles.createBtn, pressed && styles.pressed]}
+          accessibilityRole="button"
+          accessibilityLabel={t('discover.createCommunityA11y')}
+        >
+          <Text style={styles.createBtnText}>+ {t('discover.createCommunity')}</Text>
+        </Pressable>
+      </View>
 
       <TextInput
         value={search}
@@ -197,7 +207,17 @@ function TabBtn({ label, active, onPress }: { label: string; active: boolean; on
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#0b0b0d' },
-  title: { color: '#fff', fontSize: 22, fontWeight: '800', paddingHorizontal: 16, marginBottom: 8 },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    gap: 8,
+  },
+  title: { color: '#fff', fontSize: 22, fontWeight: '800', flex: 1 },
+  createBtn: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: 10, backgroundColor: '#1a1a1e' },
+  createBtnText: { color: '#ff6a00', fontWeight: '800', fontSize: 14 },
   search: {
     marginHorizontal: 16,
     backgroundColor: '#1a1a1e',

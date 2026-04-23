@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { ResizeMode, Video } from 'expo-av';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -105,17 +106,7 @@ export function StoryViewerScreen() {
   const renderItem: ListRenderItem<StoryFeedItem> = useCallback(
     ({ item }) => (
       <View style={{ width: W, height: H, backgroundColor: '#000' }}>
-        {item.mediaType === 'VIDEO' ? (
-          <View style={[styles.videoFallback, { width: W, height: H }]}>
-            <Text style={styles.videoHint}>{t('story.videoHint')}</Text>
-          </View>
-        ) : (
-          <Image
-            source={{ uri: item.mediaUrl }}
-            style={{ height: H, width: W }}
-            resizeMode="cover"
-          />
-        )}
+        <StorySlideMedia item={item} width={W} height={H} />
         {item.caption ? (
           <View style={styles.captionBox}>
             <Text style={styles.captionText}>{item.caption}</Text>
@@ -123,7 +114,7 @@ export function StoryViewerScreen() {
         ) : null}
       </View>
     ),
-    [t],
+    [],
   );
 
   return (
@@ -192,3 +183,37 @@ const styles = StyleSheet.create({
   videoFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#111' },
   videoHint: { color: '#aaa', textAlign: 'center', padding: 20 },
 });
+
+function StorySlideMedia({
+  item,
+  width,
+  height,
+}: {
+  item: StoryFeedItem;
+  width: number;
+  height: number;
+}) {
+  const { t } = useTranslation();
+  const [videoError, setVideoError] = useState(false);
+  if (item.mediaType === 'VIDEO') {
+    if (videoError) {
+      return (
+        <View style={[styles.videoFallback, { width, height }]}>
+          <Text style={styles.videoHint}>{t('story.videoError')}</Text>
+        </View>
+      );
+    }
+    return (
+      <Video
+        source={{ uri: item.mediaUrl }}
+        style={{ width, height, backgroundColor: '#000' }}
+        shouldPlay
+        isLooping
+        resizeMode={ResizeMode.COVER}
+        useNativeControls={false}
+        onError={() => setVideoError(true)}
+      />
+    );
+  }
+  return <Image source={{ uri: item.mediaUrl }} style={{ height, width }} resizeMode="cover" />;
+}

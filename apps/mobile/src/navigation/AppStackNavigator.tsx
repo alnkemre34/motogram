@@ -12,7 +12,12 @@ import { NotificationPreferencesScreen } from '../screens/settings/NotificationP
 import { CommunityDetailScreen } from '../screens/community/CommunityDetailScreen';
 import { UserProfileScreen } from '../screens/profile/UserProfileScreen';
 import { ChangePasswordScreen } from '../screens/settings/ChangePasswordScreen';
+import { ChangeEmailScreen } from '../screens/settings/ChangeEmailScreen';
+import { ChangeUsernameScreen } from '../screens/settings/ChangeUsernameScreen';
+import { DevicesScreen } from '../screens/settings/DevicesScreen';
+import { VerifyEmailScreen } from '../screens/settings/VerifyEmailScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
+import { CreateCommunityScreen } from '../screens/community/CreateCommunityScreen';
 import { StoryViewerScreen } from '../screens/story/StoryViewerScreen';
 
 // FRONTEND_UI_UX_BLUEPRINT §5 — 4 sekmeli tab; Inbox + Notifications stack üstünde
@@ -75,6 +80,31 @@ export function AppStackNavigator() {
       <Stack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ChangeEmail"
+        component={ChangeEmailScreen}
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="VerifyEmail"
+        component={VerifyEmailScreen}
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ChangeUsername"
+        component={ChangeUsernameScreen}
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="Devices"
+        component={DevicesScreen}
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="CreateCommunity"
+        component={CreateCommunityScreen}
         options={{ headerShown: false, animation: 'slide_from_right' }}
       />
       <Stack.Screen

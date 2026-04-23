@@ -99,7 +99,8 @@
   },
   "story": {
     "unavailable": "Bu hikâyeye ulaşılamıyor veya silinmiş olabilir.",
-    "videoHint": "Video oynatma bir sonraki sürümde. Şimdilik önizleme yok."
+    "videoHint": "Video yükleniyor…",
+    "videoError": "Bu video oynatılamadı."
   },
   "profile": {
     "editProfile": "Profili düzenle",
@@ -181,6 +182,34 @@
     "deletionError": "İşlem başarısız. Tekrar dene.",
     "rowChangePassword": "Parola değiştir",
     "rowChangePasswordDesc": "Hesap parolanı güncelle",
+    "rowChangeEmail": "E-postayı değiştir",
+    "rowChangeEmailDesc": "Yeni e-posta (gelen kutusundan onayla)",
+    "rowChangeUsername": "Kullanıcı adı",
+    "rowChangeUsernameDesc": "@kullanıcı adını değiştir",
+    "rowVerifyEmail": "E-posta değişimini onayla",
+    "rowVerifyEmailDesc": "Doğrulama e-postasındaki kodu gir",
+    "rowDevices": "Cihazlar ve bildirim",
+    "rowDevicesDesc": "Kayıtlı push cihazları",
+    "changeEmailTitle": "E-posta değiştir",
+    "changeEmailIntro": "Yeni e-posta ve mevcut parolanı gir. Onay linki göndeririz.",
+    "changeEmailSuccessTitle": "Gelen kutuna bak",
+    "changeEmailSuccessBody": "Bekleyen değişiklik: {{email}}. Onay için gönderdiğimiz linke tıkla.",
+    "verifyEmailTitle": "E-postayı onayla",
+    "verifyEmailIntro": "Doğrulama e-postasındaki tek kullanımlık kodu yapıştır.",
+    "verifyEmailToken": "Doğrulama kodu",
+    "verifyEmailSuccessBody": "E-posta adresin güncellendi.",
+    "changeUsernameTitle": "Kullanıcı adı değiştir",
+    "changeUsernameIntro": "Yeni bir kullanıcı adı seç. Eski profil linkleri değişir.",
+    "devicesTitle": "Cihazlar ve bildirim",
+    "devicesIntro": "Hesabına kayıtlı push anahtarları. İptal yalnızca o anahtarın bildirimlerini kapatır.",
+    "devicesEmpty": "Henüz kayıtlı cihaz yok.",
+    "devicesPlatform": "{{platform}}",
+    "devicesIdShort": "ID {{id}}…",
+    "devicesLastSeen": "Son görülme: {{at}}",
+    "devicesThisDevice": "Bu cihaz",
+    "devicesRevokeNote": "Elindeki cihazda push’u kaldırmak için aşağıdaki düğmeyi kullan (yerel Expo push token).",
+    "devicesRevokeThis": "Bu cihazda push’u kaldır",
+    "devicesNoLocalToken": "Bu cihazda push yok (simülatör veya bildirim kapalı).",
     "changePasswordTitle": "Parola değiştir",
     "changePasswordIntro": "Bu cihazda oturum açık kalır; sunucu kuralına göre diğer oturumlar kapanabilir.",
     "currentPassword": "Mevcut parola",
@@ -270,7 +299,18 @@
     "partyLeaveTitle": "Partiden ayrıl?",
     "partyLeaveBody": "Çıktıktan sonra yeniden katılmak için davet gerekir.",
     "partyLeaveCancel": "Vazgeç",
-    "partyLeaveConfirm": "Ayrıl"
+    "partyLeaveConfirm": "Ayrıl",
+    "rideHud": {
+      "leaderYou": "LİDER: SEN",
+      "leaderNamed": "LİDER: {{name}}",
+      "leaderEmpty": "LİDER: —",
+      "leave": "AYRIL",
+      "a11yLeave": "Partiden ayrıl",
+      "signalRegroup": "TOPLAN",
+      "signalStop": "DUR",
+      "signalFuel": "YAKIT",
+      "a11ySignal": "Sinyal {{label}}"
+    }
   },
   "discover": {
     "searchPlaceholder": "Topluluk ara (en az 2 karakter)",
@@ -282,7 +322,9 @@
     "emptySearch": "Eşleşen topluluk yok.",
     "locationDenied": "Yakındaki topluluklar için konum izni gerekli.",
     "locationPending": "Konum alınıyor…",
-    "memberCount": "{{n}} üye"
+    "memberCount": "{{n}} üye",
+    "createCommunity": "Yeni",
+    "createCommunityA11y": "Topluluk oluştur"
   },
   "community": {
     "title": "Topluluk",
@@ -299,7 +341,19 @@
     "rulesDefault": "Henüz özel kural yok. Saygılı olun, güvenli sürün.",
     "alertTitle": "Topluluk",
     "joinedActive": "Topluluğa katıldın.",
-    "joinedPending": "Talebin moderatörlere iletildi."
+    "joinedPending": "Talebin moderatörlere iletildi.",
+    "createTitle": "Yeni topluluk",
+    "createIntro": "Kalıcı bir grup aç. Ad ve görünürlük seç; ayrıntıları sonra düzenleyebilirsin.",
+    "createName": "Ad",
+    "createDescription": "Açıklama (isteğe bağlı)",
+    "createVisibility": "Görünürlük",
+    "createRegion": "Bölge (isteğe bağlı)",
+    "createSubmit": "Topluluk oluştur",
+    "visibility": {
+      "PUBLIC": "Herkese açık",
+      "PRIVATE": "Özel",
+      "HIDDEN": "Gizli"
+    }
   },
   "inbox": {
     "tabDm": "DM",

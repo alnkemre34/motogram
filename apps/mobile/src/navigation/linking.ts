@@ -47,6 +47,14 @@ export const linking: LinkingOptions<AppStackParamList> = {
         },
       },
       ChangePassword: 'settings/password',
+      ChangeEmail: 'settings/email',
+      ChangeUsername: 'settings/username',
+      VerifyEmail: {
+        path: 'email-verify/:token?',
+        parse: { token: (t?: string) => (t ? decodeURIComponent(t) : undefined) },
+      },
+      Devices: 'settings/devices',
+      CreateCommunity: 'community/create',
       CommunityDetail: {
         path: 'community/:id',
         parse: { id: (id: string) => id },
