@@ -26,21 +26,19 @@ services:
       retries: 10
 
   pgbouncer:
-    image: docker.io/bitnami/pgbouncer:1.23.1
+    # Bitnami removed public tags for pgbouncer; use a minimal maintained image.
+    image: docker.io/edoburu/pgbouncer:v1.23.1-p3
     container_name: motogram_pgbouncer
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      PGBOUNCER_DATABASE: ${POSTGRES_DB:-motogram}
-      PGBOUNCER_POOL_MODE: transaction
-      PGBOUNCER_MAX_CLIENT_CONN: "2000"
-      PGBOUNCER_DEFAULT_POOL_SIZE: "25"
-      POSTGRESQL_HOST: postgres
-      POSTGRESQL_PORT_NUMBER: "5432"
-      POSTGRESQL_USERNAME: ${POSTGRES_USER:-motogram}
-      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+      # https://hub.docker.com/r/edoburu/pgbouncer
+      DATABASE_URL: postgres://${POSTGRES_USER:-motogram}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-motogram}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: "2000"
+      DEFAULT_POOL_SIZE: "25"
     networks:
       - motogram
 
@@ -104,7 +102,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgres://${POSTGRES_USER:-motogram}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-motogram}?schema=public&pgbouncer=true
+      DATABASE_URL: postgres://${POSTGRES_USER:-motogram}:${POSTGRES_PASSWORD}@pgbouncer:5432/${POSTGRES_DB:-motogram}?schema=public&pgbouncer=true
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
