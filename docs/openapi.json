@@ -1143,6 +1143,20 @@
         ],
         "type": "object"
       },
+      "ChangeUsernameSchema": {
+        "properties": {
+          "username": {
+            "maxLength": 30,
+            "minLength": 3,
+            "pattern": "^[a-zA-Z0-9_.]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "type": "object"
+      },
       "CommentAuthorSnippetSchema": {
         "properties": {
           "avatarUrl": {
@@ -15596,6 +15610,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SuccessTrueSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/users/me/username": {
+      "patch": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPublicApiResponseSchema"
                 }
               }
             },

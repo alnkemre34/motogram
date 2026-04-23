@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { LocationSharingModeEnum } from '../enums';
 import { DateLikeSchema } from '../lib/api-response';
 
+import { UsernameSchema } from './auth.schema';
+
 // Spec 2.6 - Profil, 3.2 - User, UserSettings modelleri
 
 export const UserPublicSchema = z.object({
@@ -46,6 +48,52 @@ export const UpdateProfileSchema = z.object({
   coverImageUrl: z.string().url().optional(),
 });
 export type UpdateProfileDto = z.infer<typeof UpdateProfileSchema>;
+
+/** B-06 — Depoda küçük harf; URL/girdi karışık olsa da tekilleştirme. */
+export function normalizeUsernameForStorage(raw: string): string {
+  return raw.trim().toLowerCase();
+}
+
+const RESERVED_USERNAMES_LOWER = new Set([
+  'admin',
+  'administrator',
+  'mod',
+  'moderator',
+  'motogram',
+  'motogramapp',
+  'motogram_team',
+  'motogramofficial',
+  'support',
+  'help',
+  'root',
+  'system',
+  'api',
+  'www',
+  'mail',
+  'noreply',
+  'no-reply',
+  'team',
+  'staff',
+  'security',
+  'abuse',
+  'official',
+  'null',
+  'undefined',
+]);
+
+export function isReservedUsername(username: string): boolean {
+  const n = normalizeUsernameForStorage(username);
+  if (!n) return true;
+  if (RESERVED_USERNAMES_LOWER.has(n)) return true;
+  if (n.startsWith('motogram')) return true;
+  return false;
+}
+
+/** B-06 — `PATCH /users/me/username` */
+export const ChangeUsernameSchema = z.object({
+  username: UsernameSchema,
+});
+export type ChangeUsernameDto = z.infer<typeof ChangeUsernameSchema>;
 
 export const UserSettingsSchema = z.object({
   language: z.enum(['tr', 'en']).default('tr'),

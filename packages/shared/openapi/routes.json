@@ -853,5 +853,12 @@
     "responseSchema": "SuccessTrueSchema",
     "responseStatus": 200,
     "auth": true
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me/username",
+    "responseSchema": "UserPublicApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
   }
 ]

@@ -104,6 +104,7 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
       const createCall = prisma.user.create.mock.calls[0]![0];
       expect(createCall.data.eulaAcceptedAt).toBeInstanceOf(Date);
       expect(createCall.data.settings.create.language).toBe('tr');
+      expect(createCall.data.username).toBe('alice');
       expect(result.userId).toBe('u1');
       expect(result.tokens.accessToken).toBe('a');
     });

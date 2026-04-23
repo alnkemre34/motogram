@@ -1,7 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { ErrorCodes, type UpdateProfileDto } from '@motogram/shared';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  ErrorCodes,
+  isReservedUsername,
+  normalizeUsernameForStorage,
+  type ChangeUsernameDto,
+  type UpdateProfileDto,
+} from '@motogram/shared';
 
 import { PrismaService } from '../prisma/prisma.service';
+
+const USERNAME_CHANGE_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class UsersService {
@@ -9,7 +22,11 @@ export class UsersService {
 
   async getPublicProfileByUsername(username: string) {
     const user = await this.prisma.user.findFirst({
-      where: { username, deletedAt: null, isBanned: false },
+      where: {
+        username: { equals: username.trim(), mode: 'insensitive' },
+        deletedAt: null,
+        isBanned: false,
+      },
       select: this.publicSelect(),
     });
     if (!user) {
@@ -33,6 +50,58 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id: userId },
       data: dto,
+      select: this.publicSelect(),
+    });
+  }
+
+  /** B-06 — 30 gün cooldown, rezerv liste, küçük harf depo; çakışma 409. */
+  async changeUsername(userId: string, dto: ChangeUsernameDto) {
+    const next = normalizeUsernameForStorage(dto.username);
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
+      select: { id: true, username: true, usernameChangedAt: true },
+    });
+    if (!user) {
+      throw new NotFoundException({ error: 'user_not_found', code: ErrorCodes.NOT_FOUND });
+    }
+    if (normalizeUsernameForStorage(user.username) === next) {
+      return this.prisma.user.findFirstOrThrow({
+        where: { id: userId },
+        select: this.publicSelect(),
+      });
+    }
+    if (isReservedUsername(next)) {
+      throw new BadRequestException({
+        error: 'username_reserved',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+    if (user.usernameChangedAt) {
+      const elapsed = Date.now() - user.usernameChangedAt.getTime();
+      if (elapsed < USERNAME_CHANGE_COOLDOWN_MS) {
+        throw new BadRequestException({
+          error: 'username_change_cooldown',
+          code: ErrorCodes.VALIDATION_FAILED,
+        });
+      }
+    }
+    const taken = await this.prisma.user.findFirst({
+      where: {
+        id: { not: userId },
+        username: { equals: next, mode: 'insensitive' },
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+    if (taken) {
+      throw new ConflictException({
+        error: 'username_taken',
+        code: ErrorCodes.CONFLICT,
+      });
+    }
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { username: next, usernameChangedAt: new Date() },
       select: this.publicSelect(),
     });
   }

@@ -213,6 +213,23 @@ describeContract('Contract: public HTTP', () => {
     AuthResultSchema.parse(res.body);
   });
 
+  it('PATCH /v1/users/me/username — JWT yok 401', async () => {
+    const res = await request(app.getHttpServer())
+      .patch('/v1/users/me/username')
+      .send({ username: 'valid_name_99' })
+      .expect(401);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('PATCH /v1/users/me/username — geçersiz kullanıcı adı 400 + ApiErrorSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .patch('/v1/users/me/username')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ username: 'ab' })
+      .expect(400);
+    ApiErrorSchema.parse(res.body);
+  });
+
   it('GET /v1/posts/feed — JWT ile PostFeedPageSchema + likedByMe', async () => {
     const res = await request(app.getHttpServer())
       .get('/v1/posts/feed')

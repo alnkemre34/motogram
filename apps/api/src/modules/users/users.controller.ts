@@ -1,9 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
+  ChangeUsernameSchema,
   SuccessTrueSchema,
   UpdateProfileSchema,
   UserMeResponseSchema,
   UserPublicApiResponseSchema,
+  type ChangeUsernameDto,
   type UpdateProfileDto,
 } from '@motogram/shared';
 
@@ -33,6 +36,17 @@ export class UsersController {
     @Body(new ZodBody(UpdateProfileSchema)) dto: UpdateProfileDto,
   ) {
     return this.users.updateProfile(user.userId, dto);
+  }
+
+  /** B-06 — 30 gün cooldown + rezerv kullanıcı adları (UsersService). */
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 5 } })
+  @Patch('me/username')
+  @ZodResponse(UserPublicApiResponseSchema)
+  async changeUsername(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body(new ZodBody(ChangeUsernameSchema)) dto: ChangeUsernameDto,
+  ) {
+    return this.users.changeUsername(user.userId, dto);
   }
 
   @Delete('me')

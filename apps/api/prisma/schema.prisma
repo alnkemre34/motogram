@@ -44,6 +44,8 @@ model User {
   preferredLanguage String  @default("tr")
   eulaAcceptedAt  DateTime?
   lastSeenAt      DateTime?
+  // B-06 — Son kullanıcı adı değişiminden 30 gün sonra yeniden değiştirilebilir.
+  usernameChangedAt DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?

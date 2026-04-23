@@ -3675,6 +3675,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/me/username": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserPublicApiResponseSchema"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/users/{username}": {
         parameters: {
             query?: never;
@@ -4023,6 +4058,9 @@ export interface components {
         ChangePasswordSchema: {
             currentPassword: string;
             newPassword: string;
+        };
+        ChangeUsernameSchema: {
+            username: string;
         };
         CommentAuthorSnippetSchema: {
             /** Format: uri */

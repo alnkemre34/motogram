@@ -51,8 +51,14 @@ export class AuthService {
   // Spec 9.2 - Email+sifre register. EULA zorunlu (Zod sema literal(true) ile
   // garanti altinda).
   async register(dto: RegisterDto): Promise<{ userId: string; tokens: TokenPair }> {
+    const usernameNorm = dto.username.trim().toLowerCase();
     const existing = await this.prisma.user.findFirst({
-      where: { OR: [{ email: dto.email }, { username: dto.username }] },
+      where: {
+        OR: [
+          { email: dto.email },
+          { username: { equals: usernameNorm, mode: 'insensitive' } },
+        ],
+      },
     });
     if (existing) {
       throw new ConflictException({
@@ -66,7 +72,7 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
-        username: dto.username,
+        username: usernameNorm,
         passwordHash,
         name: dto.name ?? null,
         preferredLanguage: dto.preferredLanguage,
@@ -90,7 +96,10 @@ export class AuthService {
     // kullanicilari findFirst ile cekip grace window'u kontrol ediyoruz.
     const user = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: identifier }, { username: identifier }],
+        OR: [
+          { email: identifier },
+          { username: { equals: identifier, mode: 'insensitive' } },
+        ],
       },
     });
 
