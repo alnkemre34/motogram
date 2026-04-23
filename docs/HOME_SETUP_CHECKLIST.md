@@ -12,9 +12,10 @@
 | Kalem | Değer / Nereden | Durum |
 |---|---|---|
 | GitHub repo | https://github.com/alnkemre34/motogram | ✅ push edildi |
-| Expo username | `alnkemre34` | ✅ |
-| Expo password | (senin şifren) | hatırla |
-| Expo project ID | `46eb0ac3-3d27-4421-9b4b-d8cde63002ee` | ✅ `apps/mobile/app.json`’da |
+| Expo e-posta (hesap) | `motogram.social@gmail.com` | [expo.dev](https://expo.dev) → Account → e-postayı buradan güncelle, doğrula |
+| Expo kullanıcı adı (slug, `app.json` → `owner`) | `alnkemre` | `eas whoami` ile teyit et; `owner` aynı olmalı |
+| Expo password | (Expo hesap şifren) | hatırla |
+| Expo project ID | `49c6782e-d363-4910-81aa-eeffb0a0b65a` | ✅ `apps/mobile/app.json`’da (alnkemre hesabı) |
 | Expo project slug | `motogram` | ✅ |
 | Mapbox PUBLIC token | (Mapbox hesabından `pk.` ile başlayan) | ✅ sende, repoda tutma |
 | Mapbox SECRET token | (Mapbox’tan `sk.` ile başlayan, Downloads:Read) | ✅ sende, repoda tutma |
@@ -119,18 +120,18 @@ pnpm --filter @motogram/shared build
 ```powershell
 pnpm add -g eas-cli
 eas login
-# kullanıcı adı: alnkemre34
-# şifre: (senin Expo şifren)
+# e-posta: motogram.social@gmail.com  (veya hesapta tanımlı e-posta)
+# şifre: Expo hesap şifren
 
 eas whoami
-# Çıktı: "alnkemre34" görmelisin
+# Çıktı, app.json `owner` ile aynı olmalı ("alnkemre")
 ```
 
 ### Proje bağlantısını doğrula
 
 ```powershell
 cd C:\motogram\apps\mobile
-eas init --id 46eb0ac3-3d27-4421-9b4b-d8cde63002ee
+eas init --id 49c6782e-d363-4910-81aa-eeffb0a0b65a
 ```
 
 “Project already exists” derse: **y** / onay. Amaç: local app.json ile
@@ -171,7 +172,7 @@ cd C:\motogram\apps\mobile
 eas build --profile development --platform android
 ```
 
-Terminal çıktısı seni **https://expo.dev/accounts/alnkemre34/projects/motogram/builds**
+Terminal çıktısı seni **https://expo.dev/accounts/alnkemre/projects/motogram/builds**
 URL’ine yönlendirir. Orada build ilerlemesini canlı izleyebilirsin:
 
 ```

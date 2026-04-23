@@ -28,7 +28,12 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
       ],
       "usesCleartextTraffic": true
     },
@@ -57,9 +62,9 @@
       "wsUrl": "http://85.235.74.203",
       "mapboxStyleUrl": "mapbox://styles/mapbox/dark-v11",
       "eas": {
-        "projectId": "46eb0ac3-3d27-4421-9b4b-d8cde63002ee"
+        "projectId": "49c6782e-d363-4910-81aa-eeffb0a0b65a"
       }
     },
-    "owner": "alnkemre34"
+    "owner": "alnkemre"
   }
 }

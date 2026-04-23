@@ -12,7 +12,8 @@
 ## 0. Ön Gereklilikler (Kullanıcı, ~5 dk)
 
 - [ ] **Expo hesabı** (ücretsiz): https://expo.dev/signup
-      - `apps/mobile/app.json → owner: "alnkemre34"` (Expo hesabi).
+      - Giriş e-postası: `motogram.social@gmail.com` (tercih; [expo.dev](https://expo.dev) → Account’tan e-posta/şifre).
+      - `apps/mobile/app.json → owner: "alnkemre"`: bu alan **Expo kullanıcı adı (slug)**, e-posta değil. Eşleşmeyi `eas whoami` ile doğrula.
 - [ ] **Mapbox tokenları** (https://account.mapbox.com → Tokens):
       - **SECRET / Downloads:Read** scope’lu token → `RNMAPBOX_MAPS_DOWNLOAD_TOKEN`
       - **PUBLIC** token → `EXPO_PUBLIC_MAPBOX_TOKEN`
@@ -49,7 +50,7 @@ Proje bağlantısı (sadece ilk kez; `projectId` `app.json`’da zaten mevcut):
 
 ```powershell
 cd C:\motogram\apps\mobile
-eas init --id 46eb0ac3-3d27-4421-9b4b-d8cde63002ee
+eas init --id 49c6782e-d363-4910-81aa-eeffb0a0b65a
 ```
 
 ---
@@ -87,7 +88,7 @@ eas build --profile development --platform android
 
 - Kod Expo cloud’a (Linux runner) yüklenir → Gradle/CMake/NDK orada çalışır.
 - Windows’taki path-length / Java sürümü / Ninja sorunları **bu aşamada yoktur**.
-- Build durumu: https://expo.dev/accounts/alnkemre34/projects/motogram/builds
+- Build durumu: https://expo.dev/accounts/alnkemre/projects/motogram/builds
 
 Çıktı: indirilebilir bir **APK** / internal distribution link.
 
