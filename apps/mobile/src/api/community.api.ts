@@ -1,5 +1,7 @@
 import type {
+  CommunitiesSearchResponseDto,
   CommunityDetail,
+  CommunitySearchQueryDto,
   CreateCommunityDto,
   JoinCommunityDto,
   NearbyCommunitiesResponse,
@@ -9,6 +11,7 @@ import type {
 } from '@motogram/shared';
 import {
   CommunitiesMineResponseSchema,
+  CommunitiesSearchResponseSchema,
   CommunityDetailSchema,
   CommunityJoinHttpResponseSchema,
   CommunityMembersResponseSchema,
@@ -54,6 +57,15 @@ export async function listNearbyCommunities(params: {
   if (params.radius) q.set('radius', String(params.radius));
   if (params.limit) q.set('limit', String(params.limit));
   return apiRequest(`/communities/nearby?${q.toString()}`, NearbyCommunitiesResponseSchema);
+}
+
+/** B-12 — `GET /communities/search` */
+export async function searchCommunities(query: CommunitySearchQueryDto): Promise<CommunitiesSearchResponseDto> {
+  const sp = new URLSearchParams();
+  sp.set('q', query.q);
+  sp.set('limit', String(query.limit ?? 10));
+  if (query.cursor) sp.set('cursor', query.cursor);
+  return apiRequest(`/communities/search?${sp.toString()}`, CommunitiesSearchResponseSchema);
 }
 
 export async function listCommunityMembers(id: string) {

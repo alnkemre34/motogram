@@ -31,9 +31,9 @@
 
 | Alan | Deger |
 |---|---|
-| **Aktif Faz** | Faz 7 + mobil **P6** (harita + topluluk/parti polish) öncelik |
-| **Son Tamamlanan** | **A5 (mobil, devam):** `UserProfile` + `GET /v1/users/:username`, `follows` + `ChangePassword` (B-04); feed/story’den açılış; **P5** önceki: ayarlar hub, tercihler, blocks, acil, hesap silme |
-| **Son Guncelleme** | 2026-04-24 — public profil + parola; yol haritası §7 + SESSION_HANDOFF; `typecheck`/`test` yeşil |
+| **Aktif Faz** | Faz 7 + mobil **P6** (kalan: harita/parti polish) |
+| **Son Tamamlanan** | **P6 (kısım):** Topluluk sekmesi (`nearby`/`me`/search), `CommunityDetail` stack, B-12 arama API; A5/A6 doc senkron |
+| **Son Guncelleme** | 2026-04-24 — P6 topluluk; 16 Jest suite |
 | **Son Commit** | `git log -1 --oneline` (A5 + doc senkronu bu tarih) |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,12 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-24] Mobil P6 — Topluluk (Discover) + CommunityDetail
+
+**Kod:** `DiscoverScreen` + `listNearby`/`me`/`searchCommunities`; `CommunityDetail` `AppStack`; `community.api` search; `discover-search` + Jest; `MapScreen` i18n parti ayrılma.
+
+---
 
 ### [2026-04-24] Mobil A5 — public profil (username) + takip + parola
 

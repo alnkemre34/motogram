@@ -1,6 +1,6 @@
 # Motogram — Frontend UI/UX Blueprint
 
-> Sürüm: 1.6  
+> Sürüm: 1.7  
 > Tarih: 2026-04-24  
 > Kapsam: `apps/mobile` odaklı frontend şartnamesi, `apps/web-admin` için görünür olmayan backend yüzeyleri notları  
 > Ana hedef: mobil uygulamanın ekran, navigasyon, state, veri akışı ve UX davranışlarını backend sözleşmesine birebir oturtmak  
@@ -980,7 +980,7 @@ Bugünkü mobil taramada görülen önemli farklar:
 5. `ProfileScreen` şu an:
    - üst sağda ayarlar (Settings) ile `AppStack` hub’a gider (v1.5+)
    - logout doğrudan profil altında (ayrıca hesap silme ekranında da)
-   - gönderiler / topluluklar sekmesi yok
+   - gönderiler sekmesi yok; topluluk keşfi **Community (Discover) sekmesinde** (v1.7+)
 6. `MapScreen` zaten en olgun alanlardan biri; fakat son hedefte UI polish ve right-panel davranışı daha net tanımlanmalı.
 
 Bu farklar belgeye göre giderilmelidir.
@@ -1001,7 +1001,7 @@ Bu farklar belgeye göre giderilmelidir.
 | Notifications | `/v1/notifications*`, `/v1/notification-preferences*` | hazır |
 | Map Discover | `/v1/map/nearby`, `/v1/parties`, `/v1/events/nearby`, `/v1/communities/nearby` | hazır |
 | Ride Mode | `/v1/parties/:id`, `/v1/parties/:id/leave`, `/v1/location/*`, WS `/realtime` | hazır |
-| Community | `/v1/communities*` | hazır |
+| Community (Discover) | `/v1/communities/nearby`, `/me`, `/search`, `/:id`, `/:id/join`… | uygulandı (v1.7) |
 | Inbox | `GET /v1/conversations?type=` (DIRECT, GROUP_CHAT, COMMUNITY_CHAT), diğer `/v1/conversations*`, `/v1/messages*`, `/v1/parties/invites*`, WS `/messaging` | A2 uygulandı (v1.2) |
 | Profile | `/v1/users/me`, `/v1/users/:username`, `/v1/posts/user/:userId`, `/v1/motorcycles*`, `/v1/gamification*` | hazır |
 | Settings | `/v1/auth/password/change`, `/v1/auth/email/*`, `/v1/users/me/username`, `/v1/blocks*`, `/v1/devices*`, `/v1/account/deletion*`, `/v1/emergency/contacts*` | P5: tercihler + acil + blocks + hesap silme + `PATCH /users/me`; şifre/e-posta/cihaz ardıl |

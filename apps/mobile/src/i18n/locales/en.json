@@ -266,7 +266,40 @@
         "PARTY_ONLY": "Only party members can see you.",
         "PUBLIC": "Everyone on Motogram can see you."
       }
-    }
+    },
+    "partyLeaveTitle": "Leave party?",
+    "partyLeaveBody": "You can only rejoin with a new invite after you leave.",
+    "partyLeaveCancel": "Cancel",
+    "partyLeaveConfirm": "Leave"
+  },
+  "discover": {
+    "searchPlaceholder": "Search communities (2+ characters)",
+    "searchA11y": "Search communities",
+    "searching": "Search results",
+    "tabNearby": "Near me",
+    "tabMine": "My communities",
+    "empty": "No communities to show here yet.",
+    "emptySearch": "No communities match your search.",
+    "locationDenied": "Location permission is needed to list nearby communities.",
+    "locationPending": "Locating you…",
+    "memberCount": "{{n}} members"
+  },
+  "community": {
+    "title": "Community",
+    "notFound": "Community not found.",
+    "members": "Members",
+    "tags": "Tags",
+    "leave": "Leave community",
+    "pending": "Awaiting approval",
+    "joinHint": "Optional message to moderators (max 500 characters)",
+    "joinPlaceholder": "Short note to moderators…",
+    "requestJoin": "Request to join",
+    "join": "Join",
+    "rules": "Rules",
+    "rulesDefault": "No specific rules yet. Be respectful and ride safe.",
+    "alertTitle": "Community",
+    "joinedActive": "You have joined the community.",
+    "joinedPending": "Your request was sent to moderators."
   },
   "inbox": {
     "tabDm": "DM",

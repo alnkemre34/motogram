@@ -47,6 +47,10 @@ export const linking: LinkingOptions<AppStackParamList> = {
         },
       },
       ChangePassword: 'settings/password',
+      CommunityDetail: {
+        path: 'community/:id',
+        parse: { id: (id: string) => id },
+      },
     },
   },
 };

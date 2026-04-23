@@ -115,12 +115,12 @@ export function MapScreen() {
   async function handleLeaveParty() {
     if (!party) return;
     Alert.alert(
-      'Partiden Ayril',
-      'Emin misin? Cikistan sonra partiye tekrar davet almadan katilamazsin.',
+      t('map.partyLeaveTitle'),
+      t('map.partyLeaveBody'),
       [
-        { text: 'Vazgec', style: 'cancel' },
+        { text: t('map.partyLeaveCancel'), style: 'cancel' },
         {
-          text: 'Ayril',
+          text: t('map.partyLeaveConfirm'),
           style: 'destructive',
           onPress: async () => {
             try {

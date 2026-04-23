@@ -1,25 +1,25 @@
 import { JoinCommunitySchema } from '@motogram/shared';
 import type { CommunityDetail } from '@motogram/shared';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRoute, type RouteProp } from '@react-navigation/native';
 import { Controller } from 'react-hook-form';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  getCommunity,
-  joinCommunity,
-  leaveCommunity,
-} from '../../api/community.api';
+import { getCommunity, joinCommunity, leaveCommunity } from '../../api/community.api';
+import { StackScreenHeader } from '../../components/StackScreenHeader';
 import { useZodForm } from '../../hooks/useZodForm';
+import type { AppStackParamList } from '../../navigation/types';
 
 import { CommunityJoinMessageSchema } from './community-join-form.schema';
 
-// Spec 2.4.3 - Topluluk detay sayfasi: Duyurular, uyeler, etkinlikler, katil butonu.
+type Props = NativeStackScreenProps<AppStackParamList, 'CommunityDetail'>;
 
-type RouteParams = { id: string };
+// Spec 2.4.3 — topluluk detay; `AppStack` üzerinden.
 
-export function CommunityDetailScreen() {
-  const route = useRoute<RouteProp<{ CommunityDetail: RouteParams }, 'CommunityDetail'>>();
+export function CommunityDetailScreen({ route }: Props) {
+  const { t } = useTranslation();
   const communityId = route.params.id;
   const qc = useQueryClient();
 
@@ -42,105 +42,111 @@ export function CommunityDetailScreen() {
       ),
     onSuccess: (result) => {
       Alert.alert(
-        'Topluluk',
-        result.status === 'ACTIVE' ? 'Topluluga katildin.' : 'Katilim talebin gonderildi.',
+        t('community.alertTitle'),
+        result.status === 'ACTIVE' ? t('community.joinedActive') : t('community.joinedPending'),
       );
       reset();
-      qc.invalidateQueries({ queryKey: ['community', communityId] });
-      qc.invalidateQueries({ queryKey: ['my-communities'] });
+      void qc.invalidateQueries({ queryKey: ['community', communityId] });
+      void qc.invalidateQueries({ queryKey: ['communities', 'me'] });
     },
   });
 
   const leaveMut = useMutation({
     mutationFn: () => leaveCommunity(communityId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['community', communityId] });
-      qc.invalidateQueries({ queryKey: ['my-communities'] });
+      void qc.invalidateQueries({ queryKey: ['community', communityId] });
+      void qc.invalidateQueries({ queryKey: ['communities', 'me'] });
     },
   });
 
   if (q.isLoading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loading}>Yukleniyor...</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <StackScreenHeader title={t('community.title')} />
+        <View style={styles.centered}>
+          <ActivityIndicator color="#ff6a00" />
+        </View>
+      </SafeAreaView>
     );
   }
   if (q.isError || !q.data) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loading}>Topluluk bulunamadi.</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <StackScreenHeader title={t('community.title')} />
+        <View style={styles.centered}>
+          <Text style={styles.loading}>{t('community.notFound')}</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   const c = q.data;
-  const isMember = c.viewerRole !== null && c.viewerRole !== undefined && c.viewerStatus === 'ACTIVE';
+  const isMember = c.viewerRole != null && c.viewerRole !== undefined && c.viewerStatus === 'ACTIVE';
   const isPending = c.viewerStatus === 'PENDING';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{c.name}</Text>
-      <Text style={styles.visibility}>{c.visibility}</Text>
-      {c.description ? <Text style={styles.description}>{c.description}</Text> : null}
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <StackScreenHeader title={c.name} />
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.visibility}>{c.visibility}</Text>
+        {c.description ? <Text style={styles.description}>{c.description}</Text> : null}
 
-      <View style={styles.statsRow}>
-        <Stat label="Uye" value={c.membersCount} />
-        <Stat label="Etiket" value={c.tags.length} />
-      </View>
+        <View style={styles.statsRow}>
+          <Stat label={t('community.members')} value={c.membersCount} />
+          <Stat label={t('community.tags')} value={c.tags.length} />
+        </View>
 
-      {isMember ? (
-        <Pressable
-          style={[styles.button, { backgroundColor: '#444' }]}
-          onPress={() => leaveMut.mutate()}
-          disabled={leaveMut.isPending}
-        >
-          <Text style={styles.buttonText}>Toplulugu Birak</Text>
-        </Pressable>
-      ) : isPending ? (
-        <Pressable style={[styles.button, { backgroundColor: '#444' }]} disabled>
-          <Text style={styles.buttonText}>Onay Bekliyor</Text>
-        </Pressable>
-      ) : (
-        <>
-          <Text style={styles.joinHint}>Opsiyonel mesaj (max 500)</Text>
-          <Controller
-            control={control}
-            name="message"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.joinMessageInput}
-                placeholder="Moderatorlere kisa not..."
-                placeholderTextColor="#666"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                multiline
-                maxLength={500}
-              />
-            )}
-          />
+        {isMember ? (
           <Pressable
-            style={styles.button}
-            onPress={handleSubmit((form) =>
-              joinMut.mutate({
-                message: form.message.trim() ? form.message.trim() : undefined,
-              }),
-            )}
-            disabled={joinMut.isPending}
+            style={[styles.button, styles.buttonMuted]}
+            onPress={() => void leaveMut.mutate()}
+            disabled={leaveMut.isPending}
           >
-            <Text style={styles.buttonText}>
-              {c.visibility === 'PRIVATE' ? 'Katilim Talebi Gonder' : 'Katil'}
-            </Text>
+            <Text style={styles.buttonText}>{t('community.leave')}</Text>
           </Pressable>
-        </>
-      )}
+        ) : isPending ? (
+          <Pressable style={[styles.button, styles.buttonMuted]} disabled>
+            <Text style={styles.buttonText}>{t('community.pending')}</Text>
+          </Pressable>
+        ) : (
+          <>
+            <Text style={styles.joinHint}>{t('community.joinHint')}</Text>
+            <Controller
+              control={control}
+              name="message"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={styles.joinMessageInput}
+                  placeholder={t('community.joinPlaceholder')}
+                  placeholderTextColor="#666"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  multiline
+                  maxLength={500}
+                />
+              )}
+            />
+            <Pressable
+              style={styles.button}
+              onPress={handleSubmit((form) =>
+                joinMut.mutate({
+                  message: form.message.trim() ? form.message.trim() : undefined,
+                }),
+              )}
+              disabled={joinMut.isPending}
+            >
+              <Text style={styles.buttonText}>
+                {c.visibility === 'PRIVATE' ? t('community.requestJoin') : t('community.join')}
+              </Text>
+            </Pressable>
+          </>
+        )}
 
-      <Text style={styles.sectionTitle}>Kurallar</Text>
-      <Text style={styles.sectionBody}>
-        {c.rules ?? 'Henuz kural eklenmemis. Saygili olun, trafiği ve kendinizi tehlikeye atmayın.'}
-      </Text>
-    </ScrollView>
+        <Text style={styles.sectionTitle}>{t('community.rules')}</Text>
+        <Text style={styles.sectionBody}>{c.rules ?? t('community.rulesDefault')}</Text>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -155,9 +161,9 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0d0d0d' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 16, paddingBottom: 120 },
   loading: { color: '#aaa', textAlign: 'center', marginTop: 40 },
-  title: { color: '#fff', fontSize: 24, fontWeight: '700' },
   visibility: { color: '#ff6a00', marginTop: 4, fontSize: 12, letterSpacing: 1 },
   description: { color: '#ccc', marginTop: 12, fontSize: 14, lineHeight: 20 },
   statsRow: { flexDirection: 'row', gap: 16, marginTop: 16 },
@@ -177,6 +183,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
   },
+  buttonMuted: { backgroundColor: '#444' },
   buttonText: { color: '#000', fontWeight: '700' },
   sectionTitle: {
     color: '#fff',

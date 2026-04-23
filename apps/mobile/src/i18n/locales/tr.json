@@ -266,7 +266,40 @@
         "PARTY_ONLY": "Sadece aktif parti üyeleri görür.",
         "PUBLIC": "Motogram'daki herkes görebilir."
       }
-    }
+    },
+    "partyLeaveTitle": "Partiden ayrıl?",
+    "partyLeaveBody": "Çıktıktan sonra yeniden katılmak için davet gerekir.",
+    "partyLeaveCancel": "Vazgeç",
+    "partyLeaveConfirm": "Ayrıl"
+  },
+  "discover": {
+    "searchPlaceholder": "Topluluk ara (en az 2 karakter)",
+    "searchA11y": "Topluluk arama",
+    "searching": "Arama sonuçları",
+    "tabNearby": "Yakınımdakiler",
+    "tabMine": "Topluluklarım",
+    "empty": "Henüz gösterilecek topluluk yok.",
+    "emptySearch": "Eşleşen topluluk yok.",
+    "locationDenied": "Yakındaki topluluklar için konum izni gerekli.",
+    "locationPending": "Konum alınıyor…",
+    "memberCount": "{{n}} üye"
+  },
+  "community": {
+    "title": "Topluluk",
+    "notFound": "Topluluk bulunamadı.",
+    "members": "Üye",
+    "tags": "Etiket",
+    "leave": "Topluluktan ayrıl",
+    "pending": "Onay bekleniyor",
+    "joinHint": "Moderatörlere isteğe bağlı mesaj (en fazla 500 karakter)",
+    "joinPlaceholder": "Kısa not…",
+    "requestJoin": "Katılım talebi gönder",
+    "join": "Katıl",
+    "rules": "Kurallar",
+    "rulesDefault": "Henüz özel kural yok. Saygılı olun, güvenli sürün.",
+    "alertTitle": "Topluluk",
+    "joinedActive": "Topluluğa katıldın.",
+    "joinedPending": "Talebin moderatörlere iletildi."
   },
   "inbox": {
     "tabDm": "DM",

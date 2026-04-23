@@ -25,7 +25,7 @@
 | A3 | Home + story rail + üst bar | Feed, hikayeler, bildirim/mesaj kısayolu | Uygulandı (2026-04-23: tren + `StoryViewer` + `GET /stories/feed` + görüntülenme) |
 | A4 | 4 sekme / navigasyon hedefi | `FRONTEND_UI_UX_BLUEPRINT` §navigasyon; TabNavigator sadeleştirme | Uygulandı (P4) |
 | A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Uygulandı (P5 + 2026-04-24: `UserProfile` `GET /users/:username`, takip, engel; feed/story’den açılış; `ChangePassword` B-04; **ardıl:** cihaz/e-posta, `expo-av` video) |
-| A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | Kısmi |
+| A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | Kısmi (2026-04-24: Topluluk sekmesi `nearby`/`me`/`search` + `CommunityDetail` AppStack; harita parti çıkış i18n) |
 | A7 | WS yüzeyleri | `/messaging` tam, `/realtime` sürüş, gamification/emergency | Kısmi |
 
 Detay: Blueprint §17.4 “İdeal uygulama sırası” ile uyumludur; Inbox aşaması netleştirilerek yukarı taşındı.
@@ -43,10 +43,10 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | **P3** | Home + üst bar | Story rail, bildirim/mesaj kısayolu (root stack) | Tamam: tren, tam ekran yürütücü, video için geçici metin, bildirimler ayrılırken okundu |
 | **P4** | Tab navigasyon 4 | `FRONTEND_UI_UX_BLUEPRINT` §5; Inbox tab’dan kaldır | Tamam: `AppStack` + 4 tab |
 | **P5** | Profil + ayarlar | §11, Settings | Tamam: `Settings` + alt ekranlar, `PATCH /users/me`, tercihler, acil, blocks, `account/deletion` |
-| **P6** | Harita + topluluk/parti polish | §8–9 | Mapbox; ekranlar contract ile |
+| **P6** | Harita + topluluk/parti polish | §8–9 | Kısmi: topluluk listesi + detay; harita/ parti polish devam |
 | **P7** | WS + gamification + acil | §14 | Namespace’ler blueprint ile |
 
-**Aktif sıra (2026-04-23):** P1–P5 tam; **ardıl:** (opsiyonel) `expo-av` hikâye video; public profil ekranı; **P6** harita + topluluk/parti polish.
+**Aktif sıra (2026-04-24):** P1–P5 tam; **P6** ilerleme (Topluluk sekmesi + `CommunityDetail`); **ardıl:** `expo-av` hikâye; harita/ parti derin polish; cihaz/e-posta ayar UI.
 
 ---
 
@@ -79,6 +79,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
+- **2026-04-24 (3):** P6 (topluluk): `DiscoverScreen` — yakın (`/communities/nearby`), benim (`/communities/me`), B-12 arama; `searchCommunities` + `canQueryCommunitySearch` Jest; `CommunityDetail` `AppStack` + `linking` `community/:id` + i18n; `MapScreen` parti ayrılma i18n.
 - **2026-04-24 (2):** A5 tamamlama: `getUserByUsername`, `follows.api` (follow/unfollow, `checkIsFollowingUser`), `UserProfile` + `UserProfile:home/story` navigasyon, `changePasswordRequest` + `ChangePasswordScreen`, `linking` `user/:username` ve `settings/password`.
 - **2026-04-24 (1):** Oturum handoff: `SESSION_HANDOFF.md` mobil özet tablosu; bu belgeye **§7 Nerede kaldık**; `PROJECT_BOARD` §1 tarih/commit; mobil `typecheck` + `test` tekrar koşuldu (15/59).
 - **2026-04-23 (5):** P5: `updateCurrentUser` (`PATCH /users/me`); `blocks.api`; `notification-preferences` GET/PATCH; acil `contacts` CRUD; `SettingsScreen` + `EditProfile` + tercihler + engellenenler + `AccountDeletionScreen`; `ProfileScreen` i18n + ayar; `linking` `settings/*`; `parseRidingStyleCommas` Jest.
@@ -95,8 +96,8 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 |--------|-------------------|--------|
 | **P1–P5** | Yukarıdakiler + **UserProfile** (`GET /users/:username`) + takip/engel + **ChangePassword** | Kapanı kabul: `typecheck` + `test` yeşil |
 | **A5** | P5 + `UserProfile` + `follows` + şifre ekranı | Cihaz listesi, e-posta değişim UI (ardıl) |
-| **A6** | Harita / parti / topluluk kısmi | **P6** polish + contract hizası |
+| **A6** | `Discover` + `GET communities/*` (2026-04-24) | Kalan: parti UI polish, harita ince ayar |
 | **Hikâye video** | Placeholder + i18n | `expo-av` (opsiyonel faz) |
 | **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |
 
-**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (15 suite / 59 test, 2026-04-24).
+**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (16 suite / 62 test, 2026-04-24).

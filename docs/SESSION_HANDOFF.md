@@ -12,17 +12,18 @@
 
 | Konu | Durum |
 |------|--------|
-| **Mobil yol haritasi (P1–P7)** | **P1–P5 tamam; sirada P6** (harita + topluluk/parti polish), sonra P7 (WS + gam). |
-| **A5 (profil + public)** | `UserProfile` (`GET /users/:username`), `follows.api`, feed baslik + story **uzun bas** → profil; `ChangePassword` (`POST /auth/password/change`); derin link `motogram://user/:username`, `.../settings/password`. |
+| **Mobil yol haritasi (P1–P7)** | **P1–P5 tamam; P6 basladi** — Topluluk sekmesi + `CommunityDetail`; tam P6 (harita/parti polish) + P7 sırada. |
+| **P6 (2026-04-24)** | `DiscoverScreen`: `nearby` + `me` + metin arama (`/communities/search`); `CommunityDetail` AppStack; `motogram://community/:id`; `discover-search` Jest; harita parti `Alert` i18n. |
+| **A5 (profil + public)** | `UserProfile`, `follows`, `ChangePassword` (onceki commit). |
 | **Onceki ref. commit** | P5 paketi: `4b54e62`; son ozellik bu oturumda — `git log -1 --oneline` ile dogrula. |
-| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **15 suite / 59 test** (son kosum 2026-04-24). |
+| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **16 suite / 62 test** (son kosum 2026-04-24). |
 | **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §7, `docs/FRONTEND_UI_UX_BLUEPRINT.md` v1.5+, `docs/PROJECT_BOARD.md` §1. |
 
 **Ardil / acik isler (oncelik secimi):**
 
 - Hikâye **video** in-app: `expo-av` (P3’te sadece placeholder + metin).
 - Ayarlar §11.5: **e-posta** / **push cihaz** listeleri (endpoint mevcut, UI yok); istege bagli: `PATCH /users/me/username` ekrani.
-- **P6:** Map / Community / Party ekranlari contract + polish (yol haritasi A6).
+- **P6 (kalan):** Harita / parti ekranlari ek polish; istege bagli topluluk `create` UI.
 
 **Kod giris noktalari (mobil):** `UserProfile` + `ChangePassword` `AppStack`; `getUserByUsername` `users.api.ts`; `follows.api.ts`; `HomeScreen` / `StoryRail` navigasyon.
 

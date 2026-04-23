@@ -20,6 +20,7 @@ export type AppStackParamList = {
   /** GET /v1/users/:username — büyük/küçük harf; path’te encode. */
   UserProfile: { username: string };
   ChangePassword: undefined;
+  CommunityDetail: { id: string };
 };
 
 export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<
