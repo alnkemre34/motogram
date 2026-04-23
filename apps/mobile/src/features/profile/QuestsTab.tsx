@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { listMyQuests } from '../../api/gamification.api';
@@ -6,6 +7,7 @@ import { listMyQuests } from '../../api/gamification.api';
 // Spec 3.6 - Profil -> Gorevler (istatistik sekmesi).
 
 export function QuestsTab() {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['my-quests'],
     queryFn: listMyQuests,
@@ -22,7 +24,7 @@ export function QuestsTab() {
   if (quests.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>Aktif gorev yok.</Text>
+        <Text style={styles.emptyText}>{t('profile.questsEmpty')}</Text>
       </View>
     );
   }
@@ -46,7 +48,7 @@ export function QuestsTab() {
             </View>
             <Text style={styles.progress}>
               {item.progress}/{item.targetValue}
-              {item.completed ? ' TAMAMLANDI' : ''}
+              {item.completed ? ` ${t('profile.questCompleted')}` : ''}
             </Text>
           </View>
         );

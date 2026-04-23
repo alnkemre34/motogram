@@ -963,7 +963,7 @@ Mobil için aktif veya aktif edilmesi gereken namespace’ler:
 - `/gamification`: anlık rozet / görev tamamlama
 - `/emergency`: yakın SOS bildirimi
 
-**Uygulama notu (mobil, 2026-04-23):** P7.1 kapsamında `/realtime` tarafında `party:status_changed` istemci store ile senkronize edildi; el sıkışmasında `auth` için Socket.IO `auth(cb)` biçimi kullanılarak reconnect sonrası güncel JWT ile uyum hedeflendi. Tam P7 takibi: `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §8.
+**Uygulama notu (mobil, 2026-04-23):** P7.1 kapsamında `/realtime` tarafında `party:status_changed` istemci store ile senkronize edildi; el sıkışmasında `auth` için Socket.IO `auth(cb)` biçimi kullanılarak reconnect sonrası güncel JWT ile uyum hedeflendi. **P7.2:** `/messaging` — `conversation:join` yeniden bağlantıda; `message:received` birleştirme + `message:error` (optimistic hata); `message:read_by` + sohbet detayı `lastReadAt` tohumu ile son giden mesajda okundu metni; sohbet ekranı i18n. **P7.3 / P7.4:** `/gamification` ve `/emergency` için ayrı Socket.IO istemcileri; `quest:completed` / `badge:earned` ve `emergency:*` olaylarında global üst toast (`realtime.*` i18n) + ilgili `react-query` invalidation. **AppState:** arka planda gamification/emergency disconnect; `/messaging` konuşmasında `conversation:leave` + yazıyor temiz, ön planda yeniden `join`. Tam P7: `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §8.
 
 ---
 

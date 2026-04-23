@@ -31,11 +31,11 @@
 
 | Alan | Deger |
 |---|---|
-| **Aktif Faz** | Faz 7 + mobil **P6** (kalan: harita/parti polish) |
-| **Son Tamamlanan** | **P6 (kısım):** Topluluk sekmesi (`nearby`/`me`/search), `CommunityDetail` stack, B-12 arama API; A5/A6 doc senkron |
-| **Son Guncelleme** | 2026-04-24 — P6 topluluk; 16 Jest suite |
-| **Son Commit** | `git log -1 --oneline` (A5 + doc senkronu bu tarih) |
-| **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
+| **Aktif Faz** | Faz 7 (Enterprise hardening) + mobil **P1–P7 kod/otomasyon tamam**; cihaz QA **§8.4** |
+| **Son Tamamlanan** | **Mobil P7 kapanış (kod):** WS `AppState` + `ws-typed` Sentry; `eventCreate` / profil rozet-görev i18n; `pnpm test`+`typecheck` (turbo) yeşil — `FRONTEND_IMPLEMENTATION_ROADMAP` §6 (13) |
+| **Son Guncelleme** | 2026-04-23 — mobil P1–P7 (repo testleri); Jest: shared 79 + api 205 + mobile 73; §8.4 dış cihaz |
+| **Son Commit** | `git log -1 --oneline` (yerel dogrula) |
+| **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md`; `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §8.4 (P7.5) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
 | **Aktif Riskler** | Risk #27 (TLS ertelendi) |
 | **Engelleyiciler (Blockers)** | Domain satin alma (motogram.app), TLS icin DNS cozumu, Mapbox indirme token, Firebase OTP prod config, FCM/APNs production sertifikalari, Apple/Google Store hesap onayi |
@@ -113,6 +113,16 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] Mobil P7 — Kod kapanış (AppState, Sentry, i18n) + P7.5 doc
+
+**Kod:** `useMessaging` + `useP7RealtimeWebSockets` — `AppState` ile arka planda oda ayrılma / WS disconnect; `wsOnServerParsed` — `captureException`. **i18n:** `eventCreate.*`, `profile.badgesEmpty` & `questsEmpty` & vitrin/görev etiketleri. **Test:** `pnpm test` (turbo) + `pnpm typecheck` yeşil.
+
+**P7.5** yalnız **§8.4** cihaz tablosu (otomasyon degil). Doküman: `FRONTEND_IMPLEMENTATION_ROADMAP` §6 (13), §8.3.
+
+### [2026-04-23] Mobil P7.5 — Manuel smoke checklist + pano hizalama (önceki)
+
+**Doküman:** `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` **§8.4** — dört namespace + token reconnect; 5-6 N/A notu.
 
 ### [2026-04-24] Mobil P6 — Topluluk (Discover) + CommunityDetail
 

@@ -14,6 +14,18 @@
     "back": "Geri",
     "done": "Tamam"
   },
+  "realtime": {
+    "questTitle": "Görev tamam",
+    "questBody": "{{name}} · +{{xp}} XP · Sv {{level}}",
+    "badgeTitle": "Yeni rozet",
+    "badgeBody": "{{name}} ({{rarity}})",
+    "emergencyNearbyTitle": "Yakında acil uyarı",
+    "emergencyNearbyBody": "{{user}} — {{type}} · {{distance}}",
+    "emergencyResponderTitle": "Yanıtıcı güncellemesi",
+    "emergencyResponderBody": "Durum: {{status}}",
+    "emergencyResolvedTitle": "Uyarı güncellemesi",
+    "emergencyResolvedBody": "Sonuç: {{resolution}}"
+  },
   "auth": {
     "welcome": {
       "tagline": "Motosiklet tutkunlarının sosyal evreni",
@@ -114,7 +126,34 @@
     "xp": "XP",
     "level": "Seviye",
     "garage": "Garaj",
-    "signOut": "Çıkış Yap"
+    "signOut": "Çıkış Yap",
+    "badgesEmpty": "Henüz rozetin yok. Görevleri tamamlayarak kazanmaya başla.",
+    "questsEmpty": "Aktif görev yok.",
+    "badgeShowcase": "VİTRİN",
+    "questCompleted": "TAMAMLANDI"
+  },
+  "eventCreate": {
+    "title": "Yeni etkinlik",
+    "fieldTitle": "Başlık",
+    "fieldDescription": "Açıklama",
+    "fieldMeeting": "Buluşma noktası",
+    "fieldStart": "Başlangıç (ISO 8601)",
+    "phTitle": "Pazar sabahı boğaz turu",
+    "phDescription": "Rota, hız, uyarılar…",
+    "phMeeting": "Örn. Beylerbeyi camii önü",
+    "phStart": "2026-04-25T10:00:00.000Z",
+    "locationDeniedTitle": "Konum",
+    "locationDeniedBody": "Konum izni verilmedi.",
+    "useMyLocation": "Benim konumumu kullan",
+    "locationSelected": "Konum seçildi: {{lat}}, {{lng}}",
+    "meetingRequired": "Buluşma konumu seçin veya konum izni verin.",
+    "validation": "Doğrulama",
+    "invalidData": "Geçersiz veri",
+    "submit": "Etkinliği oluştur",
+    "submitting": "Oluşturuluyor…",
+    "successTitle": "Etkinlik",
+    "successBody": "Etkinlik oluşturuldu.",
+    "defaultMeetingPoint": "Buluşma noktası"
   },
   "settings": {
     "title": "Ayarlar",
@@ -384,6 +423,11 @@
     "fallbackGroup": "Grup",
     "fallbackCommunityChat": "Topluluk sohbeti",
     "mediaPreview": "[medya]",
+    "messageDeleted": "Silindi",
+    "conversationPlaceholder": "Mesaj yaz…",
+    "conversationSend": "Gönder",
+    "messageRead": "Okundu",
+    "conversationTyping": "{{n}} kişi yazıyor…",
     "newConversation": "Yeni konuşma",
     "partyTitle": "Partiler",
     "partyActiveLabel": "AKTİF PARTİ",

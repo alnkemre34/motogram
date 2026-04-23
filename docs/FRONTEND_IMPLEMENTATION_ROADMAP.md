@@ -1,6 +1,6 @@
 # Motogram — Frontend uygulama yol haritası
 
-> Tarih: 2026-04-23 (P7.1 ilerleme: §8 + aşağıdaki **§8.1** satırı)  
+> Tarih: 2026-04-23 — mobil **P1–P7 kod + otomasyon test tamam**; **P7.5** yalnız **§8.4 cihaz**; §8)  
 > İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
 > Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
 > **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
@@ -26,7 +26,7 @@
 | A4 | 4 sekme / navigasyon hedefi | `FRONTEND_UI_UX_BLUEPRINT` §navigasyon; TabNavigator sadeleştirme | Uygulandı (P4) |
 | A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Uygulandı (P5 + `UserProfile` + `ChangePassword` + **2026-04-23:** `ChangeEmail` / `VerifyEmail` B-07, `ChangeUsername` B-06, `Devices` GET/DELETE push, hikâye **video** `expo-av`) |
 | A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | **Uygulandı (2026-04-23 P6 kapanış):** SOS `SosButton` haritada; `PartySignalFeed` + `PartyInboxScreen` i18n; `LocationSharingSheet` `GROUP_MEMBERS`; Discover/Community görünürlük etiketi; dev `map.devNearbyMs` |
-| A7 | WS yüzeyleri | `/messaging` tam, `/realtime` sürüş, gamification/emergency | Kısmi |
+| A7 | WS yüzeyleri | dört namespace + AppState + toast + i18n | **Uygulandı (mobil)**; **7.5** = §8.4 cihaz |
 
 Detay: Blueprint §17.4 “İdeal uygulama sırası” ile uyumludur; Inbox aşaması netleştirilerek yukarı taşındı.
 
@@ -44,9 +44,9 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | **P4** | Tab navigasyon 4 | `FRONTEND_UI_UX_BLUEPRINT` §5; Inbox tab’dan kaldır | Tamam: `AppStack` + 4 tab |
 | **P5** | Profil + ayarlar | §11, Settings | Tamam: `Settings` + alt ekranlar, `PATCH /users/me`, tercihler, acil, blocks, `account/deletion` |
 | **P6** | Harita + topluluk/parti polish | §8–9 | **Tamam** (SOS haritada, parti inbox/sinyal i18n, konum modu tam enum, topluluk görünürlük metinleri) |
-| **P7** | WS + gamification + acil | §14 | **Aktif faz** — namespace’ler blueprint ile |
+| **P7** | WS + gamification + acil | §14 | **Tamam (mobil kod)** — §8.4 dış QA |
 
-**Aktif sıra (2026-04-23):** P1–**P6** tam; **P7** sıradaki (WS yüzeyleri, gamification, acil entegrasyon derinliği).
+**Güncel (2026-04-23):** P1–**P7** mobil yol haritası **kod ve `pnpm test` kapsamında tamam**; canlı/mağaza öncesi §8.4 + A1 üretim OAuth cihaz testi ayrı.
 
 ---
 
@@ -79,6 +79,11 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
+- **2026-04-23 (13):** **P7 kapanış (kod):** `wsOnServerParsed` → `captureException`; `useMessaging` + `useP7RealtimeWebSockets` `AppState` (arka plan/ön plan); `Badges`/`Quests`/`EventCreate` i18n; `pnpm test` (turbo) + `typecheck` yeşil.
+- **2026-04-23 (12):** **P7.5:** `§8.4` manuel smoke tablosu (4 namespace + token reconnect); `PROJECT_BOARD` §1 + §5; checklist §8.3 guncel.
+- **2026-04-23 (11):** **P7.3 + P7.4 (mobil):** `gamification-socket` + `emergency-socket`; `useP7RealtimeWebSockets` (`quest:completed`, `badge:earned`, `emergency:nearby` / `responder_updated` / `resolved`); `p7-realtime.store` + `P7RealtimeHost` (`RootNavigator`); i18n `realtime.*`; Jest `p7-geo`, `p7-overlay-queue`.
+- **2026-04-23 (10):** **P7.2 — okundu:** `GET /v1/conversations/:id` katılımcı `lastReadAt` tohumu + `message:read_by` (watermark); `messaging-read-receipts` + Jest; `ConversationScreen` son giden satırda `inbox.messageRead`.
+- **2026-04-23 (9):** **P7.2 (mobil, /messaging):** `useMessaging` — `connect` sonrası `conversation:join` (reconnect’ta tekrar); `message:error` → optimistic `clientId` `_failed`; `mergeMessageReceived` + `messaging-merge.spec.ts`; `ConversationScreen` i18n.
 - **2026-04-23 (8):** **P7.1 (mobil, /realtime):** `party:status_changed` → `setPartyStatus` + `lib/party-ws-helpers.ts` + Jest `party-ws-helpers.spec.ts`; `socket` / `messaging-socket` `auth: (cb) => cb({ token })` (reconnect’te taze access token). Kod: `useParty`, `party.store`, `apps/mobile/src/lib/socket.ts`.
 - **2026-04-23 (7):** **P7 planı eklendi:** `FRONTEND_IMPLEMENTATION_ROADMAP.md` **§8** — Blueprint §14/§17.4 ile hizalı dalgalar 7.1–7.5 (`/realtime`, `/messaging`, `/gamification`, `/emergency`, kabul + §13 paralel notu); SSOT `socket-events.schema.ts`, referans `PROJECT_BOARD`.
 - **2026-04-23 (6):** **P6 kapanış:** `SosButton` harita üstü (konum + üst üste binmeyi azaltmak için sürüş HUD’da `bottom` offset); `PartySignalFeed` / `PartyInboxScreen` tam i18n; `LocationSharingSheet` — `GROUP_MEMBERS` modu; `CommunityDetail` + `Discover` görünürlük `community.visibility.*`; `map.sos.*`, `map.devNearbyMs`, `inbox.party*`.
@@ -98,13 +103,17 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | Nerede? | Ne yapıldı (özet) | Sırada |
 |--------|-------------------|--------|
 | **P1–P6** | A5 ardıllar (e-posta, cihaz, kullanıcı adı) + topluluk + **P6** harita/parti polish | Kabul: `typecheck` + `test` yeşil |
-| **P7.1** | `/realtime` `party:status_changed` + WS `auth(cb)` | Devam: **7.2** `/messaging` (§8 tablo) |
+| **P7.1** | `/realtime` `party:status_changed` + WS `auth(cb)` | Tamam (mobil) |
+| **P7.2** | `/messaging` + okundu + **AppState** leave/join/typing | **Tamam (mobil)** |
+| **P7.3** | `/gamification` WS + toast + query invalidate | **Tamam (mobil dinleme + UI)** |
+| **P7.4** | `/emergency` WS + toast (yakın SOS + güncellemeler) | **Tamam (mobil dinleme + UI)** |
+| **P7.5** | Dört namespace + token reconnect | **Checklist** §8.4 (cihazda PASS/N/A) |
 | **A5** | Public profil, ayarlar, cihaz/e-posta/kullanıcı adı, şifre | Tamam (mobil kapsamı) |
 | **A6** | Harita: SOS, filtre, panel, sürüş HUD, parti inbox/sinyal i18n, konum `GROUP_MEMBERS` | P7’ye geçildi |
 | **Hikâye video** | `expo-av` tam ekran oynatıcı | Uygulandı |
 | **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |
 
-**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (**17 suite / 64 test**, 2026-04-23).
+**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (**21 suite / 73 test**, 2026-04-23).
 
 ---
 
@@ -119,12 +128,32 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | Sıra | Dalga | Namespace / odak | Blueprint | Teslim (mobil) |
 |------|--------|------------------|------------|----------------|
 | **1** | **7.1** | `/realtime` sertleştirme | §14.1 (zorunlu) | **Kısmen (2026-04-23):** `party:status_changed` → `useParty` → `party.store` `setPartyStatus` (`applyPartyStatusChange`); `socket.ts` + `messaging-socket.ts` el sıkışması `auth(cb)` ile reconnect’te güncel JWT. **Sırada:** konum yolu netliği (REST vs `party:update_location` tek strateji); gerekiyorsa sürüş ekranında `sendLocation` kullanımı. |
-| **2** | **7.2** | `/messaging` tam | §14.1 (zorunlu) | Konuşma ekranında **Socket.IO** lifecycle: `connectMessagingSocket`, `conversation:join` / `leave`, `message:send` / `message:received` (Zod `ws-typed`); typing (`message:typing`); `message:read` ↔ liste okunmuş; offline / reconnect stratejisi. |
-| **3** | **7.3** | `/gamification` | §14.2 (önerilen) + §17.4 (7) | Ayrı client (`io(…/gamification)`) veya mevcut pattern ile: **`quest:completed` / `badge:earned`** → toast / üst bant; profil sekmesinde `GET /v1/gamification/*` (rozet, quest) verileriyle birleşik. |
-| **4** | **7.4** | `/emergency` | §14.2 (önerilen) + §17.4 (8) | `emergency:nearby` (ve ilgili server→client) dinleyiciler; harita veya global overlay’de “yakın SOS” (mevcut `SosButton` REST akışı ile çakışmayı ürün kararına göre netleştir: bilgilendirme vs. yönlendirme). |
-| **5** | **7.5** | Sertleştirme | — | `typecheck` + `test` + kısa **manuel smoke**: dört namespace bağlantı, auth token yenileme sonrası reconnect. Jest: mümkünse `ws-typed` / handler saf fonksiyonları; native socket’i mock’la. |
+| **2** | **7.2** | `/messaging` tam | §14.1 (zorunlu) | **2026-04-23:** `message:read_by` + `lastReadAt`; `messaging-read-receipts`; `AppState` → arka planda `conversation:leave` + typing temiz, ön planda `conversation:join`. |
+| **3** | **7.3** | `/gamification` | §14.2 (önerilen) + §17.4 (7) | **2026-04-23:** `io(…/gamification)`; **`quest:completed` / `badge:earned`** → `P7RealtimeToasts` + `['my-quests']` / `['my-badges']` / `['me']` invalidate. |
+| **4** | **7.4** | `/emergency` | §14.2 (önerilen) + §17.4 (8) | **2026-04-23:** `emergency:nearby`, `emergency:responder_updated`, `emergency:resolved` → aynı toast bandı; `SosButton` kendi REST SOS akışından bağımsız bilgilendirme. |
+| **5** | **7.5** | Sertleştirme | — | **Checklist:** §8.4 (manuel smoke). Otomasyon: `typecheck` + `test` (Jest; ws-typed saf testler isteğe bağlı). |
 
 **Not:** Aynı sprint içinde `docs/PROJECT_BOARD` ile backend’de `GamificationGateway` / `EmergencyGateway` hazır mı diye eşgüdüm; yalnız mobilde “dinleyici + UI” yetmezse API önce merge edilmeli.
+
+### 8.4 P7.5 — Manuel smoke (cihaz / staging, CI dışı)
+
+Amaç: Dört Socket.IO namespace’in (`/realtime`, `/messaging`, `/gamification`, `/emergency`) oturum açıkken bağlandığını ve **access token yenilendikten sonra** yeniden el sıkışmada güncel JWT’nin kullanıldığını (kod: `auth: (cb) => cb({ token: getString(...) })`) doğrulamak.
+
+**Ön koşul:** Staging veya lokal API + WS aynı `EXPO_PUBLIC_*` / `env.wsUrl` ile erişilebilir; en az bir test kullanıcısı.
+
+| # | Adım | Beklenen |
+|---|------|----------|
+| 1 | `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` | Exit 0 (regresyon) |
+| 2 | Uygulamada giriş yap, ana ekrana gel | Çökme yok; `P7RealtimeHost` oturumdayken `/gamification` + `/emergency` bağlanır (arka plan) |
+| 3 | **/realtime** | Haritada sürüş modu + aktif parti (`useParty`); parti sinyali veya üye konumu/ durum değişimi ekranla uyumlu |
+| 4 | **/messaging** | Gelen kutusundan sohbet aç; mesaj gönder; mümkünse karşı taraftan veya ikinci cihazdan cevap; okundu / liste davranışı anormal değil |
+| 5 | **/gamification** | Sunucu `quest:completed` / `badge:earned` ürettiğinde üst bantta `realtime.*` toast; Profil görev/rozet sekmesinde veri tazelenişi (invalidate) — olay yoksa “backend tetikleme sonrası tekrar” notu |
+| 6 | **/emergency** | (Backend test mümkünse) yakın SOS veya yanıtıcı / çözümlenme olayında toast; üretimde dikkatli test |
+| 7 | **Token yenileme** | Uzun oturum veya `refresh` akışı sonrası: sohbet veya harita WS kullanımı devam eder; kopuş varsa bir sonraki `connect`/reconnect sonrası mesaj/geri bildirim normale döner (auth cb taze token) |
+
+**Not:** 5–6 için backend’de olay üretimi gerekebilir; sadece “socket bağlandı (ör. devtools/Metro log)” minimum doğrulama sayılabilir — ürün kararı.
+
+**Kapanış:** Bu tabloda 1–4 + 7 “PASS” olduktan sonra P7.5 maddesi kapatılır; 5–6 “N/A (backend yok)” ile işaretlenebilir.
 
 ### 8.2 Blueprint §13 ile paralel (P7 dışı ama aynı dönemde açılabilir)
 
@@ -132,7 +161,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ### 8.3 P7 kapanış kabulü (Checklist)
 
-- [ ] Blueprint §14.1: `/realtime` + `/messaging` “görünür” kullanım maddeleri karşılandı; **P7.1 (devam):** `party:status_changed` UI store senkronu + WS auth `cb` yapıldı. §14.2 gamification + emergency en az **dinleme + kullanıcıya görünen geri bildirim** ile işaretlenecek.  
-- [ ] Tüm yeni UI metinleri `en.json` / `tr.json`.  
-- [ ] Sentry: WS bağlantı / parse hataları `captureException` ile mevcut kalıba uygun.  
-- [ ] `SESSION_HANDOFF.md` + bu belge **§2 / §7** + `PROJECT_BOARD` §1 güncel; commit referansı yazıldı.
+- [x] Blueprint §14.1/§14.2: **P7.1–P7.4** mobil uygulandı; P7.2’de **AppState** edge. **P7.5** = insan doğrulaması **§8.4** (bu repo CI’da cihaz yok).  
+- [x] UI metinleri: `en.json` / `tr.json` (örn. `realtime.*`, `eventCreate.*`, `profile.badgesEmpty` / `questsEmpty` …).  
+- [x] Sentry: `ws-typed` `wsOnServerParsed` içinde handler/şema hatası → `captureException` (`sentry.ts`).  
+- [x] `SESSION_HANDOFF.md` + `PROJECT_BOARD` §1 + bu belge senkron; sürüm `git log -1` ile.

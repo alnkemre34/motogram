@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -12,9 +12,11 @@ import {
 import type { RouteProp } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { useZodForm } from '../../hooks/useZodForm';
 import { useMessaging } from '../../hooks/useMessaging';
+import { getLastOwnMessageId, isReadByAllPeers } from '../../lib/messaging-read-receipts';
 import { useAuthStore } from '../../store/auth.store';
 
 import { ConversationComposeSchema } from './conversation-compose.schema';
@@ -24,12 +26,24 @@ import { ConversationComposeSchema } from './conversation-compose.schema';
 type RouteParams = { id: string };
 
 export function ConversationScreen() {
+  const { t } = useTranslation();
   const route = useRoute<RouteProp<{ Conversation: RouteParams }, 'Conversation'>>();
   const conversationId = route.params.id;
   const userId = useAuthStore((s) => s.userId);
-  const { messages, send, sendTyping, hasMore, loadMore, typingUsers } = useMessaging(
-    conversationId,
-    userId ?? null,
+  const {
+    messages,
+    send,
+    sendTyping,
+    hasMore,
+    loadMore,
+    typingUsers,
+    readByAtByUser,
+    readReceiptPeerIds,
+  } = useMessaging(conversationId, userId ?? null);
+
+  const lastOwnMessageId = useMemo(
+    () => getLastOwnMessageId(messages, userId ?? null),
+    [messages, userId],
   );
 
   const { control, handleSubmit, watch, reset, formState } = useZodForm(ConversationComposeSchema, {
@@ -39,8 +53,8 @@ export function ConversationScreen() {
 
   useEffect(() => {
     if (draft.length > 0) sendTyping(true);
-    const t = setTimeout(() => sendTyping(false), 1500);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => sendTyping(false), 1500);
+    return () => clearTimeout(timer);
   }, [draft, sendTyping]);
 
   const onSend = handleSubmit((data) => {
@@ -62,26 +76,40 @@ export function ConversationScreen() {
         inverted={false}
         renderItem={({ item }) => {
           const mine = item.senderId === userId;
+          const showRead =
+            mine &&
+            lastOwnMessageId === item.id &&
+            isReadByAllPeers(item, userId ?? null, readReceiptPeerIds, readByAtByUser);
           return (
             <View style={[styles.bubbleRow, { justifyContent: mine ? 'flex-end' : 'flex-start' }]}>
               <View
                 style={[
-                  styles.bubble,
-                  mine ? styles.bubbleMine : styles.bubbleOther,
-                  item._pending ? { opacity: 0.6 } : null,
-                  item._failed ? { borderColor: '#f44', borderWidth: 1 } : null,
+                  styles.bubbleCol,
+                  { alignItems: mine ? 'flex-end' : 'flex-start' },
                 ]}
               >
-                <Text style={[styles.bubbleText, mine ? { color: '#000' } : null]}>
-                  {item.isDeleted ? '(silindi)' : item.content ?? '[medya]'}
-                </Text>
+                <View
+                  style={[
+                    styles.bubble,
+                    mine ? styles.bubbleMine : styles.bubbleOther,
+                    item._pending ? { opacity: 0.6 } : null,
+                    item._failed ? { borderColor: '#f44', borderWidth: 1 } : null,
+                  ]}
+                >
+                  <Text style={[styles.bubbleText, mine ? { color: '#000' } : null]}>
+                    {item.isDeleted ? t('inbox.messageDeleted') : item.content ?? t('inbox.mediaPreview')}
+                  </Text>
+                </View>
+                {showRead ? <Text style={styles.readLabel}>{t('inbox.messageRead')}</Text> : null}
               </View>
             </View>
           );
         }}
       />
       {typingUsers.length > 0 ? (
-        <Text style={styles.typing}>{typingUsers.length} kisi yaziyor...</Text>
+        <Text style={styles.typing}>
+          {t('inbox.conversationTyping', { n: typingUsers.length })}
+        </Text>
       ) : null}
       <View style={styles.inputRow}>
         <Controller
@@ -90,7 +118,7 @@ export function ConversationScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Mesaj yaz..."
+              placeholder={t('inbox.conversationPlaceholder')}
               placeholderTextColor="#666"
               value={value}
               onChangeText={onChange}
@@ -100,7 +128,7 @@ export function ConversationScreen() {
           )}
         />
         <Pressable style={styles.sendButton} onPress={() => void onSend()}>
-          <Text style={styles.sendText}>Gonder</Text>
+          <Text style={styles.sendText}>{t('inbox.conversationSend')}</Text>
         </Pressable>
       </View>
       {formState.errors.content?.message ? (
@@ -114,8 +142,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0d0d0d' },
   listContent: { padding: 12, gap: 6 },
   bubbleRow: { flexDirection: 'row', marginVertical: 2 },
+  bubbleCol: { maxWidth: '78%' },
+  readLabel: { color: '#888', fontSize: 11, marginTop: 2, paddingHorizontal: 2 },
   bubble: {
-    maxWidth: '78%',
+    maxWidth: '100%',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 14,

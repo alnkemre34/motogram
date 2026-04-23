@@ -1,5 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
+import { View } from 'react-native';
 
+import { P7RealtimeHost } from '../features/realtime/P7RealtimeHost';
 import { useAuthStore } from '../store/auth.store';
 
 import { AppStackNavigator } from './AppStackNavigator';
@@ -11,7 +13,14 @@ export function RootNavigator() {
   return (
     // Spec 2.1 + Faz 5 - motogram:// deep link; oturumda AppStack (4 tab + Inbox + Bildirimler)
     <NavigationContainer linking={isAuthenticated ? linking : undefined}>
-      {isAuthenticated ? <AppStackNavigator /> : <AuthNavigator />}
+      {isAuthenticated ? (
+        <View style={{ flex: 1 }}>
+          <AppStackNavigator />
+          <P7RealtimeHost />
+        </View>
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 }

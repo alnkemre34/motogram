@@ -5,6 +5,7 @@ import type { ZodTypeAny } from 'zod';
 import type { z } from 'zod';
 
 import { parseResponseWithSchema } from './api-client';
+import { captureException } from './sentry';
 
 /**
  * Client -> sunucu: payload `WS_INBOUND_SCHEMAS` ile doğrulanır (`strictSchema` ile api-client aynı davranış).
@@ -39,8 +40,14 @@ export function wsOnServerParsed<S extends ZodTypeAny>(
   handler: (data: z.infer<S>) => void,
 ): () => void {
   const wrapped = (raw: unknown) => {
-    const data = parseResponseWithSchema(raw, schema);
-    handler(data);
+    try {
+      const data = parseResponseWithSchema(raw, schema);
+      handler(data);
+    } catch (err) {
+      captureException(
+        err instanceof Error ? err : new Error(`[ws] ${event}: ${String(err)}`),
+      );
+    }
   };
   socket.on(event, wrapped);
   return () => {

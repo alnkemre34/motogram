@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { listMyBadges } from '../../api/gamification.api';
@@ -6,6 +7,7 @@ import { listMyBadges } from '../../api/gamification.api';
 // Spec 2.6 + 3.2 - Profil -> Rozetler.
 
 export function BadgesTab() {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['my-badges'],
     queryFn: listMyBadges,
@@ -22,7 +24,7 @@ export function BadgesTab() {
   if (badges.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>Henuz rozetin yok. Gorevleri tamamlayarak kazanmaya basla.</Text>
+        <Text style={styles.emptyText}>{t('profile.badgesEmpty')}</Text>
       </View>
     );
   }
@@ -36,7 +38,7 @@ export function BadgesTab() {
         <View style={[styles.cell, rarityStyle(item.badge.rarity)]}>
           <Text style={styles.name}>{item.badge.name}</Text>
           <Text style={styles.rarity}>{item.badge.rarity}</Text>
-          {item.showcased ? <Text style={styles.showcase}>VITRIN</Text> : null}
+          {item.showcased ? <Text style={styles.showcase}>{t('profile.badgeShowcase')}</Text> : null}
         </View>
       )}
     />

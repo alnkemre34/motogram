@@ -14,6 +14,18 @@
     "back": "Back",
     "done": "Done"
   },
+  "realtime": {
+    "questTitle": "Quest complete",
+    "questBody": "{{name}} · +{{xp}} XP · Lv {{level}}",
+    "badgeTitle": "New badge",
+    "badgeBody": "{{name}} ({{rarity}})",
+    "emergencyNearbyTitle": "Emergency nearby",
+    "emergencyNearbyBody": "{{user}} — {{type}} · {{distance}}",
+    "emergencyResponderTitle": "Responder update",
+    "emergencyResponderBody": "Status: {{status}}",
+    "emergencyResolvedTitle": "Alert update",
+    "emergencyResolvedBody": "Resolution: {{resolution}}"
+  },
   "auth": {
     "welcome": {
       "tagline": "The social universe for motorcycle riders",
@@ -114,7 +126,34 @@
     "xp": "XP",
     "level": "Level",
     "garage": "Garage",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "badgesEmpty": "No badges yet. Complete quests to start earning them.",
+    "questsEmpty": "No active quests.",
+    "badgeShowcase": "SHOWCASE",
+    "questCompleted": "COMPLETED"
+  },
+  "eventCreate": {
+    "title": "New event",
+    "fieldTitle": "Title",
+    "fieldDescription": "Description",
+    "fieldMeeting": "Meeting point",
+    "fieldStart": "Start (ISO 8601)",
+    "phTitle": "Sunday morning Bosphorus run",
+    "phDescription": "Route, pace, safety notes…",
+    "phMeeting": "E.g. in front of …",
+    "phStart": "2026-04-25T10:00:00.000Z",
+    "locationDeniedTitle": "Location",
+    "locationDeniedBody": "Location permission was not granted.",
+    "useMyLocation": "Use my location",
+    "locationSelected": "Location set: {{lat}}, {{lng}}",
+    "meetingRequired": "Pick a meeting point or grant location access.",
+    "validation": "Validation",
+    "invalidData": "Invalid data",
+    "submit": "Create event",
+    "submitting": "Creating…",
+    "successTitle": "Event",
+    "successBody": "Event created.",
+    "defaultMeetingPoint": "Meeting point"
   },
   "settings": {
     "title": "Settings",
@@ -384,6 +423,11 @@
     "fallbackGroup": "Group",
     "fallbackCommunityChat": "Community chat",
     "mediaPreview": "[media]",
+    "messageDeleted": "Deleted",
+    "conversationPlaceholder": "Write a message…",
+    "conversationSend": "Send",
+    "messageRead": "Read",
+    "conversationTyping": "{{n}} people typing…",
     "newConversation": "New conversation",
     "partyTitle": "Parties",
     "partyActiveLabel": "ACTIVE PARTY",

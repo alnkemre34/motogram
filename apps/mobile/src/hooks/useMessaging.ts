@@ -1,19 +1,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 import {
   WS_EVENTS,
   WsMessageDeletedSchema,
+  WsMessageErrorSchema,
   WsMessageReactionUpdatedSchema,
+  WsMessageReadBySchema,
   WsMessageReceivedSchema,
   WsMessageTypingUpdatedSchema,
   type MessageDto,
   type WsMessageDeletedPayload,
+  type WsMessageErrorPayload,
   type WsMessageReactionUpdatedPayload,
+  type WsMessageReadByPayload,
   type WsMessageReceivedPayload,
   type WsMessageTypingUpdatedPayload,
 } from '@motogram/shared';
 
-import { listMessages, markConversationRead } from '../api/messaging.api';
+import { getConversation, listMessages, markConversationRead } from '../api/messaging.api';
+import { mergeMessageReceived, type MessageWithPending } from '../lib/messaging-merge';
 import { connectMessagingSocket, getMessagingSocket } from '../lib/messaging-socket';
+import { captureException } from '../lib/sentry';
 import { wsEmitClient, wsOnServerParsed } from '../lib/ws-typed';
 
 // Spec 7.1.1 - Optimistic UI: gonderim anlik; server onayi gelince merge.
@@ -26,8 +33,6 @@ export interface OutgoingMessage {
   mediaUrls?: string[];
   messageType: MessageDto['messageType'];
 }
-
-type MessageWithPending = MessageDto & { _pending?: boolean; _failed?: boolean };
 
 function uuid(): string {
   // Lightweight UUID v4 (dev only, no deps).
@@ -47,6 +52,9 @@ export function useMessaging(conversationId: string, userId: string | null) {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
+  /** Sohbet özetinden gelen + WS `message:read_by` (epoch ms, kullanıcı başına maks). */
+  const [readByAtByUser, setReadByAtByUser] = useState<Record<string, number>>({});
+  const [readReceiptPeerIds, setReadReceiptPeerIds] = useState<string[]>([]);
   const socketRef = useRef(getMessagingSocket());
 
   // ---- Initial load + pagination ----
@@ -76,28 +84,55 @@ export function useMessaging(conversationId: string, userId: string | null) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
 
-  // ---- Socket connection + subscriptions ----
+  // Katılımcılar + `lastReadAt` tohumu (read receipt UI, REST SSOT)
+  useEffect(() => {
+    if (!userId) return;
+    setReadReceiptPeerIds([]);
+    setReadByAtByUser({});
+    let cancelled = false;
+    void getConversation(conversationId)
+      .then((conv) => {
+        if (cancelled) return;
+        const others = conv.participants.filter((p) => p.userId !== userId).map((p) => p.userId);
+        setReadReceiptPeerIds(others);
+        const seed: Record<string, number> = {};
+        for (const p of conv.participants) {
+          if (p.userId === userId) continue;
+          if (p.lastReadAt) seed[p.userId] = new Date(p.lastReadAt).getTime();
+        }
+        setReadByAtByUser(seed);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setReadReceiptPeerIds([]);
+          setReadByAtByUser({});
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [conversationId, userId]);
+
+  // ---- Socket: connect + re-join (reconnect) + subscriptions (Spec 3.5 / P7.2) ----
   useEffect(() => {
     if (!userId) return;
     const socket = connectMessagingSocket();
     socketRef.current = socket;
 
-    wsEmitClient(socket, WS_EVENTS.conversationJoin, { conversationId });
+    const joinRoom = () => {
+      wsEmitClient(socket, WS_EVENTS.conversationJoin, { conversationId });
+    };
+    const onConnect = () => {
+      joinRoom();
+    };
+    socket.on('connect', onConnect);
+    if (socket.connected) joinRoom();
 
     const onReceived = (p: WsMessageReceivedPayload) => {
       if (p.conversationId !== conversationId) return;
-      setMessages((prev) => {
-        const map = new Map<string, MessageWithPending>();
-        for (const m of prev) {
-          if (m.clientId && m.clientId === p.message.clientId) continue; // pending -> replace
-          map.set(m.id, m);
-        }
-        map.set(p.message.id, p.message as MessageWithPending);
-        return Array.from(map.values()).sort(
-          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        );
-      });
-      // Okundu yolla (aktif ekrandaysak)
+      setMessages((prev) =>
+        mergeMessageReceived(prev, p.message, p.message.clientId ?? undefined),
+      );
       void markConversationRead(conversationId);
     };
 
@@ -138,6 +173,29 @@ export function useMessaging(conversationId: string, userId: string | null) {
       });
     };
 
+    const onMessageError = (p: WsMessageErrorPayload) => {
+      if (p.clientId) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.clientId === p.clientId ? { ...m, _failed: true, _pending: false } : m,
+          ),
+        );
+      } else {
+        captureException(new Error(`[WS messaging] ${p.code}: ${p.message}`));
+      }
+    };
+
+    const onReadBy = (p: WsMessageReadByPayload) => {
+      if (p.conversationId !== conversationId) return;
+      if (!userId || p.userId === userId) return;
+      setReadByAtByUser((prev) => {
+        const next = { ...prev };
+        const t = p.readAt;
+        next[p.userId] = Math.max(next[p.userId] ?? 0, t);
+        return next;
+      });
+    };
+
     const u1 = wsOnServerParsed(
       socket,
       WS_EVENTS.messageReceived,
@@ -157,14 +215,39 @@ export function useMessaging(conversationId: string, userId: string | null) {
       WsMessageTypingUpdatedSchema,
       onTyping,
     );
+    const u5 = wsOnServerParsed(socket, WS_EVENTS.messageError, WsMessageErrorSchema, onMessageError);
+    const u6 = wsOnServerParsed(socket, WS_EVENTS.messageReadBy, WsMessageReadBySchema, onReadBy);
 
     return () => {
-      wsEmitClient(socket, WS_EVENTS.conversationLeave, { conversationId });
+      socket.off('connect', onConnect);
+      if (socket.connected) {
+        wsEmitClient(socket, WS_EVENTS.conversationLeave, { conversationId });
+      }
       u1();
       u2();
       u3();
       u4();
+      u5();
+      u6();
     };
+  }, [conversationId, userId]);
+
+  // Arka plan / çoklu görev: oda terk + yazıyor temizle; ön planda tekrar join (P7.2)
+  useEffect(() => {
+    if (!userId) return;
+    const socket = getMessagingSocket();
+    const onAppState = (next: AppStateStatus) => {
+      if (next === 'background' || next === 'inactive') {
+        wsEmitClient(socket, WS_EVENTS.messageTyping, { conversationId, isTyping: false });
+        if (socket.connected) {
+          wsEmitClient(socket, WS_EVENTS.conversationLeave, { conversationId });
+        }
+      } else if (next === 'active' && socket.connected) {
+        wsEmitClient(socket, WS_EVENTS.conversationJoin, { conversationId });
+      }
+    };
+    const sub = AppState.addEventListener('change', onAppState);
+    return () => sub.remove();
   }, [conversationId, userId]);
 
   // ---- Send message (optimistic) ----
@@ -240,12 +323,26 @@ export function useMessaging(conversationId: string, userId: string | null) {
       loading,
       hasMore: nextCursor !== null,
       typingUsers: Array.from(typingUsers),
+      readByAtByUser,
+      readReceiptPeerIds,
       loadMore,
       send,
       sendTyping,
       react,
       markRead,
     }),
-    [messages, loading, nextCursor, typingUsers, loadMore, send, sendTyping, react, markRead],
+    [
+      messages,
+      loading,
+      nextCursor,
+      typingUsers,
+      readByAtByUser,
+      readReceiptPeerIds,
+      loadMore,
+      send,
+      sendTyping,
+      react,
+      markRead,
+    ],
   );
 }

@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -29,6 +30,7 @@ function defaultStartIso(): string {
 // mevcut lokasyonundan alinir veya manuel girilir.
 
 export function EventCreateScreen() {
+  const { t } = useTranslation();
   const navigation = useNavigation<{ goBack: () => void }>();
 
   const { control, handleSubmit, setValue, watch, formState } = useZodForm(EventCreateFormSchema, {
@@ -50,7 +52,7 @@ export function EventCreateScreen() {
   const useMyLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Konum', 'Konum izni verilmedi.');
+      Alert.alert(t('eventCreate.locationDeniedTitle'), t('eventCreate.locationDeniedBody'));
       return;
     }
     const loc = await Location.getCurrentPositionAsync({});
@@ -61,10 +63,10 @@ export function EventCreateScreen() {
   const mut = useMutation({
     mutationFn: (dto: CreateEventDto) => createEvent(dto),
     onSuccess: () => {
-      Alert.alert('Etkinlik', 'Etkinlik olusturuldu!');
+      Alert.alert(t('eventCreate.successTitle'), t('eventCreate.successBody'));
       navigation.goBack();
     },
-    onError: (e: Error) => Alert.alert('Hata', e.message),
+    onError: (e: Error) => Alert.alert(t('common.error'), e.message),
   });
 
   const onValid = (form: CreateEventDto) => {
@@ -77,9 +79,9 @@ export function EventCreateScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.header}>Yeni Etkinlik</Text>
+        <Text style={styles.header}>{t('eventCreate.title')}</Text>
 
-        <Label>Baslik</Label>
+        <Label>{t('eventCreate.fieldTitle')}</Label>
         <Controller
           control={control}
           name="title"
@@ -89,7 +91,7 @@ export function EventCreateScreen() {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              placeholder="Pazar Sabahi Bogaz Turu"
+              placeholder={t('eventCreate.phTitle')}
               placeholderTextColor="#555"
             />
           )}
@@ -98,7 +100,7 @@ export function EventCreateScreen() {
           <Text style={styles.fieldError}>{errors.title.message}</Text>
         ) : null}
 
-        <Label>Aciklama</Label>
+        <Label>{t('eventCreate.fieldDescription')}</Label>
         <Controller
           control={control}
           name="description"
@@ -108,7 +110,7 @@ export function EventCreateScreen() {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              placeholder="Rota, hiz, uyarilar..."
+              placeholder={t('eventCreate.phDescription')}
               placeholderTextColor="#555"
               multiline
             />
@@ -118,7 +120,7 @@ export function EventCreateScreen() {
           <Text style={styles.fieldError}>{errors.description.message}</Text>
         ) : null}
 
-        <Label>Bulusma Noktasi</Label>
+        <Label>{t('eventCreate.fieldMeeting')}</Label>
         <Controller
           control={control}
           name="meetingPointName"
@@ -128,7 +130,7 @@ export function EventCreateScreen() {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              placeholder="Ornek: Beylerbeyi Camii Onu"
+              placeholder={t('eventCreate.phMeeting')}
               placeholderTextColor="#555"
             />
           )}
@@ -137,19 +139,19 @@ export function EventCreateScreen() {
         <Pressable style={styles.secondaryButton} onPress={() => void useMyLocation()}>
           <Text style={styles.secondaryText}>
             {lat !== null && lng !== null
-              ? `Konum secildi: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
-              : 'Benim konumumu kullan'}
+              ? t('eventCreate.locationSelected', { lat: lat.toFixed(4), lng: lng.toFixed(4) })
+              : t('eventCreate.useMyLocation')}
           </Text>
         </Pressable>
         {errors.meetingPointLat?.message ? (
           <Text style={styles.fieldError}>
             {errors.meetingPointLat.message === 'meeting_point_required'
-              ? 'Bulusma konumu secin veya konum izni verin.'
+              ? t('eventCreate.meetingRequired')
               : errors.meetingPointLat.message}
           </Text>
         ) : null}
 
-        <Label>Baslangic (ISO 8601)</Label>
+        <Label>{t('eventCreate.fieldStart')}</Label>
         <Controller
           control={control}
           name="startTimeIso"
@@ -159,7 +161,7 @@ export function EventCreateScreen() {
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              placeholder="2026-04-25T10:00:00Z"
+              placeholder={t('eventCreate.phStart')}
               placeholderTextColor="#555"
             />
           )}
@@ -174,7 +176,7 @@ export function EventCreateScreen() {
             const parsed = CreateEventSchema.safeParse({
               title: form.title,
               description: form.description.trim() || undefined,
-              meetingPointName: form.meetingPointName.trim() || 'Bulusma Noktasi',
+              meetingPointName: form.meetingPointName.trim() || t('eventCreate.defaultMeetingPoint'),
               meetingPointLat: form.meetingPointLat!,
               meetingPointLng: form.meetingPointLng!,
               startTime: new Date(form.startTimeIso),
@@ -183,8 +185,8 @@ export function EventCreateScreen() {
             });
             if (!parsed.success) {
               Alert.alert(
-                'Dogrulama',
-                parsed.error.issues[0]?.message ?? 'Gecersiz veri',
+                t('eventCreate.validation'),
+                parsed.error.issues[0]?.message ?? t('eventCreate.invalidData'),
               );
               return;
             }
@@ -193,7 +195,7 @@ export function EventCreateScreen() {
           disabled={mut.isPending}
         >
           <Text style={styles.primaryText}>
-            {mut.isPending ? 'Olusturuluyor...' : 'Etkinligi Olustur'}
+            {mut.isPending ? t('eventCreate.submitting') : t('eventCreate.submit')}
           </Text>
         </Pressable>
       </ScrollView>
