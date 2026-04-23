@@ -32,7 +32,7 @@
 ## Son Guncelleme
 
 - **Tarih:** 2026-04-24 (ustteki tablo + bu blok senkron)
-- **Repo durumu:** Yerel / `main` — son commit: `git log -1 --oneline` (beklenen: `4b54e62` ustu P5 sonrası)
+- **Repo durumu:** Yerel / `main` — `git log -1 --oneline` en son commit (genelde doc veya fix); **son mobil ozellik paketi (P5):** `4b54e62`
 - **Zod R9 (backend contract):** `apps/api/src/contract/public.contract.spec.ts` — health +
   auth hatalari + kayit/JWT ile feed + map (`shards`, `nearby`) + media 401/404;
   CI’da **`prisma migrate deploy`** + `pnpm test` (contract haric) + `pnpm run test:contract`
