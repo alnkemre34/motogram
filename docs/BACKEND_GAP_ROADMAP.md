@@ -1,7 +1,7 @@
 # Motogram — Backend Gap Closure Roadmap (B‑01 → B‑18)
 
-> **Sürüm:** 1.2 — 2026-04-23  
-> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑08** (önceki tur); **B‑09** (`FollowListQuerySchema`, `FollowListPageResponseSchema`, `GET /v1/users/:userId/followers|following`, `GET /v1/users/me/followers|following`).  
+> **Sürüm:** 1.3 — 2026-04-23  
+> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑09** (önceki tur); **B‑10** (`BlocksListResponseSchema`, `GET/POST/DELETE /v1/blocks`, feed + `GET /v1/posts/:id` blok filtresi, `userPosts` 403).  
 > **Kapsam:** `FRONTEND_BLUEPRINT.md` §17 “Backend Eksikleri” listesini (B1–B17) mevcut Zod / OpenAPI pipeline’ı **hiç bozmadan** kapatmak. Hayalet ekran üretmemek için öncelik burada; frontend’in F0/F1 sprintleri bu liste bittikten sonra güvenle açılır.  
 > **Anayasa (asla dışına çıkılmaz):**  
 > 1. **Zod SSOT** — şema önce `packages/shared/src/schemas/*.ts` içine, oradan export.  
@@ -65,7 +65,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 7 | **B‑07** ✅ | Email change + verify (`/auth/email/change`, `/verify`) | Settings ▸ E‑posta | M |
 | 8 | **B‑08** ✅ | User search (`GET /users/search?q=`) | NewConversation, invite flows | S |
 | 9 | **B‑09** ✅ | Followers / Following (`GET /users/:userId/followers` / `/following` + `me/…`) | Profile sekmeleri | S |
-| 10 | **B‑10** | Blocks modülü (`GET/POST/DELETE /blocks`) | Settings ▸ Engellenmiş kullanıcılar | S (yarı hazır) |
+| 10 | **B‑10** ✅ | Blocks modülü (`GET/POST/DELETE /blocks`) | Settings ▸ Engellenmiş kullanıcılar | S (yarı hazır) |
 | 11 | **B‑11** | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
 | 12 | **B‑12** | Communities search (`GET /communities/search?q=`) | Discover ▸ arama | S |
 | 13 | **B‑13** | Events search (`GET /events/search?q=`) | Discover ▸ arama | S |
@@ -294,30 +294,16 @@ export const UserSearchResponseSchema = z.object({
 
 ---
 
-### B‑10 · Blocks modülü
+### B‑10 · Blocks modülü ✅ (kodlandı)
 
-**Mevcut durum:** `Block` Prisma modeli ve `BlockDtoSchema` **zaten var** — sadece module/service/controller eksik.
-
-**Yeni dosyalar:**
-
-- `apps/api/src/modules/blocks/blocks.module.ts`
-- `apps/api/src/modules/blocks/blocks.service.ts`
-- `apps/api/src/modules/blocks/blocks.controller.ts`
-- `packages/shared/src/schemas/block.schema.ts` → `BlocksListResponseSchema` ek (mevcut `BlockDtoSchema` yeterli)
+**Durum:** `apps/api/src/modules/blocks/*` + `BlocksListResponseSchema` / `BlockListItemSchema` (`block.schema.ts`); `PostsService.feedForUser` / `findById` / `userPosts` blok çifti ile uyumlu.
 
 **Endpoint’ler:**
 - `GET /v1/blocks` → `BlocksListResponseSchema`
-- `POST /v1/blocks/:userId` → `BlockDtoSchema` (idempotent)
+- `POST /v1/blocks/:userId` → `BlockDtoSchema` (idempotent upsert)
 - `DELETE /v1/blocks/:userId` → 204
 
-**Kural:**
-- `initiatorId === targetId` → 400.
-- Block oluşturunca: her iki tarafın takip ilişkisi silinir (varsa); mesaj gönderim/konuşma kontrolleri `MessageService`’te yapılacak:
-  - Servis guard: `sendMessage`/`createConversation` DM’de initiator tarafından block varsa 403.
-  - Feed filtre: `posts.service.getFeed` `authorId NOT IN (block pair)` 
-- `users/search` block çiftini dışarıda bırakır (B‑08 ile birlikte).
-
-**Testler:** block → DM atma denemesi 403; block → feed’de o kullanıcının postu yok; unblock sonrası geri gelir.
+**Kural:** `initiatorId === targetId` → 400; engellemede iki yönlü `FollowsService.unfollow`; DM’de mevcut `MessageService` blok 403; feed’de bloklu yazarlar hariç.
 
 **PR başlığı:** `feat(blocks): user block/unblock module (B-10)`
 

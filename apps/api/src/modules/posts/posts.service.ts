@@ -8,6 +8,7 @@ import {
 } from '@motogram/shared';
 
 import { ZodEventBus } from '../../common/events/zod-event-bus.service';
+import { BlocksService } from '../blocks/blocks.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class PostsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly events: ZodEventBus,
+    private readonly blocks: BlocksService,
   ) {}
 
   /** Batch-resolve whether viewer liked each post (B-01). */
@@ -74,6 +76,12 @@ export class PostsService {
     if (!post) {
       throw new NotFoundException({ error: 'post_not_found', code: ErrorCodes.NOT_FOUND });
     }
+    if (post.userId !== viewerId) {
+      const blocked = new Set(await this.blocks.peersBlockedEitherWay(viewerId));
+      if (blocked.has(post.userId)) {
+        throw new ForbiddenException({ error: 'blocked', code: ErrorCodes.BLOCKED });
+      }
+    }
     const enriched = await this.attachLikedByMe(viewerId, [post]);
     return enriched[0]!;
   }
@@ -119,7 +127,9 @@ export class PostsService {
       where: { followerId: userId, status: 'ACCEPTED' },
       select: { followingId: true },
     });
-    const authorIds = [userId, ...following.map((f) => f.followingId)];
+    const blocked = new Set(await this.blocks.peersBlockedEitherWay(userId));
+    const followingIds = following.map((f) => f.followingId).filter((fid) => !blocked.has(fid));
+    const authorIds = [userId, ...followingIds];
 
     const include = {
       user: {
@@ -151,6 +161,12 @@ export class PostsService {
   }
 
   async userPosts(profileUserId: string, viewerId: string, query: PostFeedQueryDto) {
+    if (profileUserId !== viewerId) {
+      const blocked = new Set(await this.blocks.peersBlockedEitherWay(viewerId));
+      if (blocked.has(profileUserId)) {
+        throw new ForbiddenException({ error: 'blocked', code: ErrorCodes.BLOCKED });
+      }
+    }
     const posts = query.cursor
       ? await this.prisma.post.findMany({
           where: { userId: profileUserId, deletedAt: null },

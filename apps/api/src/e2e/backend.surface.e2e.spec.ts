@@ -13,6 +13,8 @@ import {
   AbTestAssignmentClientResponseSchema,
   AccountDeletionStatusSchema,
   ApiErrorSchema,
+  BlockDtoSchema,
+  BlocksListResponseSchema,
   CommentListPageResponseSchema,
   CommentRowResponseSchema,
   CommunitiesMineResponseSchema,
@@ -525,6 +527,89 @@ describeE2E('E2E: HTTP surface (USER rolleri + RBAC)', () => {
       .set('Authorization', `Bearer ${tokenB}`)
       .expect(200);
     MessageListPageResponseSchema.parse(msgs.body);
+  });
+
+  it('B-10 — blocks, feed filter, DM 403, unblock', async () => {
+    const bPost = await request(app.getHttpServer())
+      .post('/v1/posts')
+      .set('Authorization', `Bearer ${tokenB}`)
+      .send({
+        caption: 'b block e2e',
+        mediaUrls: ['https://example.com/b-block-e2e.jpg'],
+        mediaType: 'IMAGE',
+        hashtags: [],
+        mentionedUserIds: [],
+      })
+      .expect(201);
+    const bPostId = bPost.body.id as string;
+
+    await request(app.getHttpServer())
+      .post(`/v1/follows/${userIdB}`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(201);
+
+    const feedBefore = await request(app.getHttpServer())
+      .get('/v1/posts/feed')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    PostFeedPageSchema.parse(feedBefore.body);
+    expect(feedBefore.body.items.some((p: { id: string }) => p.id === bPostId)).toBe(true);
+
+    const listEmpty = await request(app.getHttpServer())
+      .get('/v1/blocks')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    BlocksListResponseSchema.parse(listEmpty.body);
+
+    const blockRes = await request(app.getHttpServer())
+      .post(`/v1/blocks/${userIdB}`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(201);
+    BlockDtoSchema.parse(blockRes.body);
+    expect(blockRes.body.targetId).toBe(userIdB);
+
+    const listAfter = await request(app.getHttpServer())
+      .get('/v1/blocks')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    const parsedList = BlocksListResponseSchema.parse(listAfter.body);
+    expect(parsedList.items.some((x: { targetId: string }) => x.targetId === userIdB)).toBe(true);
+
+    const feedBlocked = await request(app.getHttpServer())
+      .get('/v1/posts/feed')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    PostFeedPageSchema.parse(feedBlocked.body);
+    expect(feedBlocked.body.items.some((p: { id: string }) => p.id === bPostId)).toBe(false);
+
+    const dmAfterBlock = await request(app.getHttpServer())
+      .post(`/v1/conversations/${conversationId}/messages`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ clientId: randomUUID(), messageType: 'TEXT', content: 'after block' })
+      .expect(403);
+    ApiErrorSchema.parse(dmAfterBlock.body);
+
+    await request(app.getHttpServer())
+      .delete(`/v1/blocks/${userIdB}`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .post(`/v1/follows/${userIdB}`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(201);
+
+    const feedRestored = await request(app.getHttpServer())
+      .get('/v1/posts/feed')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    PostFeedPageSchema.parse(feedRestored.body);
+    expect(feedRestored.body.items.some((p: { id: string }) => p.id === bPostId)).toBe(true);
+
+    await request(app.getHttpServer())
+      .delete(`/v1/posts/${bPostId}`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .expect(200);
   });
 
   it('follows — A, B yi takip et / takipten cik', async () => {

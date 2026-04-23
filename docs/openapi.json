@@ -1033,6 +1033,42 @@
       "BlockDtoSchema": {
         "properties": {
           "createdAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "targetId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetId",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "BlockListItemSchema": {
+        "properties": {
+          "createdAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
             "type": "string"
           },
           "targetId": {
@@ -1041,6 +1077,7 @@
           }
         },
         "required": [
+          "id",
           "targetId",
           "createdAt"
         ],
@@ -1055,6 +1092,46 @@
         },
         "required": [
           "userId"
+        ],
+        "type": "object"
+      },
+      "BlocksListResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "properties": {
+                "createdAt": {
+                  "anyOf": [
+                    {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "targetId": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "targetId",
+                "createdAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
         ],
         "type": "object"
       },
@@ -14342,6 +14419,63 @@
             "description": "OK"
           }
         }
+      }
+    },
+    "/blocks": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlocksListResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/blocks/{userId}": {
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockDtoSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
       }
     },
     "/comments": {

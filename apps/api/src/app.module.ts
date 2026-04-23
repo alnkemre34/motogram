@@ -17,6 +17,7 @@ import { AbTestModule } from './modules/ab-test/ab-test.module';
 import { AccountModule } from './modules/account/account.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BlocksModule } from './modules/blocks/blocks.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { CommunityModule } from './modules/community/community.module';
 import { EmergencyModule } from './modules/emergency/emergency.module';
@@ -83,6 +84,7 @@ class OpenApiPrismaService extends PrismaClient {
     UsersModule,
     MotorcyclesModule,
     FollowsModule,
+    BlocksModule,
     PostsModule,
     StoriesModule,
     CommentsModule,

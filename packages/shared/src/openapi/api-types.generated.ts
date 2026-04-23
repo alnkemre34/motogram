@@ -825,6 +825,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/blocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BlocksListResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blocks/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BlockDtoSchema"];
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/comments": {
         parameters: {
             query?: never;
@@ -4423,9 +4510,25 @@ export interface components {
             /** Format: uuid */
             targetId: string;
         };
+        BlockListItemSchema: {
+            createdAt: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            targetId: string;
+        };
         BlockUserParamSchema: {
             /** Format: uuid */
             userId: string;
+        };
+        BlocksListResponseSchema: {
+            items: {
+                createdAt: string;
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                targetId: string;
+            }[];
         };
         BoundingBoxQuerySchema: {
             city?: string;

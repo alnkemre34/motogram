@@ -566,8 +566,8 @@ Bölümler:
 ### 10.6 EmergencyContactsScreen *(BACKEND EKSİK)*
 - Plan: `GET/POST/DELETE /v1/emergency/contacts` (kişi adı + telefon). SOS tetiklendiğinde bu kişilere SMS/notification.
 
-### 10.7 BlockedUsersScreen *(BACKEND EKSİK)*
-- Plan: `GET /v1/blocks`, `POST /v1/blocks/:userId`, `DELETE /v1/blocks/:userId`.
+### 10.7 BlockedUsersScreen
+- **REST:** `GET /v1/blocks` (`BlocksListResponseSchema`), `POST /v1/blocks/:userId` (`BlockDtoSchema`), `DELETE /v1/blocks/:userId` (204).
 
 ---
 
@@ -658,7 +658,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | B5 | `POST /v1/auth/otp/request` + `/verify` | Telefon/email OTP | EVET (Otp ekranı için) |
 | ~~B6~~ | ~~`GET /v1/users/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — blok filtresi + sayfalama | — |
 | ~~B7~~ | ~~`GET /v1/users/:userId/followers` & `/following`~~ | **TAMAMLANDI (2026-04-23)** — `me/…` kolaylığı + `FollowListPageResponseSchema` | — |
-| B8 | `GET/POST/DELETE /v1/blocks` | Engelle | YES |
+| ~~B8~~ | ~~`GET/POST/DELETE /v1/blocks`~~ | **TAMAMLANDI (2026-04-23)** — liste + idempotent engel; feed / post detay blok filtresi | — |
 | B9 | `POST /v1/reports` (post/comment/user/community) | İçerik raporlama | YES |
 | B10 | `GET/POST/DELETE /v1/emergency/contacts` | Acil durum kişileri | OPSIYONEL |
 | B11 | `GET/POST /v1/notification-preferences` | Bildirim tercihleri | OPSIYONEL |

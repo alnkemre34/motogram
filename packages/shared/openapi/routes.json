@@ -217,6 +217,26 @@
     "auth": false
   },
   {
+    "method": "GET",
+    "path": "/blocks",
+    "responseSchema": "BlocksListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/blocks/:userId",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/blocks/:userId",
+    "responseSchema": "BlockDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
     "method": "POST",
     "path": "/comments",
     "requestBodySchema": "CreateCommentSchema",
