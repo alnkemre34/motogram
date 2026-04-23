@@ -52,6 +52,9 @@ export class AccountService implements OnModuleInit {
   }
 
   onModuleInit(): void {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     // Spec 7.2.1 - DELETE_USER_DATA BullMQ worker processor'u bagla.
     this.queue.registerProcessor(async (data) => {
       const rec = await this.prisma.accountDeletion.findUnique({

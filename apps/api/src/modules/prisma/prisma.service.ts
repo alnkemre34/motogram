@@ -34,7 +34,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     config: ConfigService,
     @Optional() private readonly metrics?: MetricsService,
   ) {
-    const databaseUrl = config.getOrThrow<string>('DATABASE_URL');
+    const isOpenApi = process.env.OPENAPI_GENERATE === '1';
+    const databaseUrl = isOpenApi
+      ? // Build-time OpenAPI generation: do not require real DB URL.
+        (config.get<string>('DATABASE_URL') ?? 'postgres://localhost:5432/postgres')
+      : config.getOrThrow<string>('DATABASE_URL');
     const rawTimeout = config.get<string | number>('DATABASE_STATEMENT_TIMEOUT_MS');
     const timeoutMs =
       typeof rawTimeout === 'number'
@@ -49,6 +53,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit(): Promise<void> {
+    if (process.env.OPENAPI_GENERATE === '1') return;
     await this.$connect();
     if (this.metrics) {
       // PrismaClient genericinde `query` event tipi bazen `never` cikabiliyor; runtime'da log seviyesi yeterli.

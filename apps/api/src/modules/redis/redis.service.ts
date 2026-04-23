@@ -54,10 +54,11 @@ export class RedisService implements OnModuleDestroy {
 
 export function createRedisClient(config: ConfigService, metrics?: MetricsService): RedisClient {
   const url = config.get<string>('REDIS_URL', 'redis://localhost:6379');
+  const isOpenApi = process.env.OPENAPI_GENERATE === '1';
   const client = new Redis(url, {
     maxRetriesPerRequest: null,
-    enableReadyCheck: true,
-    lazyConnect: false,
+    enableReadyCheck: !isOpenApi,
+    lazyConnect: isOpenApi,
   });
   if (metrics) {
     client.on('error', (err: Error & { command?: { name?: string } }) => {

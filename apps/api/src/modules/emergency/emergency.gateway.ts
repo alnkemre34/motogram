@@ -53,6 +53,9 @@ export class EmergencyGateway
   ) {}
 
   onModuleInit(): void {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     this.emergency.registerGateway({
       broadcastNearby: (recipientIds, payload) => this.broadcastNearby(recipientIds, payload),
       broadcastResponderUpdate: (alertId, requesterId, responder) =>

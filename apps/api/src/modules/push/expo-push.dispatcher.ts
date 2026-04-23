@@ -20,6 +20,9 @@ export class ExpoPushDispatcher implements PushDispatcher, OnModuleInit {
   ) {}
 
   onModuleInit(): void {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     const accessToken = this.config.get<string>('EXPO_ACCESS_TOKEN');
     // Prod: EAS access token gerekli; dev'de de calisabilir ama rate-limit dusuk.
     this.expo = new Expo(accessToken ? { accessToken } : undefined);

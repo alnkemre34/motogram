@@ -9,6 +9,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 import { ZodSerializerInterceptor } from './common/interceptors/zod-serializer.interceptor';
 import { ZodValidationPipe } from './common/pipes/zod-validation.pipe';
 import { MetricsService } from './modules/metrics/metrics.service';
+import { mountSwaggerUi } from './openapi/swagger-ui';
 
 /** Fail-fast before Nest boots (see env.schema.ts). */
 const env = loadEnv();
@@ -49,6 +50,9 @@ async function bootstrap(): Promise<void> {
   app.useGlobalInterceptors(
     new ZodSerializerInterceptor(app.get(Reflector), env.ZOD_RESPONSE_STRICT, metrics),
   );
+
+  // Dev/Staging only – never register in production.
+  mountSwaggerUi(app);
 
   const httpServer = app.getHttpAdapter().getInstance() as {
     keepAliveTimeout?: number;

@@ -39,6 +39,9 @@ export class LocationSyncQueue implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit(): Promise<void> {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     const connection = this.redis.options;
     this.queue = new Queue<LocationSyncJob>(LOCATION_SYNC_QUEUE, { connection });
     this.deadLetterQueue = new Queue<LocationSyncJob>(LOCATION_DLQ, { connection });

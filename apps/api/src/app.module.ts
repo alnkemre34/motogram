@@ -1,9 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, type DynamicModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { DiscoveryModule } from '@nestjs/core';
+import { PrismaClient } from '@prisma/client';
+import Redis from 'ioredis';
 
 import { envSchema, normalizeProcessEnv } from './common/config/env.schema';
 import { TypedEventsModule } from './common/events/typed-events.module';
@@ -32,20 +35,31 @@ import { PartyModule } from './modules/party/party.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
+import { PrismaService } from './modules/prisma/prisma.service';
 import { PushModule } from './modules/push/push.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { REDIS_CLIENT } from './modules/redis/redis.service';
 import { StoriesModule } from './modules/stories/stories.module';
 import { UsersModule } from './modules/users/users.module';
+
+class OpenApiPrismaService extends PrismaClient {
+  // Build-time OpenAPI generation should not connect to DB.
+}
 
 @Module({
   controllers: [HealthController],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validate: (raw) =>
-        envSchema.parse(
+      validate: (raw) => {
+        // Build-time OpenAPI generation should not require full env.
+        if (process.env.OPENAPI_GENERATE === '1') {
+          return { ...process.env, ...raw } as Record<string, unknown>;
+        }
+        return envSchema.parse(
           normalizeProcessEnv({ ...process.env, ...raw } as NodeJS.ProcessEnv),
-        ) as Record<string, unknown>,
+        ) as Record<string, unknown>;
+      },
     }),
     // Spec 8.7.1 - global rate limit tabani (varsayilan: 60 req/dk)
     // Modul basina ozel limitler @Throttle dekorasyonu ile override edilir.
@@ -100,4 +114,33 @@ import { UsersModule } from './modules/users/users.module';
     ReadinessService,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  /**
+   * Build-time module variant for OpenAPI generation.
+   *
+   * - Keeps controller/module graph intact for DiscoveryService scanning.
+   * - Prevents external connections (DB/Redis) during application-context boot.
+   */
+  static forOpenApi(): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [DiscoveryModule],
+      providers: [
+        // Ensure DiscoveryService is available.
+        // Override DB + Redis external connections for OPENAPI_GENERATE=1.
+        { provide: PrismaService, useClass: OpenApiPrismaService },
+        {
+          provide: REDIS_CLIENT,
+          useFactory: () => {
+            const url = process.env.REDIS_URL ?? 'redis://localhost:6379';
+            return new Redis(url, {
+              maxRetriesPerRequest: null,
+              enableReadyCheck: false,
+              lazyConnect: true,
+            });
+          },
+        },
+      ],
+    };
+  }
+}

@@ -189,6 +189,30 @@
   - "Postgres volume yok" senaryosu: backup'tan restore -> smoke.
   - "VPS komple ucar" senaryosu: yeni host + `bootstrap.sh` + restore.
 
+---
+
+## 4. OpenAPI Zod Contract Pipeline (API Contract SSOT) — **AKTIF (2026-04-23)**
+
+> Amac: Backend controller surface'ini Zod semalariyla esleyip `docs/openapi.json` ve
+> `docs/API_Contract.md` otomatik uretmek; CI'da drift'i `git diff --exit-code` ile kirmak.
+> Kurallar: `packages/shared` runtime/Nest import etmez; `routes.json` src disinda dosya olur.
+
+### Durum
+
+- [x] Adim 1: NestJS reflektor (`DiscoveryService` ile route metadata) — **tamam**
+- [x] Adim 2: Route manifest (`packages/shared/openapi/routes.json`) — **tamam**
+- [ ] Adim 3: Saf `generateOpenApi()` (zod-to-openapi + $ref-only + passthrough) — **sirada**
+- [ ] Adim 4: `docs/openapi.json` + `docs/API_Contract.md` yazma script'i — pending
+- [ ] Adim 5: Swagger UI (dev/staging only) — pending
+- [ ] Adim 6-8: Frontend tip/facade + turbo/CI drift kapisi — pending
+- [ ] Adim 9-10: WS kapsam disi notu + contract test es-referansi — pending
+
+### Adim 4 Tamamlandiginda Beklenen Artefaktlar
+
+- `packages/shared/openapi/routes.json` (manifest, src disinda)
+- `docs/openapi.json` (OpenAPI 3.1 contract)
+- `docs/API_Contract.md` (auto-generated dokumantasyon)
+
 ## 3. Kapanis ve Uyum Kontrolu (Post-Flight Check) - SIHIRLI ADIM
 
 > Asama bazli isaretleme: Asama N tamamlaninca sadece o asamanin bagli

@@ -101,7 +101,7 @@ describeE2E('E2E: admin RBAC (seed kullanicilar)', () => {
       .set('Authorization', `Bearer ${adminTok}`)
       .expect(200);
     const reports = AdminReportsListResponseSchema.parse(listRes.body);
-    expect(reports.some((r) => r.id === report.id)).toBe(true);
+    expect(reports.some((r: { id: string }) => r.id === report.id)).toBe(true);
 
     const patchRes = await request(app.getHttpServer())
       .patch(`/v1/admin/reports/${report.id}`)

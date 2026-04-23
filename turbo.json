@@ -24,6 +24,15 @@
     },
     "clean": {
       "cache": false
+    },
+    "openapi:generate": {
+      "cache": false,
+      "outputs": []
+    },
+    "openapi:check": {
+      "cache": false,
+      "dependsOn": ["openapi:generate"],
+      "outputs": []
     }
   }
 }

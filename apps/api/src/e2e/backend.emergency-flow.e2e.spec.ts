@@ -82,7 +82,7 @@ describeE2E('E2E: emergency (SOS) akisi', () => {
       .set('Authorization', `Bearer ${tokenA}`)
       .expect(200);
     const list = EmergencyAlertsListResponseSchema.parse(listRes.body);
-    expect(list.alerts.some((x) => x.id === alertId)).toBe(true);
+    expect(list.alerts.some((x: { id: string }) => x.id === alertId)).toBe(true);
 
     const respRes = await request(app.getHttpServer())
       .post(`/v1/emergency/alerts/${alertId}/respond`)

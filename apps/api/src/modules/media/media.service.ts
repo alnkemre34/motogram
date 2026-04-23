@@ -64,6 +64,9 @@ export class MediaService implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     this.queue.registerProcessor((data) => this.processImageJob(data));
   }
 

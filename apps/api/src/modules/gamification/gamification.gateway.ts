@@ -46,6 +46,9 @@ export class GamificationGateway
   ) {}
 
   onModuleInit(): void {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     this.service.registerGateway({
       broadcastQuestCompleted: (userId, dto, questName) =>
         this.emitQuestCompleted(userId, dto, questName),

@@ -41,6 +41,9 @@ export class DeletionQueue implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit(): Promise<void> {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     const connection = this.redis.options;
     this.queue = new Queue<DeletionJobData>(DELETION_QUEUE_NAME, { connection });
     this.typed = new TypedQueue(this.queue, AccountDeletionJobSchema, DELETION_QUEUE_NAME);

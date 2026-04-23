@@ -41,6 +41,9 @@ export class MediaQueue implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit(): Promise<void> {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     const connection = this.redis.options;
     this.imageQueue = new Queue<MediaProcessJobData>(MEDIA_QUEUE_NAME, { connection });
     this.videoQueue = new Queue<MediaProcessJobData>(VIDEO_QUEUE_NAME, { connection });

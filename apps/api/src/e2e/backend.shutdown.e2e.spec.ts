@@ -4,7 +4,7 @@
  */
 const describeE2E = process.env.E2E_TESTS === '1' ? describe : describe.skip;
 
-describeE2E.skip('E2E: uygulama kapanisi (devre disi — BullMQ close yarisi)', () => {
+describeE2E('E2E: uygulama kapanisi (devre disi — BullMQ close yarisi)', () => {
   it('placeholder', () => {
     expect(true).toBe(true);
   });

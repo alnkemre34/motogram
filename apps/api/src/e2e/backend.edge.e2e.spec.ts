@@ -159,7 +159,7 @@ describeE2E('E2E: backend edge-to-edge', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
     const page = PostFeedPageSchema.parse(res.body);
-    expect(page.items.some((p) => p.id === postId)).toBe(true);
+    expect(page.items.some((p: { id: string }) => p.id === postId)).toBe(true);
   });
 
   it('PATCH /v1/posts/:id — guncelle + PostApiResponseSchema', async () => {
@@ -210,7 +210,7 @@ describeE2E('E2E: backend edge-to-edge', () => {
       .expect(200);
     const detail = PartyDetailSchema.parse(res.body);
     expect(detail.id).toBe(partyId);
-    expect(detail.members.some((m) => m.userId === userId)).toBe(true);
+    expect(detail.members.some((m: { userId: string }) => m.userId === userId)).toBe(true);
   });
 
   it('GET /v1/parties — nearby + NearbyPartiesResponseSchema', async () => {
@@ -220,7 +220,7 @@ describeE2E('E2E: backend edge-to-edge', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
     const body = NearbyPartiesResponseSchema.parse(res.body);
-    expect(body.parties.some((p) => p.id === partyId)).toBe(true);
+    expect(body.parties.some((p: { id: string }) => p.id === partyId)).toBe(true);
   });
 
   it('POST /v1/parties/:id/leave — lider tek basina + PartyLeaveHttpResponseSchema', async () => {

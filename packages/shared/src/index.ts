@@ -33,3 +33,10 @@ export * from './schemas/admin.schema';
 export * from './schemas/feature-flag.schema';
 export * from './schemas/ab-test.schema';
 export * from './schemas/metrics.schema';
+
+// OpenAPI contract generation (build-time tooling; safe for runtime import)
+export * from './openapi/types';
+export * from './openapi/generate';
+export * from './openapi/api-contract';
+export * from './openapi/response-types';
+export * from './openapi/client-types';

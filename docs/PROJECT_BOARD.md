@@ -32,8 +32,8 @@
 | Alan | Deger |
 |---|---|
 | **Aktif Faz** | Faz 7 - Enterprise Prod Hardening (Asama 0 + Asama 1 kismi TAMAMLANDI; TLS ertelendi) |
-| **Son Tamamlanan** | Faz 7 Asama 1 Adim 7 (Nginx HTTP-only + API port kapatma) + mobil native APK/EAS hazirligi |
-| **Son Guncelleme** | 2026-04-22 — **R14** tamam: WS + SOS akisi + admin RBAC + throttle + fanout guvenlik + `docker-compose.test.yml` / `scripts/test-all.sh` / `db:seed:test-users`; CI seed adimi; detay §5 |
+| **Son Tamamlanan** | OpenAPI Zod Contract Pipeline — Adim 2 (routes manifest + build-time guard'lar + typecheck fix) |
+| **Son Guncelleme** | 2026-04-23 — OpenAPI Contract: reflektor + `OPENAPI_GENERATE=1` build-time mode, `routes.json` uretimi, TS Node16 moduleResolution duzeltmesi; detay §5 |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,123 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 1-2 (Reflektor + Route Manifest)
+
+**Baglam:** Backend Zod semalari (`packages/shared`) ile API surface'i arasinda drift olmamasi icin OpenAPI contract hattina baslandi. Hedef: `docs/openapi.json` + `docs/API_Contract.md` otomatik uretim + CI drift kapisi.
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `apps/api/src/openapi/reflector.ts` | `DiscoveryService` ile tum controller method'larini tarayip `RouteRecord[]` uretir (HTTP method + path + `ZodBody` request schema + `@ZodResponse` response schema + `@Public/@Roles` auth metadata). |
+| `apps/api/scripts/generate-route-manifest.ts` | `NestFactory.createApplicationContext(AppModule.forOpenApi())` ile build-time context acip `packages/shared/openapi/routes.json` yazar (src DISINDA). |
+| `apps/api/src/app.module.ts` | `OPENAPI_GENERATE=1` iken env validate bypass + `AppModule.forOpenApi()` (DiscoveryModule + DB/Redis override). |
+| `apps/api/src/modules/*` | `OPENAPI_GENERATE=1` icin DB/Redis/BullMQ/Push bootstrap eden `onModuleInit` akislari guardlandi (baglanti/refused olmadan manifest uretilebilsin). |
+| `apps/api/tsconfig.json` | `moduleResolution=Node16` + `module=Node16` ile `@motogram/shared` types resolution (TS7016) sorunu giderildi. |
+| `apps/api/src/e2e/*` | E2E dosyalarinda implicit `any` hatalari temizlendi; `backend.shutdown.e2e.spec.ts` icinde `describeE2E.skip` hatasi duzeltildi. |
+
+**Cikti:** `packages/shared/openapi/routes.json` (export edilmez; dosya olarak durur).\n\n**Dogrulama:** `pnpm --filter @motogram/api typecheck` PASS; `pnpm --filter @motogram/api test` PASS; `test:contract` PASS (skip'li); `test:e2e` PASS (skip'li).
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 3-4 (OpenAPI + API_Contract uretimi)
+
+**Baglam:** Route manifest + Zod semalarindan `docs/openapi.json` ve otomatik `docs/API_Contract.md` uretimi eklendi. Hedef: frontend + backend drift'ini CI kapisiyla kirmaya hazir hale getirmek.
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `packages/shared/src/openapi/generate.ts` | `generateOpenApi()` (OpenAPI 3.1): schema'lari component olarak kaydeder, request/response'u `$ref` ile yazar, `passthrough()` icin `additionalProperties: true` uygular; deterministic key-sort. `extendZodWithOpenApi(z)` ile `.openapi()` extension aktif. |
+| `packages/shared/src/openapi/types.ts` | `RouteRecord` + `SchemaMap` tipleri. |
+| `packages/shared/tsup.config.ts` | `external: ['zod']` ile zod-to-openapi ve schema'larin ayni Zod runtime'ini kullanmasi saglandi (aksi halde `.openapi is not a function` hatasi oluyordu). |
+| `apps/api/scripts/write-openapi.ts` | `routes.json` + shared schema toplama → `docs/openapi.json` (json-stable-stringify) + `docs/API_Contract.md` uretir. |
+| `apps/api/scripts/write-api-contract.ts` | OpenAPI hash + endpoint listesi + (auth/roles/request/response schema) ile Markdown contract dokumani uretir. |
+| `apps/api/package.json` | `openapi:generate` script'i eklendi (`generate:route-manifest` + `write-openapi.ts`). |
+| `docs/openapi.json` | Uretilen OpenAPI contract (commitlenir). |
+| `docs/API_Contract.md` | Uretilen API dokumani (commitlenir). |
+
+**Cikti:** `docs/openapi.json`, `docs/API_Contract.md`.\n\n**Dogrulama:** `pnpm --filter @motogram/api openapi:generate` PASS; `@motogram/shared typecheck/build` PASS; `@motogram/api typecheck/test/test:contract/test:e2e` PASS.
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 5 (Swagger UI dev/staging middleware)
+
+**Baglam:** OpenAPI uretildikten sonra Swagger UI sadece dev/staging'de serve edilir. Production ortaminda endpoint'ler hic register edilmez (saldiri yuzeyi yok).
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `apps/api/src/openapi/swagger-ui.ts` | Express middleware ile `/v1/docs` (Swagger UI) ve `/v1/docs/openapi.json` (dosyadan) serve eder. Sadece `NODE_ENV in {development, staging}` iken aktif. |
+| `apps/api/src/main.ts` | `mountSwaggerUi(app)` eklendi (production'da no-op). |
+| `apps/api/package.json` | `swagger-ui-dist` + `@types/swagger-ui-dist` eklendi. |
+
+**Dogrulama:** `pnpm --filter @motogram/api typecheck` PASS; `pnpm --filter @motogram/api test` PASS; `test:contract` PASS (skip'li); `test:e2e` PASS (skip'li).
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 6 (openapi-typescript: path/param types + Zod response barrel)
+
+**Baglam:** Frontend icin OpenAPI'dan sadece **path/method/params/body** tipleri uretilir. Response tipleri OpenAPI'dan degil, **Zod SSOT**'dan gelir (passthrough/additionalProperties nedeniyle tip gevsemesin diye).
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `packages/shared/src/openapi/api-types.generated.ts` | `docs/openapi.json`'dan `openapi-typescript` ile uretilen tipler (yalnizca contract surface; response'lar burada kaynak alinmaz). |
+| `packages/shared/src/openapi/api-contract.ts` | Generated dosya uzerine facade: `ApiPaths`, `ApiPath`, `ApiMethod`, `ApiPathParams`, `ApiQueryParams`, `ApiRequestBody` tipleri. |
+| `packages/shared/src/openapi/response-types.ts` | Response tipleri icin kucuk barrel: `z.infer<typeof Schema>` ile (OpenAPI response yerine Zod). Export isimleri collision olmasin diye `*Body` suffix'i ile. |
+| `packages/shared/package.json` | `generate:types` script'i eklendi: `docs/openapi.json` → `src/openapi/api-types.generated.ts`. `openapi-typescript` devDependency eklendi. |
+
+**Dogrulama:** `pnpm --filter @motogram/shared generate:types` PASS; `pnpm --filter @motogram/shared typecheck/build` PASS; `pnpm --filter @motogram/api typecheck/test` PASS.
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 7 (shared: client-types sadece tip sozlesmesi)
+
+**Baglam:** Shared katmaninda runtime API istemcisi bulunmaz. Sadece tip sozlesmesi verilir; `apiRequest` implementasyonlari uygulamalarin icinde kalir (mobile/web-admin).
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `packages/shared/src/openapi/client-types.ts` | Runtime kod olmadan `ApiRequestArgs<P,M>` ve `ApiResponse<P,M>` gibi generic tip yardimcilari. |
+| `packages/shared/src/index.ts` | `client-types` export (types only). |
+
+**Dogrulama:** `pnpm --filter @motogram/shared typecheck/build` PASS; `pnpm --filter @motogram/api typecheck/test` PASS.
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 8 (CI drift kapisi: openapi:check)
+
+**Baglam:** API contract drift'ini CI'da yakalamak icin `openapi:generate` + `openapi:check` kapisi eklendi. Kritik: Turbo cache drift'i saklayabilir; bu nedenle task'lar **`cache: false`** ve `outputs: []` ile tanimlandi.
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `turbo.json` | `openapi:generate` + `openapi:check` task'lari eklendi, **`cache: false`** ve `outputs: []`. |
+| `package.json` (kok) | `openapi:generate` (api openapi:generate + shared generate:types) ve `openapi:check` (git diff --exit-code) scriptleri eklendi. |
+| `.github/workflows/ci.yml` | Typecheck sonrasi `pnpm openapi:check` adimi eklendi (CI drift kapisi). |
+
+**Dogrulama:** Yerel `pnpm openapi:check` PASS; `pnpm typecheck` PASS; `pnpm --filter @motogram/api test` PASS. `docs/openapi.json` gitignore disinda (commitlenebilir).
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 9 (WS kapsam disi notu)
+
+**Baglam:** WebSocket olay semalari OpenAPI'ye dahil edilmez. SSOT dosyasi `packages/shared/src/schemas/socket-events.schema.ts` olmaya devam eder. AsyncAPI uretimi henuz yoktur.
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `docs/ws-contract.md` | WS sozlesmesi icin referans notu (kapsam disi). |
+| `apps/api/scripts/write-openapi.ts` | WS semalari schema toplama asamasinda `socket` iceren export isimleriyle filtrelenir (OpenAPI'ye girmez). |
+
+**Dogrulama:** `pnpm --filter @motogram/api openapi:generate` PASS; `docs/openapi.json` icinde `WS_EVENTS/socket-events` izi yok (grep temiz).
+
+### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 10 (Contract test: OpenAPI ↔ Zod es-referans)
+
+**Baglam:** Contract test'te OpenAPI uretimi ile `routes.json` manifest'indeki schema adlarinin birebir eslestigi dogrulandi. Amac: OpenAPI dokumani ile runtime Zod semalari arasinda kopukluk olusursa testin kirmasi.
+
+**Kod / Degisiklikler:**
+
+| Dosya | Ozet |
+|---|---|
+| `apps/api/src/contract/public.contract.spec.ts` | DB gerektirmeyen bir test eklendi: `packages/shared/openapi/routes.json` + `docs/openapi.json` okuyup her route icin requestBody/response `$ref`'lerinin dogru schema adina isaret ettigini assert eder. Parametreli path'ler `:id → {id}` cevrilerek karsilastirilir. |
+
+**Dogrulama:** `pnpm --filter @motogram/api openapi:generate` PASS; `pnpm --filter @motogram/api test:contract` PASS (OpenAPI es-referans testi calisir; digerleri DB yoksa skip). CI'da CONTRACT_TESTS=1 ile tam suite calisir.
 
 ### [2026-04-22] R14 — Backend kilidi (WS + SOS + RBAC + guvenlik + tam suite script)
 

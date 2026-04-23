@@ -1,0 +1,836 @@
+[
+  {
+    "method": "GET",
+    "path": "/ab-tests",
+    "responseSchema": "AbTestListResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/ab-tests",
+    "responseSchema": "UpsertAbTestSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/ab-tests/:key",
+    "responseSchema": "AbTestDeleteResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/ab-tests/:key/assignment",
+    "responseSchema": "AbTestAssignmentClientResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/account/deletion",
+    "responseSchema": "AccountDeletionStatusSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/account/deletion",
+    "responseSchema": "AccountDeletionStatusSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/account/deletion",
+    "responseSchema": "AccountDeletionStatusSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/admin/audit-logs",
+    "responseSchema": "AdminAuditLogsListResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/admin/dashboard/snapshot",
+    "responseSchema": "AdminDashboardSnapshotSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/admin/reports",
+    "responseSchema": "AdminReportsListResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/reports/:id",
+    "responseSchema": "AdminReportDtoSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/admin/users",
+    "responseSchema": "AdminUsersListResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/admin/users/:id/ban",
+    "responseSchema": "AdminUnbanUserResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/admin/users/:id/ban",
+    "responseSchema": "AdminUserDtoSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/users/:id/role",
+    "responseSchema": "AdminUserDtoSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/auth/login",
+    "responseSchema": "AuthResultSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/auth/logout",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/auth/refresh",
+    "responseSchema": "TokenPairResponseSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/auth/register",
+    "responseSchema": "AuthResultSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/comments",
+    "responseSchema": "CommentRowResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/comments/:id",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PATCH",
+    "path": "/comments/:id",
+    "responseSchema": "CommentRowResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/comments/post/:postId",
+    "responseSchema": "CommentListPageResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/communities",
+    "responseSchema": "CommunityDetailSchema",
+    "responseStatus": 201,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/communities/:id",
+    "responseSchema": "CommunityDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PUT",
+    "path": "/communities/:id",
+    "responseSchema": "CommunityDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/communities/:id/join",
+    "responseSchema": "CommunityJoinHttpResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/communities/:id/leave",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/communities/:id/members",
+    "responseSchema": "CommunityMembersResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/communities/:id/members/role",
+    "responseSchema": "OkTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/communities/:id/pending",
+    "responseSchema": "CommunityPendingRequestsResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/communities/:id/respond-join",
+    "responseSchema": "CommunityRespondJoinHttpResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/communities/me",
+    "responseSchema": "CommunitiesMineResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/communities/nearby",
+    "responseSchema": "NearbyCommunitiesResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/conversations",
+    "responseSchema": "ConversationsListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/conversations",
+    "responseSchema": "ConversationDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/conversations/:id",
+    "responseSchema": "ConversationDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/conversations/:id/messages",
+    "responseSchema": "MessageListPageResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/conversations/:id/messages",
+    "responseSchema": "MessageSendResponseSchema",
+    "responseStatus": 201,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/conversations/:id/read",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/devices",
+    "responseSchema": "DevicesListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/devices",
+    "responseSchema": "DeviceTokenDtoResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/devices/:token",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/emergency/alerts",
+    "responseSchema": "EmergencyAlertsListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/emergency/alerts",
+    "responseSchema": "EmergencyAlertDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/emergency/alerts/:id",
+    "responseSchema": "EmergencyAlertDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/emergency/alerts/:id/resolve",
+    "responseSchema": "EmergencyAlertDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/emergency/alerts/:id/respond",
+    "responseSchema": "EmergencyResponderDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/events",
+    "responseSchema": "EventDetailSchema",
+    "responseStatus": 201,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/events/:id",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/events/:id",
+    "responseSchema": "EventDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PUT",
+    "path": "/events/:id",
+    "responseSchema": "EventDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/events/:id/participants",
+    "responseSchema": "EventParticipantsResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/events/:id/rsvp",
+    "responseSchema": "EventRsvpResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/events/me",
+    "responseSchema": "EventsMineResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/events/nearby",
+    "responseSchema": "NearbyEventsResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/feature-flags",
+    "responseSchema": "FeatureFlagsListResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN",
+      "MODERATOR"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/feature-flags",
+    "responseSchema": "FeatureFlagDtoSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/feature-flags/:key",
+    "responseSchema": "KeyRemovedResponseSchema",
+    "responseStatus": 200,
+    "auth": true,
+    "roles": [
+      "ADMIN"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/feature-flags/evaluate",
+    "responseSchema": "FeatureFlagEvaluationSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/follows/:userId",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/follows/:userId",
+    "responseSchema": "FollowActionResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/gamification/badges",
+    "responseSchema": "UserBadgesListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/gamification/badges/showcase",
+    "responseSchema": "UserBadgeDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/gamification/quests",
+    "responseSchema": "UserQuestsListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/healthz",
+    "responseSchema": "HealthReadyzSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/internal/fanout",
+    "responseSchema": "OkTrueSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/likes/:postId",
+    "responseSchema": "LikeToggleResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/likes/:postId",
+    "responseSchema": "LikeToggleResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/livez",
+    "responseSchema": "HealthLivezSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/location/session/start",
+    "responseSchema": "LiveLocationSessionResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/location/session/stop",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "PUT",
+    "path": "/location/sharing",
+    "responseSchema": "LocationSharingUserResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PUT",
+    "path": "/location/update",
+    "responseSchema": "UpdateLocationHttpResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/map/nearby",
+    "responseSchema": "NearbyRidersResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/map/shards",
+    "responseSchema": "MapShardStatsResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/media/:id",
+    "responseStatus": 204,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/media/:id",
+    "responseSchema": "MediaAssetDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/media/uploads",
+    "responseSchema": "InitiateMediaUploadResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/media/uploads/finalize",
+    "responseSchema": "MediaAssetDtoSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/messages/:id",
+    "responseSchema": "MessageDtoResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/messages/:id/react",
+    "responseSchema": "MessageReactHttpResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/metrics",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/motorcycles",
+    "responseSchema": "MotorcycleApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/motorcycles/:id",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PATCH",
+    "path": "/motorcycles/:id",
+    "responseSchema": "MotorcycleApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/motorcycles/me",
+    "responseSchema": "MotorcycleListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/notifications",
+    "responseSchema": "NotificationListPageResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/notifications/mark-read",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/notifications/unread-count",
+    "responseSchema": "NotificationUnreadCountResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/parties",
+    "responseSchema": "NearbyPartiesResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/parties",
+    "responseSchema": "PartySummarySchema",
+    "responseStatus": 201,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/parties/:id",
+    "responseSchema": "PartyDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/parties/:id/invite",
+    "responseSchema": "PartyInviteBatchResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/parties/:id/join",
+    "responseSchema": "PartyDetailSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/parties/:id/leave",
+    "responseSchema": "PartyLeaveHttpResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/parties/invites/me",
+    "responseSchema": "PartyInvitesMineResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/parties/invites/respond",
+    "responseSchema": "PartyRespondInviteHttpResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/posts",
+    "responseSchema": "PostApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/posts/:id",
+    "responseSchema": "PostDeleteResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/posts/:id",
+    "responseSchema": "PostApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PATCH",
+    "path": "/posts/:id",
+    "responseSchema": "PostApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/posts/feed",
+    "responseSchema": "PostFeedPageSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/posts/user/:userId",
+    "responseSchema": "PostFeedPageSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/readyz",
+    "responseSchema": "HealthReadyzSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/stories",
+    "responseSchema": "StoryRowResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/stories/:storyId/views",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/stories/feed",
+    "responseSchema": "StoryFeedResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/users/:username",
+    "responseSchema": "UserPublicApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/me",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/users/me",
+    "responseSchema": "UserMeResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/me",
+    "responseSchema": "UserPublicApiResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/users/me/cancel-deletion",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  }
+]

@@ -14,6 +14,9 @@ import {
   NearbyRidersResponseSchema,
   PostFeedPageSchema,
 } from '@motogram/shared';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import type { RouteRecord } from '@motogram/shared';
 
 import { GlobalExceptionFilter } from '../common/filters/global-exception.filter';
 import { AppModule } from '../app.module';
@@ -25,6 +28,42 @@ import { AppModule } from '../app.module';
  * Yerel/CI: `$env:CONTRACT_TESTS='1'; pnpm run test:contract` (apps/api).
  */
 const describeContract = process.env.CONTRACT_TESTS === '1' ? describe : describe.skip;
+
+function toOpenApiPath(path: string): string {
+  return path.replace(/:([A-Za-z0-9_]+)/g, '{$1}');
+}
+
+describe('Contract: OpenAPI ↔ Zod manifest', () => {
+  it('OpenAPI contract refs use same Zod schema names (routes.json ↔ openapi.json)', () => {
+    const openapiPath = resolve(__dirname, '../../../../docs/openapi.json');
+    const routesPath = resolve(__dirname, '../../../../packages/shared/openapi/routes.json');
+
+    const openapi = JSON.parse(readFileSync(openapiPath, 'utf8')) as any;
+    const routes = JSON.parse(readFileSync(routesPath, 'utf8')) as RouteRecord[];
+
+    for (const r of routes) {
+      const path = toOpenApiPath(r.path);
+      const item = openapi.paths?.[path] as any;
+      expect(item).toBeDefined();
+
+      const op = item?.[r.method.toLowerCase()];
+      expect(op).toBeDefined();
+
+      if (r.requestBodySchema) {
+        const ref = op?.requestBody?.content?.['application/json']?.schema?.$ref as string | undefined;
+        expect(ref).toBe(`#/components/schemas/${r.requestBodySchema}`);
+      }
+
+      const status = String(r.responseStatus ?? 200);
+      if (r.responseSchema) {
+        const ref = op?.responses?.[status]?.content?.['application/json']?.schema?.$ref as
+          | string
+          | undefined;
+        expect(ref).toBe(`#/components/schemas/${r.responseSchema}`);
+      }
+    }
+  });
+});
 
 describeContract('Contract: public HTTP', () => {
   let app: INestApplication;

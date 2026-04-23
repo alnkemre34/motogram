@@ -77,6 +77,9 @@ export class MessagingGateway
   ) {}
 
   onModuleInit(): void {
+    if (process.env.OPENAPI_GENERATE === '1') {
+      return;
+    }
     // MessageService'e persist sonrasi broadcast callback'ini ver.
     this.messages.registerCallbacks({
       onMessagePersisted: async ({ message, recipientIds }) => {

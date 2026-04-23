@@ -103,6 +103,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: OpenAPI contract check (drift gate)
+        run: pnpm openapi:check
+
       - name: Test (API unit)
         run: pnpm --filter @motogram/api test
         env:
