@@ -93,18 +93,21 @@ log "Adim 2/6: prisma migrate deploy (forward-only, Spec 8.11.5)"
 # api servisinin imaji migrate icin kullanilir.
 # Image yoksa build'le; var ama guncel degilse --build ile yeniden kur.
 compose build api
-compose run --rm --no-deps \
+# Not: api servisinin DATABASE_URL'i varsayilan olarak PgBouncer'a (pgbouncer:6432) bakar.
+# Bootstrap sirasinda migrasyon/seed adimlarini dogrudan Postgres'e karsi kosariz
+# (Spec 8.11.5 + RUNBOOK: ilk cutover'da PgBouncer devre disi olabilir).
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile tooling run --rm --no-deps \
   --entrypoint "" \
-  api \
+  api-migrate \
   npx prisma migrate deploy --schema=prisma/schema.prisma
 
 ############################################
 # 3. Seed (notification templates + badges + quests)
 ############################################
 log "Adim 3/6: db seed (node dist-seed/seed.js)"
-compose run --rm --no-deps \
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile tooling run --rm --no-deps \
   --entrypoint "" \
-  api \
+  api-migrate \
   node dist-seed/seed.js
 
 ############################################
