@@ -17,7 +17,7 @@
     "clean": "turbo run clean",
     "slo:check": "bash scripts/check-slo.sh",
     "k6:baseline": "k6 run k6/http-baseline.js",
-    "openapi:generate": "pnpm --filter @motogram/api openapi:generate && pnpm --filter @motogram/shared generate:types",
+    "openapi:generate": "pnpm --filter @motogram/shared build && pnpm --filter @motogram/api openapi:generate && pnpm --filter @motogram/shared generate:types",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code docs/openapi.json docs/API_Contract.md packages/shared/openapi/routes.json packages/shared/src/openapi/api-types.generated.ts",
     "e2e:stack:up": "docker compose -f docker-compose.e2e.yml up -d",
     "e2e:stack:down": "docker compose -f docker-compose.e2e.yml down",

@@ -10,6 +10,7 @@ import {
   AuthResultSchema,
   ChangePasswordResponseSchema,
   ConversationsListResponseSchema,
+  ForgotPasswordResponseSchema,
   HealthLivezSchema,
   HealthReadyzSchema,
   MapShardStatsResponseSchema,
@@ -140,6 +141,30 @@ describeContract('Contract: public HTTP', () => {
         eulaAccepted: false,
         preferredLanguage: 'tr',
       })
+      .expect(400);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/password/forgot — geçerli gövde + ForgotPasswordResponseSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/forgot')
+      .send({ email: contractEmail })
+      .expect(200);
+    ForgotPasswordResponseSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/password/forgot — bilinmeyen e-posta yine 200 (enumeration yok)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/forgot')
+      .send({ email: 'missing-user-ctr9@example.com' })
+      .expect(200);
+    ForgotPasswordResponseSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/password/reset — geçersiz token 400 + ApiErrorSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/reset')
+      .send({ token: 'c'.repeat(32), newPassword: 'ResetPass1!z' })
       .expect(400);
     ApiErrorSchema.parse(res.body);
   });

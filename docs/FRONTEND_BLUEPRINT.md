@@ -241,9 +241,9 @@ RootNavigator
 - Plan: Backend `/v1/auth/otp/request` + `/v1/auth/otp/verify` ekleyene kadar **navigatorda erişilmez tutulur**, `app.json`’da hidden flag.
 - Hazır olunca: `useZodForm(OtpVerifySchema)` zaten var; `apiRequest('/auth/otp/verify', { POST, body, schema: AuthResultSchema })`.
 
-### 3.5 ForgotPasswordScreen / ResetPasswordScreen *(BACKEND EKSİK)*
-- Plan: Backend `/v1/auth/password/forgot` (email → tek‑kullanım token mail) + `/v1/auth/password/reset` (token + newPassword) eklenecek.
-- Mobil tarafta **ekrana yer ayrıldı** ama backend olmadan link inactive — kullanıcı görmez.
+### 3.5 ForgotPasswordScreen / ResetPasswordScreen *(backend B‑05 hazır)*
+- API: `POST /v1/auth/password/forgot` (email → `{ success: true }`; mail BullMQ `AUTH_PASSWORD_RESET_MAIL`) + `POST /v1/auth/password/reset` (`token` + `newPassword` → `ChangePasswordResponse` şekli).
+- Mobil: ekranları bu uçlara bağla; deep link `reset-password?token=…` ile reset ekranı.
 
 ### 3.6 Logout
 - Buton: `SettingsScreen → Account → Logout` ve `ProfileScreen` üst sağ ikon.
@@ -651,7 +651,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 
 | # | Endpoint | Amaç | Zorunlu |
 |---|----------|------|---------|
-| B1 | `POST /v1/auth/password/forgot` + `/reset` | Şifre sıfırlama | YES |
+| ~~B1~~ | ~~`POST /v1/auth/password/forgot` + `/reset`~~ | **TAMAMLANDI (2026-04-23)** — `PasswordResetToken` + mail kuyruğu | — |
 | ~~B2~~ | ~~`POST /v1/auth/password/change`~~ | **TAMAMLANDI (2026-04-23)** | — |
 | B3 | `PATCH /v1/users/me/username` | Kullanıcı adı değiştir (cooldown + unique) | YES |
 | B4 | `POST /v1/auth/email/change` + `/verify` | E‑posta değiştir + doğrulama | YES |

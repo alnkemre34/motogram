@@ -60,7 +60,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 2 | **B‑02** ✅ | `GET /conversations?type=` filtresi | Inbox “Topluluk Sohbetleri” sekmesi | XS |
 | 3 | **B‑03** ✅ | `Party` route sırası fix (`invites/me` önce) | Parti davetleri | XS |
 | 4 | **B‑04** ✅ | Auth password change (`POST /auth/password/change`) | Settings ▸ Şifre değiştir | S |
-| 5 | **B‑05** | Forgot + Reset password (`/auth/password/forgot`, `/reset`) | Auth ▸ Şifremi unuttum | M |
+| 5 | **B‑05** ✅ | Forgot + Reset password (`/auth/password/forgot`, `/reset`) | Auth ▸ Şifremi unuttum | M |
 | 6 | **B‑06** | Username change (`PATCH /users/me/username`) | Settings ▸ Kullanıcı adı | S |
 | 7 | **B‑07** | Email change + verify (`/auth/email/change`, `/verify`) | Settings ▸ E‑posta | M |
 | 8 | **B‑08** | User search (`GET /users/search?q=`) | NewConversation, invite flows | S |

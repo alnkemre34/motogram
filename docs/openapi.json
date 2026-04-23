@@ -4802,6 +4802,32 @@
         ],
         "type": "object"
       },
+      "ForgotPasswordResponseSchema": {
+        "properties": {
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ],
+        "type": "object"
+      },
+      "ForgotPasswordSchema": {
+        "properties": {
+          "email": {
+            "format": "email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "type": "object"
+      },
       "GamificationTriggerPayloadSchema": {
         "properties": {
           "increment": {
@@ -8529,6 +8555,29 @@
         ],
         "type": "object"
       },
+      "PasswordResetEmailJobSchema": {
+        "properties": {
+          "email": {
+            "format": "email",
+            "type": "string"
+          },
+          "resetToken": {
+            "maxLength": 128,
+            "minLength": 32,
+            "type": "string"
+          },
+          "userId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "email",
+          "resetToken"
+        ],
+        "type": "object"
+      },
       "PasswordSchema": {
         "maxLength": 128,
         "minLength": 8,
@@ -9926,6 +9975,44 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "ResetPasswordResponseSchema": {
+        "properties": {
+          "revokedSessions": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "revokedSessions"
+        ],
+        "type": "object"
+      },
+      "ResetPasswordSchema": {
+        "properties": {
+          "newPassword": {
+            "maxLength": 128,
+            "minLength": 8,
+            "type": "string"
+          },
+          "token": {
+            "maxLength": 128,
+            "minLength": 32,
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ],
         "type": "object"
       },
       "ResolveEmergencyAlertSchema": {
@@ -13523,6 +13610,38 @@
             ]
           }
         ]
+      }
+    },
+    "/auth/password/forgot": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/password/reset": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
       }
     },
     "/auth/refresh": {

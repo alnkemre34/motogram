@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -7,15 +8,19 @@ import {
   AuthLoginSuccessEventSchema,
   ErrorCodes,
   type ChangePasswordDto,
+  type ForgotPasswordDto,
   type LoginDto,
   type RegisterDto,
+  type ResetPasswordDto,
   type TokenPair,
 } from '@motogram/shared';
 import * as bcrypt from 'bcrypt';
+import { createHash, randomBytes } from 'node:crypto';
 
 import { ZodEventBus } from '../../common/events/zod-event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 
+import { PasswordResetMailQueue } from './password-reset-mail.queue';
 import { TokenService } from './token.service';
 
 // Spec 7.2.1 - login event'i; AccountService 30 gun icinde silme talebini
@@ -28,12 +33,19 @@ export interface AuthLoginEventPayload {
 
 const BCRYPT_ROUNDS = 12;
 
+const PASSWORD_RESET_TTL_MS = 30 * 60 * 1000;
+
+function hashPasswordResetToken(plain: string): string {
+  return createHash('sha256').update(plain, 'utf8').digest('hex');
+}
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tokens: TokenService,
     private readonly events: ZodEventBus,
+    private readonly passwordResetMail: PasswordResetMailQueue,
   ) {}
 
   // Spec 9.2 - Email+sifre register. EULA zorunlu (Zod sema literal(true) ile
@@ -229,6 +241,91 @@ export class AuthService {
       data: { passwordHash: newHash },
     });
     const revokedSessions = await this.tokens.revokeAllForUser(userId);
+    return { success: true as const, revokedSessions };
+  }
+
+  /** B-05 — Enumeration yok: geçersiz e-posta / OAuth-only / ban / silinmiş hesap hep `{ success: true }`. */
+  async forgotPassword(dto: ForgotPasswordDto): Promise<{ success: true }> {
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.prisma.user.findFirst({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        deletedAt: true,
+        isBanned: true,
+      },
+    });
+    if (!user?.passwordHash || user.isBanned) {
+      return { success: true as const };
+    }
+    if (user.deletedAt) {
+      const deletion = await this.prisma.accountDeletion.findUnique({
+        where: { userId: user.id },
+      });
+      const now = new Date();
+      const canRestore =
+        deletion &&
+        !deletion.executedAt &&
+        !deletion.cancelledAt &&
+        deletion.scheduledFor.getTime() > now.getTime();
+      if (!canRestore) {
+        return { success: true as const };
+      }
+    }
+
+    await this.prisma.passwordResetToken.deleteMany({
+      where: { userId: user.id, usedAt: null },
+    });
+    const plainToken = randomBytes(32).toString('hex');
+    const tokenHash = hashPasswordResetToken(plainToken);
+    const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
+    await this.prisma.passwordResetToken.create({
+      data: { userId: user.id, tokenHash, expiresAt },
+    });
+    await this.passwordResetMail.enqueue({
+      userId: user.id,
+      email: user.email,
+      resetToken: plainToken,
+    });
+    return { success: true as const };
+  }
+
+  /** B-05 — Tek kullanımlık token; başarıda şifre + tüm refresh oturumları düşer. */
+  async resetPassword(
+    dto: ResetPasswordDto,
+  ): Promise<{ success: true; revokedSessions: number }> {
+    const tokenHash = hashPasswordResetToken(dto.token);
+    const rec = await this.prisma.passwordResetToken.findFirst({
+      where: {
+        tokenHash,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        user: { select: { id: true, isBanned: true, deletedAt: true } },
+      },
+    });
+    if (!rec || rec.user.isBanned || rec.user.deletedAt) {
+      throw new BadRequestException({
+        error: 'reset_token_invalid',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+
+    const newHash = await bcrypt.hash(dto.newPassword, BCRYPT_ROUNDS);
+    await this.prisma.$transaction(async (tx) => {
+      await tx.passwordResetToken.update({
+        where: { id: rec.id },
+        data: { usedAt: new Date() },
+      });
+      await tx.user.update({
+        where: { id: rec.userId },
+        data: { passwordHash: newHash },
+      });
+    });
+    const revokedSessions = await this.tokens.revokeAllForUser(rec.userId);
     return { success: true as const, revokedSessions };
   }
 }

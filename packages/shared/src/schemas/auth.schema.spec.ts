@@ -1,4 +1,11 @@
-import { ChangePasswordSchema, LoginSchema, OtpVerifySchema, RegisterSchema } from './auth.schema';
+import {
+  ChangePasswordSchema,
+  ForgotPasswordSchema,
+  LoginSchema,
+  OtpVerifySchema,
+  RegisterSchema,
+  ResetPasswordSchema,
+} from './auth.schema';
 
 // Spec 7.3.6 - Zod SSOT tests validate SPEC rules directly
 // Spec 9.2 - EULA literal(true) zorunlu
@@ -99,6 +106,31 @@ describe('ChangePasswordSchema (B-04)', () => {
   it('rejects short passwords', () => {
     expect(
       ChangePasswordSchema.safeParse({ currentPassword: 'short', newPassword: 'also' }).success,
+    ).toBe(false);
+  });
+});
+
+describe('ForgotPasswordSchema (B-05)', () => {
+  it('accepts a valid email', () => {
+    expect(ForgotPasswordSchema.safeParse({ email: 'a@b.co' }).success).toBe(true);
+  });
+
+  it('rejects invalid email', () => {
+    expect(ForgotPasswordSchema.safeParse({ email: 'not-email' }).success).toBe(false);
+  });
+});
+
+describe('ResetPasswordSchema (B-05)', () => {
+  it('requires token min 32 and valid new password', () => {
+    const token = 't'.repeat(32);
+    expect(
+      ResetPasswordSchema.safeParse({ token, newPassword: 'validpass1' }).success,
+    ).toBe(true);
+  });
+
+  it('rejects token shorter than 32', () => {
+    expect(
+      ResetPasswordSchema.safeParse({ token: 'x'.repeat(31), newPassword: 'validpass1' }).success,
     ).toBe(false);
   });
 });

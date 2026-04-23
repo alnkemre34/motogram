@@ -4,16 +4,22 @@ import {
   AuthResultSchema,
   ChangePasswordResponseSchema,
   ChangePasswordSchema,
+  ForgotPasswordResponseSchema,
+  ForgotPasswordSchema,
   LoginSchema,
   LogoutSchema,
   RefreshTokenSchema,
   RegisterSchema,
+  ResetPasswordResponseSchema,
+  ResetPasswordSchema,
   TokenPairResponseSchema,
   type ChangePasswordDto,
+  type ForgotPasswordDto,
   type LoginDto,
   type LogoutDto,
   type RefreshTokenDto,
   type RegisterDto,
+  type ResetPasswordDto,
 } from '@motogram/shared';
 
 import {
@@ -52,6 +58,24 @@ export class AuthController {
     @Body(new ZodBody(LoginSchema)) dto: LoginDto,
   ) {
     return this.auth.login(dto);
+  }
+
+  @Public()
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 3 } })
+  @HttpCode(200)
+  @Post('password/forgot')
+  @ZodResponse(ForgotPasswordResponseSchema)
+  async forgotPassword(@Body(new ZodBody(ForgotPasswordSchema)) dto: ForgotPasswordDto) {
+    return this.auth.forgotPassword(dto);
+  }
+
+  @Public()
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 10 } })
+  @HttpCode(200)
+  @Post('password/reset')
+  @ZodResponse(ResetPasswordResponseSchema)
+  async resetPassword(@Body(new ZodBody(ResetPasswordSchema)) dto: ResetPasswordDto) {
+    return this.auth.resetPassword(dto);
   }
 
   @Public()

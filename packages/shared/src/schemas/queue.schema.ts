@@ -21,3 +21,12 @@ export const AccountDeletionJobSchema = z.object({
   reason: z.string().nullable().optional(),
 });
 export type AccountDeletionJob = z.infer<typeof AccountDeletionJobSchema>;
+
+/** BullMQ AUTH_PASSWORD_RESET_MAIL — worker e-posta gönderir veya dev’de loglar (B-05). */
+export const PasswordResetEmailJobSchema = z.object({
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  /** Tek seferlik düz metin token (URL’de); üretimde worker SMTP ile gönderir. */
+  resetToken: z.string().min(32).max(128),
+});
+export type PasswordResetEmailJob = z.infer<typeof PasswordResetEmailJobSchema>;

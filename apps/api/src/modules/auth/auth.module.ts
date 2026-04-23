@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { PasswordResetMailQueue } from './password-reset-mail.queue';
 import { TokenService } from './token.service';
 
 @Global()
@@ -22,6 +23,7 @@ import { TokenService } from './token.service';
   providers: [
     AuthService,
     TokenService,
+    PasswordResetMailQueue,
     JwtAuthGuard,
     // Spec 8.6 - tum endpoint'ler default korumali; @Public() ile acilir
     { provide: APP_GUARD, useClass: JwtAuthGuard },

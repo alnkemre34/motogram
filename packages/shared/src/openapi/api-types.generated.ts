@@ -579,6 +579,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/password/forgot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ForgotPasswordResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ResetPasswordResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/refresh": {
         parameters: {
             query?: never;
@@ -4856,6 +4926,14 @@ export interface components {
             /** @enum {boolean} */
             success: true;
         };
+        ForgotPasswordResponseSchema: {
+            /** @enum {boolean} */
+            success: true;
+        };
+        ForgotPasswordSchema: {
+            /** Format: email */
+            email: string;
+        };
         GamificationTriggerPayloadSchema: {
             /** @default 1 */
             increment: number;
@@ -5754,6 +5832,13 @@ export interface components {
             lat: number;
             lng: number;
         };
+        PasswordResetEmailJobSchema: {
+            /** Format: email */
+            email: string;
+            resetToken: string;
+            /** Format: uuid */
+            userId: string;
+        };
         PasswordSchema: string;
         PostApiResponseSchema: {
             caption: string | null;
@@ -6059,6 +6144,15 @@ export interface components {
         RequestAccountDeletionSchema: {
             password?: string;
             reason?: string;
+        };
+        ResetPasswordResponseSchema: {
+            revokedSessions: number;
+            /** @enum {boolean} */
+            success: true;
+        };
+        ResetPasswordSchema: {
+            newPassword: string;
+            token: string;
         };
         ResolveEmergencyAlertSchema: {
             note?: string;

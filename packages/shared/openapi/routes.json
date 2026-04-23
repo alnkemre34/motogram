@@ -167,6 +167,20 @@
   },
   {
     "method": "POST",
+    "path": "/auth/password/forgot",
+    "responseSchema": "ForgotPasswordResponseSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/auth/password/reset",
+    "responseSchema": "ResetPasswordResponseSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
     "path": "/auth/refresh",
     "responseSchema": "TokenPairResponseSchema",
     "responseStatus": 200,

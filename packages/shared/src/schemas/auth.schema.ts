@@ -110,3 +110,26 @@ export const ChangePasswordResponseSchema = z.object({
   revokedSessions: z.number().int().nonnegative(),
 });
 export type ChangePasswordResponse = z.infer<typeof ChangePasswordResponseSchema>;
+
+/** POST /auth/password/forgot (B-05) — enumeration koruması: her zaman aynı gövde. */
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+export type ForgotPasswordDto = z.infer<typeof ForgotPasswordSchema>;
+
+export const ForgotPasswordResponseSchema = z.object({ success: z.literal(true) });
+export type ForgotPasswordResponse = z.infer<typeof ForgotPasswordResponseSchema>;
+
+/** POST /auth/password/reset (B-05) */
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(32).max(128),
+  newPassword: PasswordSchema,
+});
+export type ResetPasswordDto = z.infer<typeof ResetPasswordSchema>;
+
+/** Reset sonrası oturumlar düşer; ChangePassword ile aynı JSON şekli (ayrı Zod nesnesi → OpenAPI reflector). */
+export const ResetPasswordResponseSchema = z.object({
+  success: z.literal(true),
+  revokedSessions: z.number().int().nonnegative(),
+});
+export type ResetPasswordResponse = z.infer<typeof ResetPasswordResponseSchema>;

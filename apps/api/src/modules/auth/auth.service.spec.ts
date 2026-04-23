@@ -1,9 +1,14 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ErrorCodes } from '@motogram/shared';
 import * as bcrypt from 'bcrypt';
+import { createHash } from 'node:crypto';
 
 import { AuthService } from './auth.service';
 import type { TokenService } from './token.service';
+
+function hashPasswordResetToken(plain: string): string {
+  return createHash('sha256').update(plain, 'utf8').digest('hex');
+}
 
 // Tests validate SPEC behaviors:
 // - Spec 9.2: register must create user, set EULA timestamp, issue token pair
@@ -13,14 +18,39 @@ import type { TokenService } from './token.service';
 // - Spec 9.2: login with wrong password must fail with INVALID_CREDENTIALS
 
 function createPrismaMock() {
-  return {
+  const m: {
+    user: {
+      findFirst: jest.Mock;
+      findUnique: jest.Mock;
+      create: jest.Mock;
+      update: jest.Mock;
+    };
+    accountDeletion: { findUnique: jest.Mock };
+    passwordResetToken: {
+      deleteMany: jest.Mock;
+      create: jest.Mock;
+      findFirst: jest.Mock;
+      update: jest.Mock;
+    };
+    $transaction: jest.Mock;
+  } = {
     user: {
       findFirst: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
-  } as const;
+    accountDeletion: { findUnique: jest.fn() },
+    passwordResetToken: {
+      deleteMany: jest.fn(),
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    $transaction: jest.fn(),
+  };
+  m.$transaction.mockImplementation(async (fn: (tx: typeof m) => Promise<unknown>) => fn(m));
+  return m;
 }
 
 function createTokenServiceMock(): jest.Mocked<TokenService> {
@@ -40,12 +70,14 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
   let service: AuthService;
 
   let events: { emit: jest.Mock };
+  let passwordResetMail: { enqueue: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
     tokens = createTokenServiceMock();
     events = { emit: jest.fn(() => true) };
-    service = new AuthService(prisma as never, tokens, events as never);
+    passwordResetMail = { enqueue: jest.fn().mockResolvedValue(undefined) };
+    service = new AuthService(prisma as never, tokens, events as never, passwordResetMail as never);
   });
 
   describe('register (Spec 9.2)', () => {
@@ -282,6 +314,106 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
       expect(tokens.revokeAllForUser).toHaveBeenCalledWith('u1');
       expect(out.success).toBe(true);
       expect(out.revokedSessions).toBe(3);
+    });
+  });
+
+  describe('forgotPassword (B-05)', () => {
+    it('returns success without DB mail work when user is missing', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+      const out = await service.forgotPassword({ email: 'nobody@example.com' });
+      expect(out).toEqual({ success: true });
+      expect(prisma.passwordResetToken.create).not.toHaveBeenCalled();
+      expect(passwordResetMail.enqueue).not.toHaveBeenCalled();
+    });
+
+    it('returns success when user has no password (OAuth-only)', async () => {
+      prisma.user.findFirst.mockResolvedValue({
+        id: 'u1',
+        email: 'a@example.com',
+        passwordHash: null,
+        deletedAt: null,
+        isBanned: false,
+      } as never);
+      const out = await service.forgotPassword({ email: 'a@example.com' });
+      expect(out.success).toBe(true);
+      expect(prisma.passwordResetToken.create).not.toHaveBeenCalled();
+    });
+
+    it('creates token row and enqueues mail when eligible', async () => {
+      prisma.user.findFirst.mockResolvedValue({
+        id: 'u1',
+        email: 'a@example.com',
+        passwordHash: 'hash',
+        deletedAt: null,
+        isBanned: false,
+      } as never);
+      prisma.passwordResetToken.create.mockResolvedValue({ id: 't1' } as never);
+
+      const out = await service.forgotPassword({ email: 'a@example.com' });
+
+      expect(out.success).toBe(true);
+      expect(prisma.passwordResetToken.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'u1', usedAt: null },
+      });
+      expect(prisma.passwordResetToken.create).toHaveBeenCalledTimes(1);
+      const createArg = prisma.passwordResetToken.create.mock.calls[0]![0];
+      expect(createArg.data.userId).toBe('u1');
+      expect(createArg.data.tokenHash).toMatch(/^[a-f0-9]{64}$/);
+      expect(passwordResetMail.enqueue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'u1',
+          email: 'a@example.com',
+          resetToken: expect.stringMatching(/^[a-f0-9]{64}$/),
+        }),
+      );
+    });
+  });
+
+  describe('resetPassword (B-05)', () => {
+    it('rejects invalid token with BadRequestException', async () => {
+      prisma.passwordResetToken.findFirst.mockResolvedValue(null);
+      await expect(
+        service.resetPassword({ token: 'a'.repeat(32), newPassword: 'newpass12' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.resetPassword({ token: 'a'.repeat(32), newPassword: 'newpass12' }),
+      ).rejects.toMatchObject({
+        response: { error: 'reset_token_invalid', code: ErrorCodes.VALIDATION_FAILED },
+      });
+    });
+
+    it('updates password, marks token used, revokes refresh sessions', async () => {
+      const plain = 'b'.repeat(32);
+      prisma.passwordResetToken.findFirst.mockResolvedValue({
+        id: 'pr1',
+        userId: 'u1',
+        user: { id: 'u1', isBanned: false, deletedAt: null },
+      } as never);
+      prisma.passwordResetToken.update.mockResolvedValue({} as never);
+      prisma.user.update.mockResolvedValue({} as never);
+      tokens.revokeAllForUser.mockResolvedValue(2);
+
+      const out = await service.resetPassword({ token: plain, newPassword: 'newpass12' });
+
+      expect(prisma.passwordResetToken.findFirst).toHaveBeenCalledWith({
+        where: {
+          tokenHash: hashPasswordResetToken(plain),
+          usedAt: null,
+          expiresAt: { gt: expect.any(Date) },
+        },
+        include: { user: { select: { id: true, isBanned: true, deletedAt: true } } },
+      });
+      expect(prisma.passwordResetToken.update).toHaveBeenCalledWith({
+        where: { id: 'pr1' },
+        data: { usedAt: expect.any(Date) },
+      });
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'u1' },
+        data: { passwordHash: expect.any(String) },
+      });
+      expect(tokens.revokeAllForUser).toHaveBeenCalledWith('u1');
+      expect(out.success).toBe(true);
+      expect(out.revokedSessions).toBe(2);
     });
   });
 });

@@ -90,6 +90,7 @@ model User {
   questProgress        QuestProgress[]
   mediaAssets          MediaAsset[]             @relation("MediaOwner")
   accountDeletion      AccountDeletion?
+  passwordResetTokens  PasswordResetToken[]
 
   @@index([username])
   @@index([email])
@@ -1055,6 +1056,20 @@ enum MediaStatus {
   PROCESSING
   READY
   FAILED
+}
+
+// ============ AUTH - SIFRE SIFIRLAMA (B-05) ============
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+  @@map("password_reset_tokens")
 }
 
 // ============ FAZ 5 - VERI IMHA POLITIKASI (Spec 5.2 + 8.11.4) ============
