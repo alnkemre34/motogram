@@ -8,10 +8,31 @@
 
 ---
 
+## Mobil on uc — nerede kaldik? (2026-04-24 guncel)
+
+| Konu | Durum |
+|------|--------|
+| **Mobil yol haritasi (P1–P7)** | **P1–P5 tamam; sirada P6** (harita + topluluk/parti polish), sonra P7 (WS + gam). |
+| **Son yapit mobil commit** | `4b54e62` — P5: Settings hub, `PATCH /users/me`, bildirim tercihleri, acil kisiler, engellenenler, hesap silme, `linking` `settings/*`. |
+| **Onceki mobil commitler** | `37718f7` — P3 story rail + StoryViewer; `88ee21c` — P4 AppStack 4 tab + bildirimler. |
+| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — son kosum: **15 suite / 59 test** gecer. |
+| **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` (rev. gunlugu), `docs/FRONTEND_UI_UX_BLUEPRINT.md` v1.5, `docs/PROJECT_BOARD.md` §1. |
+
+**Ardil / acik isler (oncelik secimi):**
+
+- `GET /v1/users/:username` — baska kullanici profil ekrani (A5’te kalan parca).
+- Hikâye **video** in-app: `expo-av` (P3’te sadece placeholder + metin).
+- Ayarlar §11.5: sifre / e-posta / cihaz ekranlari (endpoint’ler mevcut, UI yok).
+- **P6:** Map / Community / Party ekranlari contract + polish (yol haritasi A6).
+
+**Kod giris noktalari (mobil):** `AppStackParamList` → `Settings`, `EditProfile`, …; `apps/mobile/src/navigation/`; `apps/mobile/src/screens/settings/`.
+
+---
+
 ## Son Guncelleme
 
-- **Tarih:** 2026-04-23
-- **Repo durumu:** `alnkemre34/motogram-fixed` (`main`) - guncel commit icin `git log -1 --oneline`
+- **Tarih:** 2026-04-24 (ustteki tablo + bu blok senkron)
+- **Repo durumu:** Yerel / `main` — son commit: `git log -1 --oneline` (beklenen: `4b54e62` ustu P5 sonrası)
 - **Zod R9 (backend contract):** `apps/api/src/contract/public.contract.spec.ts` — health +
   auth hatalari + kayit/JWT ile feed + map (`shards`, `nearby`) + media 401/404;
   CI’da **`prisma migrate deploy`** + `pnpm test` (contract haric) + `pnpm run test:contract`
@@ -138,6 +159,13 @@
 - `EXPO_PUBLIC_WS_URL=http://85.235.74.203`
 - Dev OTP bypass: `986877`
 - API healthcheck: `GET /v1/healthz`
+
+---
+
+## Son Oturum Ozeti — mobil dokümantasyon (2026-04-24)
+
+1. P5 ayarlar ve profil duzenleme dogrulandi; `typecheck` + Jest tekrar kosuldu.
+2. `SESSION_HANDOFF`, `PROJECT_BOARD` §1, `FRONTEND_IMPLEMENTATION_ROADMAP` §7 ile "nerede kaldik" metin halinde birlesti.
 
 ---
 

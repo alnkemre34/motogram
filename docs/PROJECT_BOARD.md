@@ -33,8 +33,8 @@
 |---|---|
 | **Aktif Faz** | Faz 7 + mobil **P6** (harita + topluluk/parti polish) öncelik |
 | **Son Tamamlanan** | **P5 (mobil):** Ayarlar (`AppStack`), `PATCH /v1/users/me`, bildirim tercihleri, acil kişi + engellenenler, `account/deletion` akışı; `blocks.api`; profil sekmeleri i18n |
-| **Son Guncelleme** | 2026-04-23 — P5 kapanış; yol haritası + `riding-style` Jest |
-| **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
+| **Son Guncelleme** | 2026-04-24 — P6 öncelik; handoff + §7 yol haritası; mobil test/typecheck tekrar doğrulandı |
+| **Son Commit (mobil P5 ref.)** | `4b54e62` (P5 settings); güncel: `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
 | **Aktif Riskler** | Risk #27 (TLS ertelendi) |

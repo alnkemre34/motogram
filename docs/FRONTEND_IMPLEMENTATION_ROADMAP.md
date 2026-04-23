@@ -1,8 +1,9 @@
 # Motogram — Frontend uygulama yol haritası
 
-> Tarih: 2026-04-23  
-> İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.2+), `docs/API_Contract.md`, `packages/shared`  
-> Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.
+> Tarih: 2026-04-24 (§7 hızlı özet güncellendi)  
+> İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
+> Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
+> **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
 
 ---
 
@@ -78,8 +79,23 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
+- **2026-04-24:** Oturum handoff: `SESSION_HANDOFF.md` mobil özet tablosu; bu belgeye **§7 Nerede kaldık**; `PROJECT_BOARD` §1 tarih/commit; mobil `typecheck` + `test` tekrar koşuldu (15/59).
 - **2026-04-23 (5):** P5: `updateCurrentUser` (`PATCH /users/me`); `blocks.api`; `notification-preferences` GET/PATCH; acil `contacts` CRUD; `SettingsScreen` + `EditProfile` + tercihler + engellenenler + `AccountDeletionScreen`; `ProfileScreen` i18n + ayar; `linking` `settings/*`; `parseRidingStyleCommas` Jest.
 - **2026-04-23 (4):** P3 kapanış: `stories.api` (`/stories/feed`, `/stories/:id/views`), `StoryRail` + `StoryViewer` (`AppStack`), `groupStoryFeedByUser` test; bildirim `mark-read` ekran çıkışında; `motogram://story/:initialStoryId` link; **video** şimdilik bilgi metni (expo-av ileri faz).
 - **2026-04-23 (3):** P4: `AppStackNavigator` (MainTabs + Inbox + Notifications), 4 sekmeli tab, `linking` AppStack. P3: Home üst bar (gelen + bildirim), `GET /notifications` + `unread-count`, feed beğeni `likedByMe` düzeltmesi, `Inbox`→Harita `MainTabs/Map` geçişi.
 - **2026-04-23 (2):** P1 faz tablosu (P1–P7), OAuth implementasyonu, `auth-path` test.
 - **2026-04-23:** A2 (Inbox) yol haritası ve test stratejisi eklendi; Blueprint v1.2 ile eşgüdüm.
+
+---
+
+## 7. Nerede kaldık / sırada ne var (hızlı)
+
+| Nerede? | Ne yapıldı (özet) | Sırada |
+|--------|-------------------|--------|
+| **P1–P5** | Auth, Inbox, Home + story, 4 tab + AppStack, **Settings** + `PATCH /me` + tercihler + acil + blocks + hesap silme | Kapanı kabul: `typecheck` + `test` yeşil |
+| **A5** | Kendi profil + ayarlar uçtan uçta; public `GET /users/:username` **yok** (ardıl) | Kullanıcı adı ile başka profil ekranı |
+| **A6** | Harita / parti / topluluk kısmi | **P6** polish + contract hizası |
+| **Hikâye video** | Placeholder + i18n | `expo-av` (opsiyonel faz) |
+| **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |
+
+**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (15 suite / 59 test, 2026-04-24).
