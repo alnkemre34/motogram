@@ -25,6 +25,8 @@ model User {
   phoneNumber     String?   @unique
   phoneVerifiedAt DateTime? // B-16 OTP sonrası
   passwordHash    String?
+  appleSub        String?   @unique
+  googleSub       String?   @unique
   name            String?
   bio             String?
   avatarUrl       String?

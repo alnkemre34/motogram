@@ -1,6 +1,7 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
+  AppleSignInSchema,
   AuthResultSchema,
   ChangeEmailRequestSchema,
   ChangeEmailResponseSchema,
@@ -10,6 +11,7 @@ import {
   ChangePasswordSchema,
   ForgotPasswordResponseSchema,
   ForgotPasswordSchema,
+  GoogleSignInSchema,
   LoginSchema,
   LogoutSchema,
   OtpRequestResponseSchema,
@@ -21,10 +23,12 @@ import {
   ResetPasswordResponseSchema,
   ResetPasswordSchema,
   TokenPairResponseSchema,
+  type AppleSignInDto,
   type ChangeEmailRequestDto,
   type ChangeEmailVerifyDto,
   type ChangePasswordDto,
   type ForgotPasswordDto,
+  type GoogleSignInDto,
   type LoginDto,
   type LogoutDto,
   type OtpRequestDto,
@@ -118,6 +122,24 @@ export class AuthController {
     @Body(new ZodBody(RefreshTokenSchema)) dto: RefreshTokenDto,
   ) {
     return this.auth.refresh(dto.refreshToken);
+  }
+
+  @Public()
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 5 } })
+  @HttpCode(200)
+  @Post('oauth/apple')
+  @ZodResponse(AuthResultSchema)
+  async appleOAuth(@Body(new ZodBody(AppleSignInSchema)) dto: AppleSignInDto) {
+    return this.auth.appleSignIn(dto);
+  }
+
+  @Public()
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 5 } })
+  @HttpCode(200)
+  @Post('oauth/google')
+  @ZodResponse(AuthResultSchema)
+  async googleOAuth(@Body(new ZodBody(GoogleSignInSchema)) dto: GoogleSignInDto) {
+    return this.auth.googleSignIn(dto);
   }
 
   @HttpCode(204)

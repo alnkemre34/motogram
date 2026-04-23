@@ -850,6 +850,12 @@
             "format": "email",
             "type": "string"
           },
+          "eulaAccepted": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          },
           "fullName": {
             "properties": {
               "familyName": {
@@ -870,10 +876,19 @@
           "identityToken": {
             "minLength": 10,
             "type": "string"
+          },
+          "preferredLanguage": {
+            "default": "tr",
+            "enum": [
+              "tr",
+              "en"
+            ],
+            "type": "string"
           }
         },
         "required": [
-          "identityToken"
+          "identityToken",
+          "eulaAccepted"
         ],
         "type": "object"
       },
@@ -5743,6 +5758,33 @@
         },
         "required": [
           "motorcycleId"
+        ],
+        "type": "object"
+      },
+      "GoogleSignInSchema": {
+        "properties": {
+          "eulaAccepted": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "idToken": {
+            "minLength": 10,
+            "type": "string"
+          },
+          "preferredLanguage": {
+            "default": "tr",
+            "enum": [
+              "tr",
+              "en"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "idToken",
+          "eulaAccepted"
         ],
         "type": "object"
       },
@@ -14872,6 +14914,58 @@
             ]
           }
         ]
+      }
+    },
+    "/auth/oauth/apple": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleSignInSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResultSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/oauth/google": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleSignInSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResultSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
       }
     },
     "/auth/otp/request": {

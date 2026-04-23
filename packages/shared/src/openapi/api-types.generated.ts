@@ -630,6 +630,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/oauth/apple": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AppleSignInSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthResultSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/oauth/google": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["GoogleSignInSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthResultSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/otp/request": {
         parameters: {
             query?: never;
@@ -4870,11 +4948,18 @@ export interface components {
             authorizationCode?: string;
             /** Format: email */
             email?: string;
+            /** @enum {boolean} */
+            eulaAccepted: true;
             fullName?: {
                 familyName?: string | null;
                 givenName?: string | null;
             };
             identityToken: string;
+            /**
+             * @default tr
+             * @enum {string}
+             */
+            preferredLanguage: "tr" | "en";
         };
         AuditLogDtoSchema: {
             action: string;
@@ -6081,6 +6166,16 @@ export interface components {
         GarageStickerSchema: {
             /** Format: uuid */
             motorcycleId: string;
+        };
+        GoogleSignInSchema: {
+            /** @enum {boolean} */
+            eulaAccepted: true;
+            idToken: string;
+            /**
+             * @default tr
+             * @enum {string}
+             */
+            preferredLanguage: "tr" | "en";
         };
         HealthLivezSchema: {
             /** @enum {boolean} */

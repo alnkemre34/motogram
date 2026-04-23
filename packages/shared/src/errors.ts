@@ -21,6 +21,8 @@ export const ErrorCodes = {
   CONFLICT: 4090,
   USER_EXISTS: 4091,
   RATE_LIMITED: 4290,
+  /** Apple/Google OAuth env yapılandırılmadığında (503). */
+  OAUTH_NOT_CONFIGURED: 5030,
   INTERNAL: 5000,
 } as const;
 

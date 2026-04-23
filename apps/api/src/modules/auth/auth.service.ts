@@ -6,15 +6,21 @@ import {
   HttpStatus,
   Injectable,
   Logger,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { UserRole } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   AuthLoginSuccessEventSchema,
   ErrorCodes,
+  type AppleSignInDto,
   type ChangeEmailRequestDto,
   type ChangeEmailVerifyDto,
   type ChangePasswordDto,
   type ForgotPasswordDto,
+  type GoogleSignInDto,
   type LoginDto,
   type OtpRequestDto,
   type OtpVerifyDto,
@@ -29,6 +35,7 @@ import { ZodEventBus } from '../../common/events/zod-event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { EmailChangeMailQueue } from './email-change-mail.queue';
+import { verifyAppleIdentityToken, verifyGoogleIdToken } from './oauth-token.verify';
 import { OtpSmsQueue } from './otp-sms.queue';
 import { PasswordResetMailQueue } from './password-reset-mail.queue';
 import { TokenService } from './token.service';
@@ -71,6 +78,7 @@ export class AuthService {
     private readonly passwordResetMail: PasswordResetMailQueue,
     private readonly emailChangeMail: EmailChangeMailQueue,
     private readonly otpSms: OtpSmsQueue,
+    private readonly config: ConfigService,
   ) {}
 
   // Spec 9.2 - Email+sifre register. EULA zorunlu (Zod sema literal(true) ile
@@ -568,5 +576,263 @@ export class AuthService {
       data: { phoneVerifiedAt: now },
     });
     return { success: true as const, phoneVerified: res.count > 0 };
+  }
+
+  async appleSignIn(dto: AppleSignInDto): Promise<{ userId: string; tokens: TokenPair }> {
+    const clientId = this.config.get<string>('APPLE_CLIENT_ID');
+    if (!clientId) {
+      throw new ServiceUnavailableException({
+        error: 'oauth_apple_not_configured',
+        code: ErrorCodes.OAUTH_NOT_CONFIGURED,
+      });
+    }
+    let claims: { sub: string; email?: string };
+    try {
+      claims = await verifyAppleIdentityToken(dto.identityToken, clientId);
+    } catch {
+      throw new UnauthorizedException({
+        error: 'oauth_token_invalid',
+        code: ErrorCodes.TOKEN_INVALID,
+      });
+    }
+    const sub = claims.sub;
+    const bySub = await this.prisma.user.findUnique({
+      where: { appleSub: sub },
+    });
+    if (bySub) {
+      return this.issueSessionAfterLogin({
+        id: bySub.id,
+        username: bySub.username,
+        role: bySub.role,
+        isBanned: bySub.isBanned,
+        deletedAt: bySub.deletedAt,
+      });
+    }
+    const emailFromClient = dto.email?.trim().toLowerCase();
+    const emailFromToken = claims.email?.trim().toLowerCase();
+    const emailNorm = emailFromClient ?? emailFromToken ?? this.applePlaceholderEmail(sub);
+    await this.assertNoOAuthEmailConflict(emailNorm, 'apple', sub);
+    const name = this.displayNameFromAppleFullName(dto.fullName);
+    const user = await this.createOAuthUser({
+      emailNorm,
+      appleSub: sub,
+      name,
+      preferredLanguage: dto.preferredLanguage,
+    });
+    return this.issueSessionAfterLogin({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      isBanned: user.isBanned,
+      deletedAt: user.deletedAt,
+    });
+  }
+
+  async googleSignIn(dto: GoogleSignInDto): Promise<{ userId: string; tokens: TokenPair }> {
+    const audiences = this.parseGoogleClientIds();
+    if (audiences.length === 0) {
+      throw new ServiceUnavailableException({
+        error: 'oauth_google_not_configured',
+        code: ErrorCodes.OAUTH_NOT_CONFIGURED,
+      });
+    }
+    let claims: { sub: string; email: string; name?: string };
+    try {
+      claims = await verifyGoogleIdToken(dto.idToken, audiences);
+    } catch {
+      throw new UnauthorizedException({
+        error: 'oauth_token_invalid',
+        code: ErrorCodes.TOKEN_INVALID,
+      });
+    }
+    const bySub = await this.prisma.user.findUnique({
+      where: { googleSub: claims.sub },
+    });
+    if (bySub) {
+      return this.issueSessionAfterLogin({
+        id: bySub.id,
+        username: bySub.username,
+        role: bySub.role,
+        isBanned: bySub.isBanned,
+        deletedAt: bySub.deletedAt,
+      });
+    }
+    const emailNorm = claims.email.trim().toLowerCase();
+    await this.assertNoOAuthEmailConflict(emailNorm, 'google', claims.sub);
+    const nameRaw = claims.name?.trim();
+    const name = nameRaw && nameRaw.length > 0 ? nameRaw.slice(0, 80) : null;
+    const user = await this.createOAuthUser({
+      emailNorm,
+      googleSub: claims.sub,
+      name,
+      preferredLanguage: dto.preferredLanguage,
+    });
+    return this.issueSessionAfterLogin({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      isBanned: user.isBanned,
+      deletedAt: user.deletedAt,
+    });
+  }
+
+  private parseGoogleClientIds(): string[] {
+    const raw = this.config.get<string>('GOOGLE_CLIENT_IDS');
+    if (!raw?.trim()) return [];
+    return raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  private applePlaceholderEmail(sub: string): string {
+    const h = createHash('sha256').update(sub, 'utf8').digest('hex').slice(0, 32);
+    return `apple_${h}@oauth.motogram.local`;
+  }
+
+  private displayNameFromAppleFullName(
+    fullName: AppleSignInDto['fullName'] | undefined,
+  ): string | null {
+    if (!fullName) return null;
+    const parts = [fullName.givenName, fullName.familyName].filter(
+      (x): x is string => typeof x === 'string' && x.trim().length > 0,
+    );
+    if (parts.length === 0) return null;
+    const joined = parts.join(' ').trim();
+    return joined.length > 0 ? joined.slice(0, 80) : null;
+  }
+
+  private async usernameCandidateFromEmail(email: string): Promise<string> {
+    const local = email.split('@')[0] ?? 'user';
+    const base = local
+      .toLowerCase()
+      .replace(/[^a-z0-9_.]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '')
+      .slice(0, 20);
+    const prefix = (base.length >= 3 ? base : `u_${base}`).slice(0, 20);
+    const suffix = randomBytes(3).toString('hex');
+    return `${prefix}_${suffix}`.slice(0, 30);
+  }
+
+  private async assertNoOAuthEmailConflict(
+    emailNorm: string,
+    provider: 'apple' | 'google',
+    sub: string,
+  ): Promise<void> {
+    const row = await this.prisma.user.findFirst({
+      where: { email: { equals: emailNorm, mode: 'insensitive' } },
+      select: { appleSub: true, googleSub: true },
+    });
+    if (!row) return;
+    const bound = provider === 'apple' ? row.appleSub : row.googleSub;
+    if (bound === sub) return;
+    throw new ConflictException({
+      error: 'oauth_email_provider_mismatch',
+      code: ErrorCodes.CONFLICT,
+    });
+  }
+
+  private async createOAuthUser(params: {
+    emailNorm: string;
+    appleSub?: string;
+    googleSub?: string;
+    name: string | null;
+    preferredLanguage: 'tr' | 'en';
+  }): Promise<{
+    id: string;
+    username: string;
+    role: UserRole;
+    isBanned: boolean;
+    deletedAt: Date | null;
+  }> {
+    const now = new Date();
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const username = await this.usernameCandidateFromEmail(params.emailNorm);
+      try {
+        return await this.prisma.user.create({
+          data: {
+            email: params.emailNorm,
+            username,
+            passwordHash: null,
+            ...(params.appleSub ? { appleSub: params.appleSub } : {}),
+            ...(params.googleSub ? { googleSub: params.googleSub } : {}),
+            name: params.name,
+            preferredLanguage: params.preferredLanguage,
+            eulaAcceptedAt: now,
+            settings: {
+              create: {
+                language: params.preferredLanguage,
+              },
+            },
+          },
+          select: {
+            id: true,
+            username: true,
+            role: true,
+            isBanned: true,
+            deletedAt: true,
+          },
+        });
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+          continue;
+        }
+        throw e;
+      }
+    }
+    throw new ConflictException({
+      error: 'oauth_username_exhausted',
+      code: ErrorCodes.CONFLICT,
+    });
+  }
+
+  private async assertPasswordlessUserCanLogin(user: {
+    id: string;
+    isBanned: boolean;
+    deletedAt: Date | null;
+  }): Promise<void> {
+    if (user.isBanned) {
+      throw new UnauthorizedException({
+        error: 'account_banned',
+        code: ErrorCodes.BLOCKED,
+      });
+    }
+    if (!user.deletedAt) return;
+    const deletion = await this.prisma.accountDeletion.findUnique({
+      where: { userId: user.id },
+    });
+    const now = new Date();
+    const canRestore =
+      deletion &&
+      !deletion.executedAt &&
+      !deletion.cancelledAt &&
+      deletion.scheduledFor.getTime() > now.getTime();
+    if (!canRestore) {
+      throw new UnauthorizedException({
+        error: 'account_deleted',
+        code: ErrorCodes.UNAUTHORIZED,
+      });
+    }
+  }
+
+  private async issueSessionAfterLogin(user: {
+    id: string;
+    username: string;
+    role: UserRole;
+    isBanned: boolean;
+    deletedAt: Date | null;
+  }): Promise<{ userId: string; tokens: TokenPair }> {
+    await this.assertPasswordlessUserCanLogin(user);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastSeenAt: new Date() },
+    });
+    this.events.emit(AUTH_LOGIN_EVENT, AuthLoginSuccessEventSchema, {
+      userId: user.id,
+      ts: new Date().toISOString(),
+    } satisfies AuthLoginEventPayload);
+    const tokens = await this.tokens.issueTokenPair(user.id, user.username, user.role);
+    return { userId: user.id, tokens };
   }
 }

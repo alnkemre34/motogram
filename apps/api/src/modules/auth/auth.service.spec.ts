@@ -5,6 +5,12 @@ import { createHash } from 'node:crypto';
 
 import { AuthService } from './auth.service';
 import type { TokenService } from './token.service';
+import * as oauthVerify from './oauth-token.verify';
+
+jest.mock('./oauth-token.verify', () => ({
+  verifyAppleIdentityToken: jest.fn(),
+  verifyGoogleIdToken: jest.fn(),
+}));
 
 function hashPasswordResetToken(plain: string): string {
   return createHash('sha256').update(plain, 'utf8').digest('hex');
@@ -99,6 +105,7 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
   let passwordResetMail: { enqueue: jest.Mock };
   let emailChangeMail: { enqueue: jest.Mock };
   let otpSms: { enqueue: jest.Mock };
+  let config: { get: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
@@ -107,6 +114,9 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
     passwordResetMail = { enqueue: jest.fn().mockResolvedValue(undefined) };
     emailChangeMail = { enqueue: jest.fn().mockResolvedValue(undefined) };
     otpSms = { enqueue: jest.fn().mockResolvedValue(undefined) };
+    config = { get: jest.fn() };
+    jest.mocked(oauthVerify.verifyAppleIdentityToken).mockReset();
+    jest.mocked(oauthVerify.verifyGoogleIdToken).mockReset();
     service = new AuthService(
       prisma as never,
       tokens,
@@ -114,6 +124,7 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
       passwordResetMail as never,
       emailChangeMail as never,
       otpSms as never,
+      config as never,
     );
   });
 
@@ -604,6 +615,128 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
       const out = await service.verifyOtp({ phoneNumber: '+905551234567', code: '654321' });
       expect(out.success).toBe(true);
       expect(out.phoneVerified).toBe(true);
+    });
+  });
+
+  describe('appleSignIn / googleSignIn (OAuth)', () => {
+    const tokenPair = {
+      accessToken: 'a',
+      refreshToken: 'r',
+      accessTokenExpiresIn: 900,
+      refreshTokenExpiresIn: 7 * 24 * 3600,
+    };
+
+    it('503 when APPLE_CLIENT_ID missing', async () => {
+      config.get.mockReturnValue(undefined);
+      await expect(
+        service.appleSignIn({
+          identityToken: 't',
+          eulaAccepted: true,
+          preferredLanguage: 'tr',
+        }),
+      ).rejects.toMatchObject({
+        response: { code: ErrorCodes.OAUTH_NOT_CONFIGURED },
+      });
+    });
+
+    it('Apple: issues session for existing user by appleSub without create', async () => {
+      config.get.mockImplementation((k: string) => (k === 'APPLE_CLIENT_ID' ? 'com.app' : undefined));
+      jest.mocked(oauthVerify.verifyAppleIdentityToken).mockResolvedValue({
+        sub: 'apple_sub_x',
+        email: 'x@example.com',
+      });
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        username: 'bob',
+        role: 'USER',
+        isBanned: false,
+        deletedAt: null,
+      } as never);
+      prisma.user.update.mockResolvedValue({} as never);
+      tokens.issueTokenPair.mockResolvedValue(tokenPair);
+
+      const out = await service.appleSignIn({
+        identityToken: 'jwt',
+        eulaAccepted: true,
+        preferredLanguage: 'tr',
+      });
+
+      expect(out.userId).toBe('u1');
+      expect(prisma.user.create).not.toHaveBeenCalled();
+      expect(events.emit).toHaveBeenCalled();
+    });
+
+    it('Apple: creates user when token valid and email free', async () => {
+      config.get.mockImplementation((k: string) => (k === 'APPLE_CLIENT_ID' ? 'com.app' : undefined));
+      jest.mocked(oauthVerify.verifyAppleIdentityToken).mockResolvedValue({
+        sub: 'apple_new',
+        email: 'new@example.com',
+      });
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.findFirst.mockResolvedValue(null);
+      prisma.user.create.mockResolvedValue({
+        id: 'u-oauth',
+        username: 'new_abcdef',
+        role: 'USER',
+        isBanned: false,
+        deletedAt: null,
+      } as never);
+      prisma.user.update.mockResolvedValue({} as never);
+      tokens.issueTokenPair.mockResolvedValue(tokenPair);
+
+      const out = await service.appleSignIn({
+        identityToken: 'jwt',
+        eulaAccepted: true,
+        preferredLanguage: 'en',
+      });
+
+      expect(out.userId).toBe('u-oauth');
+      expect(prisma.user.create).toHaveBeenCalled();
+      expect(oauthVerify.verifyAppleIdentityToken).toHaveBeenCalledWith('jwt', 'com.app');
+    });
+
+    it('503 when GOOGLE_CLIENT_IDS missing', async () => {
+      config.get.mockReturnValue(undefined);
+      await expect(
+        service.googleSignIn({
+          idToken: 't',
+          eulaAccepted: true,
+          preferredLanguage: 'tr',
+        }),
+      ).rejects.toMatchObject({
+        response: { code: ErrorCodes.OAUTH_NOT_CONFIGURED },
+      });
+    });
+
+    it('Google: creates user when token valid', async () => {
+      config.get.mockImplementation((k: string) =>
+        k === 'GOOGLE_CLIENT_IDS' ? 'web-id, ios-id' : undefined,
+      );
+      jest.mocked(oauthVerify.verifyGoogleIdToken).mockResolvedValue({
+        sub: 'g_sub',
+        email: 'g@example.com',
+        name: 'G User',
+      });
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.findFirst.mockResolvedValue(null);
+      prisma.user.create.mockResolvedValue({
+        id: 'u-g',
+        username: 'g_x',
+        role: 'USER',
+        isBanned: false,
+        deletedAt: null,
+      } as never);
+      prisma.user.update.mockResolvedValue({} as never);
+      tokens.issueTokenPair.mockResolvedValue(tokenPair);
+
+      const out = await service.googleSignIn({
+        idToken: 'google-jwt',
+        eulaAccepted: true,
+        preferredLanguage: 'tr',
+      });
+
+      expect(out.userId).toBe('u-g');
+      expect(oauthVerify.verifyGoogleIdToken).toHaveBeenCalledWith('google-jwt', ['web-id', 'ios-id']);
     });
   });
 });

@@ -73,8 +73,21 @@ export const AppleSignInSchema = z.object({
     })
     .optional(),
   email: z.string().email().optional(),
+  eulaAccepted: z.literal(true, {
+    errorMap: () => ({ message: 'eula_required' }),
+  }),
+  preferredLanguage: z.enum(['tr', 'en']).default('tr'),
 });
 export type AppleSignInDto = z.infer<typeof AppleSignInSchema>;
+
+export const GoogleSignInSchema = z.object({
+  idToken: z.string().min(10, 'google_token_invalid'),
+  eulaAccepted: z.literal(true, {
+    errorMap: () => ({ message: 'eula_required' }),
+  }),
+  preferredLanguage: z.enum(['tr', 'en']).default('tr'),
+});
+export type GoogleSignInDto = z.infer<typeof GoogleSignInSchema>;
 
 export const TokenPairSchema = z.object({
   accessToken: z.string(),

@@ -178,6 +178,22 @@
   },
   {
     "method": "POST",
+    "path": "/auth/oauth/apple",
+    "requestBodySchema": "AppleSignInSchema",
+    "responseSchema": "AuthResultSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/auth/oauth/google",
+    "requestBodySchema": "GoogleSignInSchema",
+    "responseSchema": "AuthResultSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
     "path": "/auth/otp/request",
     "requestBodySchema": "OtpRequestSchema",
     "responseSchema": "OtpRequestResponseSchema",
