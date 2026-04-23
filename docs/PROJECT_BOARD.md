@@ -32,8 +32,8 @@
 | Alan | Deger |
 |---|---|
 | **Aktif Faz** | Faz 7 - Enterprise Prod Hardening (Asama 0 + Asama 1 kismi TAMAMLANDI; TLS ertelendi) |
-| **Son Tamamlanan** | BACKEND_GAP B-12: `GET /v1/communities/search` + `CommunitiesSearchResponseSchema` + surface E2E |
-| **Son Guncelleme** | 2026-04-23 — B-12; `CommunitySearchQuerySchema` + OpenAPI / `API_Contract.md` |
+| **Son Tamamlanan** | BACKEND_GAP B-13: `GET /v1/events/search` + `EventsSearchResponseSchema` + surface E2E |
+| **Son Guncelleme** | 2026-04-23 — B-13; `EventSearchQuerySchema` + OpenAPI / `API_Contract.md` |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,20 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] BACKEND_GAP — B-13 `GET /v1/events/search`
+
+**Kod:** `EventService.searchEvents`; `EventController` `GET search` (`:id` öncesi); throttle 30/dk; PUBLIC + zaman penceresi + title/description `q`.
+
+**Shared:** `EventSearchQuerySchema`, `EventsSearchResponseSchema`; `event.schema.spec.ts`.
+
+**Test:** `event.service.spec` B-13; surface E2E events adımında arama doğrulaması.
+
+**OpenAPI:** `pnpm openapi:generate` → `docs/openapi.json`, `docs/API_Contract.md`.
+
+**Dokuman:** `BACKEND_GAP_ROADMAP.md` B-13 tamam; `FRONTEND_BLUEPRINT.md` §17 B13 tamam.
+
+---
 
 ### [2026-04-23] BACKEND_GAP — B-12 `GET /v1/communities/search`
 

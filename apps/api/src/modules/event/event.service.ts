@@ -8,6 +8,7 @@ import {
   ErrorCodes,
   type CreateEventDto,
   type EventDetail,
+  type EventSearchQueryDto,
   type EventSummary,
   type NearbyEventsQueryDto,
   type RsvpEventDto,
@@ -111,6 +112,50 @@ export class EventService {
       where: { eventId_userId: { eventId, userId: viewerId } },
     });
     return this.toDetail(event, viewer?.rsvpStatus ?? null);
+  }
+
+  /**
+   * B-13 — Discover araması: PUBLIC, silinmemiş, başlık veya açıklamada `q`.
+   * "Açık / devam eden" — henüz başlamamış (`startTime` > now) veya başlamış ve bitmemiş.
+   */
+  async searchEvents(query: EventSearchQueryDto): Promise<{
+    items: EventSummary[];
+    nextCursor: string | null;
+  }> {
+    const now = new Date();
+    const q = query.q.trim();
+    const limit = query.limit;
+    const cursor = query.cursor;
+    const rows = await this.prisma.event.findMany({
+      where: {
+        deletedAt: null,
+        visibility: 'PUBLIC',
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+        ],
+        AND: {
+          OR: [
+            { startTime: { gt: now } },
+            {
+              AND: [
+                { startTime: { lte: now } },
+                { OR: [{ endTime: null }, { endTime: { gte: now } }] },
+              ],
+            },
+          ],
+        },
+        ...(cursor ? { id: { gt: cursor } } : {}),
+      },
+      orderBy: { id: 'asc' },
+      take: limit + 1,
+    });
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    return {
+      items: page.map((e) => this.toSummary(e)),
+      nextCursor: hasMore ? page[page.length - 1]!.id : null,
+    };
   }
 
   async listMine(userId: string): Promise<EventSummary[]> {

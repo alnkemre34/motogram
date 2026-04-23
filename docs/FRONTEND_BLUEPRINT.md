@@ -664,13 +664,13 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | B11 | `GET/POST /v1/notification-preferences` | Bildirim tercihleri | OPSIYONEL |
 | B12 | `GET /v1/users/me/data-export` | KVKK / veri indirme | OPSIYONEL |
 | ~~B13a~~ | ~~`GET /v1/communities/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — `CommunitiesSearchResponseSchema` + cursor | — |
-| B13 | `GET /v1/events/search?q=` | Discover etkinlik araması | YES |
+| ~~B13~~ | ~~`GET /v1/events/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — `EventsSearchResponseSchema` + cursor | — |
 | ~~B14~~ | ~~Posts response `likedByMe`~~ | **TAMAMLANDI (2026-04-23)** — `GET/POST/PATCH` post yanıtları + feed | — |
 | B15 | `POST /v1/conversations/:id/mute` & `/leave` | Grup yönetimi | OPSIYONEL |
 | ~~B16~~ | ~~`?type=` filtresi `GET /v1/conversations`~~ | **TAMAMLANDI (2026-04-23)** — `ListConversationsQuerySchema` | — |
 | B17 | Sosyal giriş (Apple/Google) | İsteğe bağlı | OPSIYONEL |
 
-> Bu liste, frontend’in **hayalet ekran açmaması** için bir koruma kapısıdır. **B5 (OTP)** hâlâ mobil GA için zorunlu; B1–B4 ve B6–B9 backend uçları tamam; Discover için **B13** (`events/search`) kaldı; gerisi v1.1.
+> Bu liste, frontend’in **hayalet ekran açmaması** için bir koruma kapısıdır. **B5 (OTP)** hâlâ mobil GA için zorunlu; B1–B4 ve B6–B9 backend uçları tamam; Discover araması (**B13a** + **B13**) backend’de tamam; gerisi v1.1.
 
 ---
 

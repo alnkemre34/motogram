@@ -4618,6 +4618,32 @@
         ],
         "type": "object"
       },
+      "EventSearchQuerySchema": {
+        "properties": {
+          "cursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 30,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "type": "object"
+      },
       "EventSummarySchema": {
         "properties": {
           "category": {
@@ -4818,6 +4844,117 @@
         },
         "required": [
           "events"
+        ],
+        "type": "object"
+      },
+      "EventsSearchResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "properties": {
+                "category": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "communityId": {
+                  "format": "uuid",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "difficulty": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "endTime": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "maxParticipants": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "meetingPointLat": {
+                  "type": "number"
+                },
+                "meetingPointLng": {
+                  "type": "number"
+                },
+                "meetingPointName": {
+                  "type": "string"
+                },
+                "organizerId": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "participantsCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "startTime": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "visibility": {
+                  "enum": [
+                    "PUBLIC",
+                    "PRIVATE",
+                    "GROUP_ONLY"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "organizerId",
+                "meetingPointLat",
+                "meetingPointLng",
+                "meetingPointName",
+                "startTime",
+                "visibility",
+                "participantsCount",
+                "createdAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
         ],
         "type": "object"
       },
@@ -15395,6 +15532,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NearbyEventsResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/events/search": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsSearchResponseSchema"
                 }
               }
             },

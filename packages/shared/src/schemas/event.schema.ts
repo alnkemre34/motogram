@@ -91,6 +91,23 @@ export const NearbyEventsResponseSchema = z.object({
 });
 export type NearbyEventsResponse = z.infer<typeof NearbyEventsResponseSchema>;
 
+/** B-13 — Başlık / açıklama metni; yalnızca `PUBLIC`; henüz bitmemiş veya devam eden etkinlikler (`startTime` / `endTime`). */
+export const EventSearchQuerySchema = z.object({
+  q: z.string().min(2).max(50),
+  limit: z.coerce.number().int().min(1).max(30).default(10),
+  cursor: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.string().uuid().optional(),
+  ),
+});
+export type EventSearchQueryDto = z.infer<typeof EventSearchQuerySchema>;
+
+export const EventsSearchResponseSchema = z.object({
+  items: z.array(EventSummarySchema),
+  nextCursor: z.string().uuid().nullable(),
+});
+export type EventsSearchResponseDto = z.infer<typeof EventsSearchResponseSchema>;
+
 export const EventsMineResponseSchema = z.object({
   events: z.array(EventSummarySchema),
 });

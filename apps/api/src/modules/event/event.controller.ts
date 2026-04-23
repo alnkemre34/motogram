@@ -10,17 +10,21 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   CreateEventSchema,
   EventDetailSchema,
   EventParticipantsResponseSchema,
   EventRsvpResponseSchema,
+  EventSearchQuerySchema,
   EventsMineResponseSchema,
+  EventsSearchResponseSchema,
   NearbyEventsQuerySchema,
   NearbyEventsResponseSchema,
   RsvpEventSchema,
   UpdateEventSchema,
   type CreateEventDto,
+  type EventSearchQueryDto,
   type NearbyEventsQueryDto,
   type RsvpEventDto,
   type UpdateEventDto,
@@ -63,6 +67,19 @@ export class EventController {
   @ZodResponse(EventsMineResponseSchema)
   async listMine(@CurrentUser() user: AuthenticatedUser) {
     return { events: await this.service.listMine(user.userId) };
+  }
+
+  /** B-13 — `:id` rotasından önce. */
+  @Throttle({ default: { ttl: 60_000, limit: 30 } })
+  @Get('search')
+  @ZodResponse(EventsSearchResponseSchema)
+  async search(@Query() rawQuery: Record<string, string | string[] | undefined>) {
+    const flat: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawQuery)) {
+      flat[k] = Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+    }
+    const parsed: EventSearchQueryDto = EventSearchQuerySchema.parse(flat);
+    return this.service.searchEvents(parsed);
   }
 
   @Get('nearby')

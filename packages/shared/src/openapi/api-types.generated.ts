@@ -2005,6 +2005,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EventsSearchResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events/{id}": {
         parameters: {
             query?: never;
@@ -5461,6 +5496,13 @@ export interface components {
             /** @enum {string} */
             rsvpStatus: "GOING" | "INTERESTED" | "NOT_GOING" | "WAITLIST";
         };
+        EventSearchQuerySchema: {
+            /** Format: uuid */
+            cursor?: string | null;
+            /** @default 10 */
+            limit: number;
+            q: string;
+        };
         EventSummarySchema: {
             category?: string | null;
             /** Format: uuid */
@@ -5508,6 +5550,32 @@ export interface components {
                 /** @enum {string} */
                 visibility: "PUBLIC" | "PRIVATE" | "GROUP_ONLY";
             }[];
+        };
+        EventsSearchResponseSchema: {
+            items: {
+                category?: string | null;
+                /** Format: uuid */
+                communityId?: string | null;
+                createdAt: string;
+                description?: string | null;
+                difficulty?: string | null;
+                endTime?: string | null;
+                /** Format: uuid */
+                id: string;
+                maxParticipants?: number | null;
+                meetingPointLat: number;
+                meetingPointLng: number;
+                meetingPointName: string;
+                /** Format: uuid */
+                organizerId: string;
+                participantsCount: number;
+                startTime: string;
+                title: string;
+                /** @enum {string} */
+                visibility: "PUBLIC" | "PRIVATE" | "GROUP_ONLY";
+            }[];
+            /** Format: uuid */
+            nextCursor: string | null;
         };
         FeatureFlagDtoSchema: {
             key: string;

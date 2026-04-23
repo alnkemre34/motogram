@@ -511,6 +511,13 @@
   },
   {
     "method": "GET",
+    "path": "/events/search",
+    "responseSchema": "EventsSearchResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
     "path": "/feature-flags",
     "responseSchema": "FeatureFlagsListResponseSchema",
     "responseStatus": 200,

@@ -29,6 +29,7 @@ import {
   EventParticipantsResponseSchema,
   EventRsvpResponseSchema,
   EventsMineResponseSchema,
+  EventsSearchResponseSchema,
   FeatureFlagEvaluationSchema,
   FollowActionResponseSchema,
   FollowListPageResponseSchema,
@@ -470,6 +471,14 @@ describeE2E('E2E: HTTP surface (USER rolleri + RBAC)', () => {
       .expect(201);
     const ev = EventDetailSchema.parse(createRes.body);
     eventId = ev.id;
+
+    const searchRes = await request(app.getHttpServer())
+      .get('/v1/events/search')
+      .query({ q: 'E2E', limit: '10' })
+      .set('Authorization', `Bearer ${tokenB}`)
+      .expect(200);
+    const searchParsed = EventsSearchResponseSchema.parse(searchRes.body);
+    expect(searchParsed.items.some((e: { id: string }) => e.id === eventId)).toBe(true);
 
     const mineRes = await request(app.getHttpServer())
       .get('/v1/events/me')

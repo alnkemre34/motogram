@@ -145,3 +145,46 @@ describe('EventService - RSVP & waitlist (Spec 3.2)', () => {
     expect(r[1]!.id).toBe('e2');
   });
 });
+
+describe('EventService - searchEvents (B-13)', () => {
+  const id1 = '550e8400-e29b-41d4-a716-446655440001';
+  const id2 = '550e8400-e29b-41d4-a716-446655440002';
+  const id3 = '550e8400-e29b-41d4-a716-446655440003';
+
+  test('limit+1 sayfalama — nextCursor son öğe id', async () => {
+    const prisma = makePrisma();
+    prisma.event.findMany.mockResolvedValueOnce([
+      buildEvent({ id: id1, title: 'E2E Ride A' }),
+      buildEvent({ id: id2, title: 'E2E Ride B' }),
+      buildEvent({ id: id3, title: 'E2E Ride C' }),
+    ]);
+    const svc = new EventService(prisma as unknown as never);
+    const r = await svc.searchEvents({ q: 'Ride', limit: 2 });
+    expect(r.items).toHaveLength(2);
+    expect(r.nextCursor).toBe(id2);
+  });
+
+  test('tam sayfa — nextCursor null', async () => {
+    const prisma = makePrisma();
+    prisma.event.findMany.mockResolvedValueOnce([
+      buildEvent({ id: id1, title: 'X' }),
+      buildEvent({ id: id2, title: 'X' }),
+    ]);
+    const svc = new EventService(prisma as unknown as never);
+    const r = await svc.searchEvents({ q: 'xx', limit: 2 });
+    expect(r.items).toHaveLength(2);
+    expect(r.nextCursor).toBeNull();
+  });
+
+  test('cursor ile findMany where id gt', async () => {
+    const prisma = makePrisma();
+    prisma.event.findMany.mockResolvedValueOnce([buildEvent({ id: id2, title: 'Y' })]);
+    const svc = new EventService(prisma as unknown as never);
+    await svc.searchEvents({ q: 'yy', limit: 10, cursor: id1 });
+    expect(prisma.event.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: { gt: id1 } }),
+      }),
+    );
+  });
+});

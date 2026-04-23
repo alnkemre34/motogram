@@ -1,7 +1,7 @@
 # Motogram — Backend Gap Closure Roadmap (B‑01 → B‑18)
 
-> **Sürüm:** 1.5 — 2026-04-23  
-> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑11** (önceki tur); **B‑12** (`GET /v1/communities/search`, `CommunitySearchQuerySchema`, `CommunitiesSearchResponseSchema`, PUBLIC+PRIVATE, `q` name/description).  
+> **Sürüm:** 1.6 — 2026-04-23  
+> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑11** (önceki tur); **B‑12** (`GET /v1/communities/search`, …); **B‑13** (`GET /v1/events/search`, `EventSearchQuerySchema`, `EventsSearchResponseSchema`, PUBLIC + `startTime`/`endTime` penceresi, `q` title/description).  
 > **Kapsam:** `FRONTEND_BLUEPRINT.md` §17 “Backend Eksikleri” listesini (B1–B17) mevcut Zod / OpenAPI pipeline’ı **hiç bozmadan** kapatmak. Hayalet ekran üretmemek için öncelik burada; frontend’in F0/F1 sprintleri bu liste bittikten sonra güvenle açılır.  
 > **Anayasa (asla dışına çıkılmaz):**  
 > 1. **Zod SSOT** — şema önce `packages/shared/src/schemas/*.ts` içine, oradan export.  
@@ -68,7 +68,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 10 | **B‑10** ✅ | Blocks modülü (`GET/POST/DELETE /blocks`) | Settings ▸ Engellenmiş kullanıcılar | S (yarı hazır) |
 | 11 | **B‑11** ✅ | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
 | 12 | **B‑12** ✅ | Communities search (`GET /communities/search?q=`) | Discover ▸ arama | S |
-| 13 | **B‑13** | Events search (`GET /events/search?q=`) | Discover ▸ arama | S |
+| 13 | **B‑13** ✅ | Events search (`GET /events/search?q=`) | Discover ▸ arama | S |
 | 14 | **B‑14** | Notification preferences (`/notification-preferences`) | Settings ▸ Bildirimler | S |
 | 15 | **B‑15** | Emergency contacts (`/emergency/contacts`) | Settings ▸ Acil kişiler | S |
 | 16 | **B‑16** | OTP (request/verify) — `/auth/otp/*` | Auth ▸ Otp ekranı | M |
@@ -333,9 +333,13 @@ export const UserSearchResponseSchema = z.object({
 
 ---
 
-### B‑13 · Events search
+### B‑13 · Events search ✅ (kodlandı)
 
-B‑12 ile birebir aynı pattern; `Event` tablosu, `title ILIKE + status IN (OPEN,ONGOING)`.
+**Zod:** `EventSearchQuerySchema`, `EventsSearchResponseSchema` (`items: EventSummary[]`, `nextCursor` UUID).
+
+**Endpoint:** `GET /v1/events/search` — `EventController` içinde **`search` rotası `:id`’den önce**; throttle 30/dk.
+
+**Servis:** `title` / `description` `contains` + `insensitive`; yalnızca `visibility: PUBLIC`, `deletedAt` null; keşif için zaman penceresi: henüz başlamamış (`startTime` > now) veya başlamış ve bitmemiş (`endTime` null veya `endTime` ≥ now). Cursor: `id` ascending, `limit + 1`.
 
 **PR başlığı:** `feat(events): add search endpoint (B-13)`
 
