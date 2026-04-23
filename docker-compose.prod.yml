@@ -124,6 +124,8 @@ services:
       SERVER_HOSTNAME: ${SERVER_HOSTNAME:-motogram-api}
       INTERNAL_API_SHARED_SECRET: ${INTERNAL_API_SHARED_SECRET}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://api.motogram.app}
+      APPLE_CLIENT_ID: ${APPLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_IDS: ${GOOGLE_CLIENT_IDS:-}
     networks:
       - motogram
     healthcheck:
@@ -146,6 +148,9 @@ services:
   # servis. 'profiles' tanimli oldugu icin 'docker compose up' ile
   # otomatik baslamaz; sadece 'compose --profile tooling run --rm ...'
   # ile ayaga kalkar. scripts/bootstrap.sh bu servisi kullanir.
+  # One-shot: `docker compose ... --profile tooling run --rm api-migrate`
+  # (scripts/deploy.sh bunu otomatik çağırır.) DATABASE_URL burada Postgres’e doğrudan;
+  # API konteyneri ile aynı — PgBouncer üzerinden migrate çalıştırmayın.
   api-migrate:
     profiles: ["tooling"]
     image: motogram-api:latest
@@ -160,8 +165,10 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-motogram}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-motogram}?schema=public
     networks:
       - motogram
-    entrypoint: []
-    command: ["node", "--version"]
+    entrypoint: ["dumb-init", "--"]
+    working_dir: /workspace/apps/api
+    user: motogram
+    command: ["pnpm", "exec", "prisma", "migrate", "deploy"]
 
   web-admin:
     build:

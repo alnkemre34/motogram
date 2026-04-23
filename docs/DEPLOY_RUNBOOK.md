@@ -15,7 +15,9 @@ Bu doküman tam entegrasyon planı (Zod roadmap + production backend formülü) 
 
 ## Deploy sırası
 
-1. `scripts/deploy.sh` veya manuel: `git pull`, `docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build api`
+Özet (Compose + otomatik `DATABASE_URL` + migrate): [DEPLOY_QUICKSTART.md](./DEPLOY_QUICKSTART.md).
+
+1. `scripts/deploy.sh` (`.env.prod` zorunlu; migrate + `up -d`) veya manuel: `git pull`, `docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build api`
 2. Smoke: `curl -fsS https://<host>/v1/livez` → 200
 3. Readiness: `curl -fsS https://<host>/v1/readyz` → 200 (DB + Redis)
 4. Metrikler: `curl -fsS https://<host>/v1/metrics | head`
