@@ -557,10 +557,10 @@ Bölümler:
   - Pending durumdayken `Profile/Edit` butonları disable.
 - **NOT:** `DELETE /v1/users/me` ile **karıştırma**. Mobil **sadece** `/account/deletion` 3’lüsünü kullanır; `/users/me` DELETE backend tarafında eski/soft path olarak kalsın.
 
-### 10.5 ChangeUsername / ChangePassword / ChangeEmail *(BACKEND EKSİK)*
-- Mobilde **ekran taslakları hazırlanır** ama navigator’a **hidden** olarak takılır; backend hazır olunca:
+### 10.5 ChangeUsername / ChangePassword / ChangeEmail
+- **Şifre (hazır):** `POST /v1/auth/password/change` + `ChangePasswordSchema` / `ChangePasswordResponseSchema` — başarıda tüm refresh oturumları iptal; mobil access JWT süresi dolana kadar geçerli kalır → kullanıcıya “Diğer cihazlarda yeniden giriş gerekir” + isteğe bağlı `logoutRequest({ allDevices: true })`.
+- **Kullanıcı adı / e-posta (BACKEND EKSİK):** navigator’da gizli taslak; uçlar gelince açılır:
   - Username: `PATCH /v1/users/me/username` (`{ username }`) → 409 conflict handling.
-  - Password: `POST /v1/auth/password/change` (`{ currentPassword, newPassword }`) — ardından otomatik logout (refresh hariç tüm cihazlardan).
   - Email: `POST /v1/auth/email/change` (`{ newEmail, password }`) → doğrulama maili → `POST /v1/auth/email/verify`.
 
 ### 10.6 EmergencyContactsScreen *(BACKEND EKSİK)*
@@ -652,7 +652,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | # | Endpoint | Amaç | Zorunlu |
 |---|----------|------|---------|
 | B1 | `POST /v1/auth/password/forgot` + `/reset` | Şifre sıfırlama | YES |
-| B2 | `POST /v1/auth/password/change` | Oturumiçi şifre değiştir | YES |
+| ~~B2~~ | ~~`POST /v1/auth/password/change`~~ | **TAMAMLANDI (2026-04-23)** | — |
 | B3 | `PATCH /v1/users/me/username` | Kullanıcı adı değiştir (cooldown + unique) | YES |
 | B4 | `POST /v1/auth/email/change` + `/verify` | E‑posta değiştir + doğrulama | YES |
 | B5 | `POST /v1/auth/otp/request` + `/verify` | Telefon/email OTP | EVET (Otp ekranı için) |

@@ -86,3 +86,27 @@ export const LogoutSchema = z.object({
   allDevices: z.boolean().default(false),
 });
 export type LogoutDto = z.infer<typeof LogoutSchema>;
+
+/** POST /auth/password/change — oturum içi şifre değişimi (B-04). */
+export const ChangePasswordSchema = z
+  .object({
+    currentPassword: PasswordSchema,
+    newPassword: PasswordSchema,
+  })
+  .strict()
+  .superRefine((val, ctx) => {
+    if (val.newPassword === val.currentPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['newPassword'],
+        message: 'password_must_change',
+      });
+    }
+  });
+export type ChangePasswordDto = z.infer<typeof ChangePasswordSchema>;
+
+export const ChangePasswordResponseSchema = z.object({
+  success: z.literal(true),
+  revokedSessions: z.number().int().nonnegative(),
+});
+export type ChangePasswordResponse = z.infer<typeof ChangePasswordResponseSchema>;

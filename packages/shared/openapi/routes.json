@@ -160,6 +160,13 @@
   },
   {
     "method": "POST",
+    "path": "/auth/password/change",
+    "responseSchema": "ChangePasswordResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
     "path": "/auth/refresh",
     "responseSchema": "TokenPairResponseSchema",
     "responseStatus": 200,

@@ -544,6 +544,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/password/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChangePasswordResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/refresh": {
         parameters: {
             query?: never;
@@ -3909,6 +3944,15 @@ export interface components {
             neLng: number;
             swLat: number;
             swLng: number;
+        };
+        ChangePasswordResponseSchema: {
+            revokedSessions: number;
+            /** @enum {boolean} */
+            success: true;
+        };
+        ChangePasswordSchema: {
+            currentPassword: string;
+            newPassword: string;
         };
         CommentAuthorSnippetSchema: {
             /** Format: uri */

@@ -11,6 +11,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import {
   AuthResultSchema,
+  ChangePasswordResponseSchema,
   HealthLivezSchema,
   HealthReadyzSchema,
   MapShardStatsResponseSchema,
@@ -109,6 +110,36 @@ describeE2E('E2E: backend edge-to-edge', () => {
       .expect(200);
     const parsed = AuthResultSchema.parse(res.body);
     expect(parsed.userId).toBe(userId);
+    accessToken = parsed.tokens.accessToken;
+    refreshToken = parsed.tokens.refreshToken;
+  });
+
+  it('POST /v1/auth/password/change — yanlış şifre 401', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/change')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ currentPassword: 'not-the-password', newPassword: 'E2eEdge2!z' })
+      .expect(401);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('POST /v1/auth/password/change — başarı + eski refresh iptal', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/change')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ currentPassword: userPassword, newPassword: 'E2eEdge2!z' })
+      .expect(200);
+    const body = ChangePasswordResponseSchema.parse(res.body);
+    expect(body.success).toBe(true);
+    await request(app.getHttpServer())
+      .post('/v1/auth/refresh')
+      .send({ refreshToken })
+      .expect(401);
+    const loginAgain = await request(app.getHttpServer())
+      .post('/v1/auth/login')
+      .send({ identifier: userEmail, password: 'E2eEdge2!z' })
+      .expect(200);
+    const parsed = AuthResultSchema.parse(loginAgain.body);
     accessToken = parsed.tokens.accessToken;
     refreshToken = parsed.tokens.refreshToken;
   });

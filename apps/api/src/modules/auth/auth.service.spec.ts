@@ -243,4 +243,45 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
       await expect(service.logout('u1', 'x', false)).resolves.toBeUndefined();
     });
   });
+
+  describe('changePassword (B-04)', () => {
+    it('rejects when current password is wrong', async () => {
+      const hash = await bcrypt.hash('realold', 4);
+      prisma.user.findUnique.mockResolvedValue({ id: 'u1', passwordHash: hash } as never);
+      await expect(
+        service.changePassword('u1', { currentPassword: 'wrong', newPassword: 'newpass12' }),
+      ).rejects.toMatchObject({
+        response: { error: 'invalid_credentials', code: ErrorCodes.INVALID_CREDENTIALS },
+      });
+    });
+
+    it('rejects when user has no password hash', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 'u1', passwordHash: null } as never);
+      await expect(
+        service.changePassword('u1', { currentPassword: 'x', newPassword: 'newpass12' }),
+      ).rejects.toMatchObject({
+        response: { error: 'invalid_credentials', code: ErrorCodes.INVALID_CREDENTIALS },
+      });
+    });
+
+    it('updates hash and revokes all refresh sessions', async () => {
+      const hash = await bcrypt.hash('oldpass12', 4);
+      prisma.user.findUnique.mockResolvedValue({ id: 'u1', passwordHash: hash } as never);
+      prisma.user.update.mockResolvedValue({ id: 'u1' } as never);
+      tokens.revokeAllForUser.mockResolvedValue(3);
+
+      const out = await service.changePassword('u1', {
+        currentPassword: 'oldpass12',
+        newPassword: 'newpass34',
+      });
+
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'u1' },
+        data: { passwordHash: expect.any(String) },
+      });
+      expect(tokens.revokeAllForUser).toHaveBeenCalledWith('u1');
+      expect(out.success).toBe(true);
+      expect(out.revokedSessions).toBe(3);
+    });
+  });
 });

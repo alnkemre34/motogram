@@ -1104,6 +1104,45 @@
         ],
         "type": "object"
       },
+      "ChangePasswordResponseSchema": {
+        "properties": {
+          "revokedSessions": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "revokedSessions"
+        ],
+        "type": "object"
+      },
+      "ChangePasswordSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "currentPassword": {
+            "maxLength": 128,
+            "minLength": 8,
+            "type": "string"
+          },
+          "newPassword": {
+            "maxLength": 128,
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "type": "object"
+      },
       "CommentAuthorSnippetSchema": {
         "properties": {
           "avatarUrl": {
@@ -13453,6 +13492,28 @@
       "post": {
         "responses": {
           "204": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/auth/password/change": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangePasswordResponseSchema"
+                }
+              }
+            },
             "description": "OK"
           }
         },

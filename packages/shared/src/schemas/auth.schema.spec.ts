@@ -1,4 +1,4 @@
-import { LoginSchema, OtpVerifySchema, RegisterSchema } from './auth.schema';
+import { ChangePasswordSchema, LoginSchema, OtpVerifySchema, RegisterSchema } from './auth.schema';
 
 // Spec 7.3.6 - Zod SSOT tests validate SPEC rules directly
 // Spec 9.2 - EULA literal(true) zorunlu
@@ -73,6 +73,33 @@ describe('LoginSchema', () => {
     expect(
       LoginSchema.safeParse({ identifier: 'alice@example.com', password: 'x' }).success,
     ).toBe(true);
+  });
+});
+
+describe('ChangePasswordSchema (B-04)', () => {
+  it('accepts distinct current and new passwords', () => {
+    const res = ChangePasswordSchema.safeParse({
+      currentPassword: 'oldpass12',
+      newPassword: 'newpass34',
+    });
+    expect(res.success).toBe(true);
+  });
+
+  it('rejects when new equals current', () => {
+    const res = ChangePasswordSchema.safeParse({
+      currentPassword: 'samepass1',
+      newPassword: 'samepass1',
+    });
+    expect(res.success).toBe(false);
+    if (!res.success) {
+      expect(res.error.issues.some((i) => i.message === 'password_must_change')).toBe(true);
+    }
+  });
+
+  it('rejects short passwords', () => {
+    expect(
+      ChangePasswordSchema.safeParse({ currentPassword: 'short', newPassword: 'also' }).success,
+    ).toBe(false);
   });
 });
 

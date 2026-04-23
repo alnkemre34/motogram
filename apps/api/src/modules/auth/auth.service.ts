@@ -6,6 +6,7 @@ import {
 import {
   AuthLoginSuccessEventSchema,
   ErrorCodes,
+  type ChangePasswordDto,
   type LoginDto,
   type RegisterDto,
   type TokenPair,
@@ -198,5 +199,36 @@ export class AuthService {
     } catch {
       // Gecersiz token'i silence-swallow: logout idempotent
     }
+  }
+
+  /** B-04: Mevcut şifre doğrulanır, yeni hash yazılır, tüm refresh oturumları düşürülür. */
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+  ): Promise<{ success: true; revokedSessions: number }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, passwordHash: true },
+    });
+    if (!user?.passwordHash) {
+      throw new UnauthorizedException({
+        error: 'invalid_credentials',
+        code: ErrorCodes.INVALID_CREDENTIALS,
+      });
+    }
+    const ok = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!ok) {
+      throw new UnauthorizedException({
+        error: 'invalid_credentials',
+        code: ErrorCodes.INVALID_CREDENTIALS,
+      });
+    }
+    const newHash = await bcrypt.hash(dto.newPassword, BCRYPT_ROUNDS);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newHash },
+    });
+    const revokedSessions = await this.tokens.revokeAllForUser(userId);
+    return { success: true as const, revokedSessions };
   }
 }

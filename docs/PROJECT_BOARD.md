@@ -32,8 +32,8 @@
 | Alan | Deger |
 |---|---|
 | **Aktif Faz** | Faz 7 - Enterprise Prod Hardening (Asama 0 + Asama 1 kismi TAMAMLANDI; TLS ertelendi) |
-| **Son Tamamlanan** | BACKEND_GAP B-01/B-02/B-03: post `likedByMe`, `GET /conversations?type=`, parti route siralama + OpenAPI/docs guncel |
-| **Son Guncelleme** | 2026-04-23 — B-01/B-02/B-03 merge; contract testleri + shared sema testleri; `docs/openapi.json` + `API_Contract.md` |
+| **Son Tamamlanan** | BACKEND_GAP B-04: `POST /v1/auth/password/change` + Zod semalar + refresh toplu iptal + contract/e2e + OpenAPI |
+| **Son Guncelleme** | 2026-04-23 — B-04; `ChangePasswordSchema` / `ChangePasswordResponseSchema`; throttle 5/15dk |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,16 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] BACKEND_GAP — B-04 `POST /v1/auth/password/change`
+
+**Kod:** `ChangePasswordSchema` / `ChangePasswordResponseSchema` (`packages/shared/src/schemas/auth.schema.ts`); `AuthService.changePassword` (bcrypt doğrulama, hash güncelleme, `TokenService.revokeAllForUser`); `AuthController` JWT korumalı route, `@Throttle` 5/15dk; `auth.schema.spec` + `auth.service.spec` + `public.contract.spec` + `backend.edge.e2e` senaryoları.
+
+**OpenAPI:** `pnpm openapi:generate` ile `docs/openapi.json`, `API_Contract.md`, `api-types.generated.ts` güncellendi; `pnpm openapi:check` yeşil.
+
+**Dokuman:** `BACKEND_GAP_ROADMAP.md` v1.2, `FRONTEND_BLUEPRINT.md` B2 satırı tamamlandı olarak işaretlendi.
+
+---
 
 ### [2026-04-23] BACKEND_GAP kapatma — B-01 / B-02 / B-03 (Zod + OpenAPI uyumlu)
 

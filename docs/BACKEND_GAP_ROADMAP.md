@@ -1,7 +1,7 @@
 # Motogram — Backend Gap Closure Roadmap (B‑01 → B‑18)
 
-> **Sürüm:** 1.1 — 2026-04-23  
-> **Tamamlanan (kod):** **B‑01** (`likedByMe` tüm post API yanıtlarında), **B‑02** (`GET /v1/conversations?type=`), **B‑03** (parti controller’da statik rotaların `:id` önüne alınması).  
+> **Sürüm:** 1.2 — 2026-04-23  
+> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** (`POST /v1/auth/password/change`, throttle, tüm refresh iptali, `ChangePasswordResponseSchema`).  
 > **Kapsam:** `FRONTEND_BLUEPRINT.md` §17 “Backend Eksikleri” listesini (B1–B17) mevcut Zod / OpenAPI pipeline’ı **hiç bozmadan** kapatmak. Hayalet ekran üretmemek için öncelik burada; frontend’in F0/F1 sprintleri bu liste bittikten sonra güvenle açılır.  
 > **Anayasa (asla dışına çıkılmaz):**  
 > 1. **Zod SSOT** — şema önce `packages/shared/src/schemas/*.ts` içine, oradan export.  
@@ -59,7 +59,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 1 | **B‑01** ✅ | `Post.likedByMe` alanı | Home feed like toggle bug’ı | XS |
 | 2 | **B‑02** ✅ | `GET /conversations?type=` filtresi | Inbox “Topluluk Sohbetleri” sekmesi | XS |
 | 3 | **B‑03** ✅ | `Party` route sırası fix (`invites/me` önce) | Parti davetleri | XS |
-| 4 | **B‑04** | Auth password change (`POST /auth/password/change`) | Settings ▸ Şifre değiştir | S |
+| 4 | **B‑04** ✅ | Auth password change (`POST /auth/password/change`) | Settings ▸ Şifre değiştir | S |
 | 5 | **B‑05** | Forgot + Reset password (`/auth/password/forgot`, `/reset`) | Auth ▸ Şifremi unuttum | M |
 | 6 | **B‑06** | Username change (`PATCH /users/me/username`) | Settings ▸ Kullanıcı adı | S |
 | 7 | **B‑07** | Email change + verify (`/auth/email/change`, `/verify`) | Settings ▸ E‑posta | M |
@@ -136,7 +136,7 @@ Tahmini toplam: **~14–16 iş günü** (tek geliştirici, testler dahil).
 
 ---
 
-### B‑04 · `POST /v1/auth/password/change`
+### B‑04 · `POST /v1/auth/password/change` — **TAMAMLANDI (2026-04-23)**
 
 **Amaç:** Oturum içi şifre değiştirme.
 

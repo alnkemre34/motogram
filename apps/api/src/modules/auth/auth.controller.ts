@@ -2,11 +2,14 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   AuthResultSchema,
+  ChangePasswordResponseSchema,
+  ChangePasswordSchema,
   LoginSchema,
   LogoutSchema,
   RefreshTokenSchema,
   RegisterSchema,
   TokenPairResponseSchema,
+  type ChangePasswordDto,
   type LoginDto,
   type LogoutDto,
   type RefreshTokenDto,
@@ -68,5 +71,17 @@ export class AuthController {
     @Body(new ZodBody(LogoutSchema.extend({ refreshToken: RefreshTokenSchema.shape.refreshToken.optional() }))) dto: LogoutDto & { refreshToken?: string },
   ): Promise<void> {
     await this.auth.logout(user.userId, dto.refreshToken, dto.allDevices);
+  }
+
+  /** B-04 — JWT zorunlu; başarıda tüm refresh token'lar iptal (yeniden giriş / refresh gerekir). */
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 5 } })
+  @HttpCode(200)
+  @Post('password/change')
+  @ZodResponse(ChangePasswordResponseSchema)
+  async changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body(new ZodBody(ChangePasswordSchema)) dto: ChangePasswordDto,
+  ) {
+    return this.auth.changePassword(user.userId, dto);
   }
 }

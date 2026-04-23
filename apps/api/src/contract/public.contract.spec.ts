@@ -8,6 +8,7 @@ import request from 'supertest';
 import {
   ApiErrorSchema,
   AuthResultSchema,
+  ChangePasswordResponseSchema,
   ConversationsListResponseSchema,
   HealthLivezSchema,
   HealthReadyzSchema,
@@ -70,6 +71,9 @@ describeContract('Contract: public HTTP', () => {
   let app: INestApplication;
   /** Bir JWT ile feed / map / media senaryolari (register once, sonra tum istekler). */
   let accessToken!: string;
+  let refreshToken!: string;
+  let contractEmail!: string;
+  const contractPassword = 'Contract1!z';
 
   const UNKNOWN_MEDIA_UUID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 
@@ -84,18 +88,20 @@ describeContract('Contract: public HTTP', () => {
 
     const suffix = Date.now().toString(36);
     const username = `ct_${suffix}`.slice(0, 30);
+    contractEmail = `ctr9-${suffix}@example.com`;
     const regRes = await request(app.getHttpServer())
       .post('/v1/auth/register')
       .send({
-        email: `ctr9-${suffix}@example.com`,
+        email: contractEmail,
         username,
-        password: 'Contract1!z',
+        password: contractPassword,
         eulaAccepted: true,
         preferredLanguage: 'tr',
       })
       .expect(201);
     const auth = AuthResultSchema.parse(regRes.body);
     accessToken = auth.tokens.accessToken;
+    refreshToken = auth.tokens.refreshToken;
   }, 120_000);
 
   afterAll(async () => {
@@ -136,6 +142,50 @@ describeContract('Contract: public HTTP', () => {
       })
       .expect(400);
     ApiErrorSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/password/change — JWT yok 401', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/change')
+      .send({ currentPassword: contractPassword, newPassword: 'Contract2!z' })
+      .expect(401);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/password/change — yanlış mevcut şifre 401', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/change')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ currentPassword: 'wrong-pass-99', newPassword: 'Contract2!z' })
+      .expect(401);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/password/change — başarı + ChangePasswordResponseSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/password/change')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ currentPassword: contractPassword, newPassword: 'Contract2!z' })
+      .expect(200);
+    const body = ChangePasswordResponseSchema.parse(res.body);
+    expect(body.success).toBe(true);
+    expect(body.revokedSessions).toBeGreaterThanOrEqual(0);
+  });
+
+  it('POST /v1/auth/refresh — şifre değişiminden sonra eski refresh 401', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/refresh')
+      .send({ refreshToken })
+      .expect(401);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/login — yeni şifre ile giriş (200)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/login')
+      .send({ identifier: contractEmail, password: 'Contract2!z' })
+      .expect(200);
+    AuthResultSchema.parse(res.body);
   });
 
   it('GET /v1/posts/feed — JWT ile PostFeedPageSchema + likedByMe', async () => {
