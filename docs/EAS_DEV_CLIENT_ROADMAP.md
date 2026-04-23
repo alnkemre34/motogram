@@ -79,6 +79,21 @@ eas secret:delete --id <SECRET_ID>
 
 ---
 
+## 3.5 Hata: `ENOENT` — `eas-build-inject-android-credentials.gradle`
+
+**Belirti:** Uzak build’de *Prepare credentials* aşamasında
+`.../android/app/eas-build-inject-android-credentials.gradle` dosyası açılamıyor (klasör yok).
+
+**Olası nedenler**
+
+1. **`npx expo prebuild` tam üretimde android ağacını oluşturamadı** (Mapbox / config plugin: EAS’te **development** ortamı için `RNMAPBOX_MAPS_DOWNLOAD_TOKEN` ve gerekirse `EXPO_PUBLIC_MAPBOX_TOKEN` [Expo proje değişkenleri](https://expo.dev) ile tanımlı olmalı; sadece `production`’a yazmak development build’i kırar).
+2. **Eski / bozuk EAS cache** — bir kez `eas build --profile development --platform android --clear-cache` dene.
+3. **Imzalama adımı** — dev/preview profilleri için [eas.json](../apps/mobile/eas.json) içinde `android.withoutCredentials: true` kullanılır (Expo `development` profil önerisi; debug imza, mağaza AAB değil).
+
+**Kontrol:** Build her zaman `apps/mobile` kökünden: `cd apps\mobile` → `eas build` (tüm monorepo upload edilir, komut yeri doğru olsun).
+
+---
+
 ## 4. İlk Dev Client Build (Cloud, ~15 dk)
 
 ```powershell

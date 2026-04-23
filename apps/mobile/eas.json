@@ -9,7 +9,8 @@
       "distribution": "internal",
       "pnpm": "10.20.0",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "withoutCredentials": true
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "http://85.235.74.203/v1",
@@ -20,7 +21,8 @@
       "distribution": "internal",
       "pnpm": "10.20.0",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "withoutCredentials": true
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "http://85.235.74.203/v1",
