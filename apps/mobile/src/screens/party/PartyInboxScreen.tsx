@@ -12,10 +12,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PartyInviteMineRowSchema } from '@motogram/shared';
 import type { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 import { getParty, listMyInvites, respondInvite } from '../../api/party.api';
-
-type PartyInviteMineRow = z.infer<typeof PartyInviteMineRowSchema>;
 import { captureException } from '../../lib/sentry';
 import { usePartyStore } from '../../store/party.store';
 
@@ -24,11 +23,14 @@ import { usePartyStore } from '../../store/party.store';
 // - Aktif parti varsa kisa ozet + Haritaya Don butonu
 // Spec 7.3.1 - Sinyaller DB'de degil, canli. Invitation DB'de.
 
+type PartyInviteMineRow = z.infer<typeof PartyInviteMineRowSchema>;
+
 interface Props {
   onJumpToMap?: () => void;
 }
 
 export function PartyInboxScreen({ onJumpToMap }: Props) {
+  const { t } = useTranslation();
   const [invites, setInvites] = useState<PartyInviteMineRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -66,7 +68,7 @@ export function PartyInboxScreen({ onJumpToMap }: Props) {
       if (accept) onJumpToMap?.();
     } catch (err) {
       captureException(err);
-      Alert.alert('Hata', 'Davet yanitlanamadi.');
+      Alert.alert(t('common.error'), t('inbox.partyInviteError'));
     } finally {
       setSubmittingId(null);
     }
@@ -88,48 +90,55 @@ export function PartyInboxScreen({ onJumpToMap }: Props) {
           />
         }
       >
-        <Text style={styles.title}>Partiler</Text>
+        <Text style={styles.title}>{t('inbox.partyTitle')}</Text>
 
         {party && (
           <View style={styles.activeCard}>
-            <Text style={styles.activeLabel}>AKTIF PARTI</Text>
+            <Text style={styles.activeLabel}>{t('inbox.partyActiveLabel')}</Text>
             <Text style={styles.activeName}>{party.name}</Text>
             <Text style={styles.activeMeta}>
-              {party.memberCount} surucu • {party.status.toLowerCase()}
+              {t('inbox.partyRidersStatus', {
+                count: party.memberCount,
+                status: t(`inbox.partyStatus.${party.status}`),
+              })}
             </Text>
             <Pressable
               onPress={onJumpToMap}
               style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
             >
-              <Text style={styles.primaryBtnText}>HARITAYA DON</Text>
+              <Text style={styles.primaryBtnText}>{t('inbox.partyMapCta')}</Text>
             </Pressable>
           </View>
         )}
 
-        <Text style={styles.sectionTitle}>Davetiyeler</Text>
+        <Text style={styles.sectionTitle}>{t('inbox.partyInvitesTitle')}</Text>
         {loading ? (
           <ActivityIndicator color="#F5A623" style={{ marginTop: 24 }} />
         ) : invites.length === 0 ? (
-          <Text style={styles.muted}>Bekleyen davetiyen yok.</Text>
+          <Text style={styles.muted}>{t('inbox.partyNoInvites')}</Text>
         ) : (
           invites.map((inv) => (
             <View key={inv.id} style={styles.inviteCard}>
-              <Text style={styles.inviteFrom}>Davet: {inv.inviterId.slice(0, 8)}</Text>
-              <Text style={styles.inviteParty}>Parti: {inv.partyId.slice(0, 8)}</Text>
+              <Text style={styles.inviteFrom}>
+                {t('inbox.partyInviteFrom', { id: inv.inviterId.slice(0, 8) })}
+              </Text>
+              <Text style={styles.inviteParty}>
+                {t('inbox.partyInviteParty', { id: inv.partyId.slice(0, 8) })}
+              </Text>
               <View style={styles.inviteActions}>
                 <Pressable
                   disabled={submittingId === inv.id}
                   onPress={() => handleRespond(inv, false)}
                   style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
                 >
-                  <Text style={styles.secondaryBtnText}>REDDET</Text>
+                  <Text style={styles.secondaryBtnText}>{t('inbox.partyDecline')}</Text>
                 </Pressable>
                 <Pressable
                   disabled={submittingId === inv.id}
                   onPress={() => handleRespond(inv, true)}
                   style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
                 >
-                  <Text style={styles.primaryBtnText}>KATIL</Text>
+                  <Text style={styles.primaryBtnText}>{t('inbox.partyJoin')}</Text>
                 </Pressable>
               </View>
             </View>

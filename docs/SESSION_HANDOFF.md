@@ -12,19 +12,19 @@
 
 | Konu | Durum |
 |------|--------|
-| **Mobil yol haritasi (P1–P7)** | **P1–P5 tamam; P6 ileri** — Topluluk + `CreateCommunity` + cihaz/e-posta/kullanici adi ekranlari; P7 sırada. |
-| **P6 (2026-04-23 batch)** | `StoryViewer` **video** `expo-av`; `ChangeEmail` / `VerifyEmail` / `ChangeUsername` / `Devices`; `CreateCommunity` + Discover CTA; `RideModeHUD` i18n; derin link (`settings/*`, `email-verify`, `community/create`). |
-| **A5 (profil + public)** | `UserProfile`, `follows`, `ChangePassword` + yukaridaki ayar ekranlari. |
+| **Mobil yol haritasi (P1–P7)** | **P1–P6 tamam.** **P7 aktif** — WS, gamification, acil (blueprint §14). |
+| **P6 kapanis ozeti** | Haritada `SosButton`; `PartyInboxScreen` + `PartySignalFeed` i18n; `LocationSharingSheet` `GROUP_MEMBERS`; Discover/Community `visibility` etiketleri; `map.sos` / `devNearbyMs` / `inbox.party*`. |
+| **A5 (profil + public)** | `UserProfile`, `follows`, `ChangePassword` + e-posta/cihaz/kullanici adi ekranlari. |
 | **Onceki ref. commit** | `git log -1 --oneline` ile dogrula. |
 | **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **16 suite / 62 test** (son kosum 2026-04-23). |
 | **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §7, `docs/FRONTEND_UI_UX_BLUEPRINT.md` v1.5+, `docs/PROJECT_BOARD.md` §1. |
 
-**Ardil / acik isler (oncelik secimi):**
+**Ardil / acik isler (P7 oncelik):**
 
-- **P6 (kalan):** Harita / parti ekranlari ek polish (baska sabit metin taramasi); istege bagli: `GET /devices` yanitina token/id ile satir bazli silme (sunucu sozlesmesi).
-- **P7:** WS + oyun/odul yuzeyleri (blueprint).
+- **P7:** `/realtime` ve `/messaging` yuzey derinligi, rozet/quest, acil (blueprint).
+- Istege bagli: `GET /devices` yanitina token veya `DELETE` id-ile cihaz satiri.
 
-**Kod giris noktalari (mobil):** `AppStackNavigator` + `linking.ts`; `SettingsScreen` satirlari; `DiscoverScreen` `CreateCommunity`; `StoryViewerScreen` video; `RideModeHUD`.
+**Kod giris noktalari (mobil):** `MapScreen` + `SosButton`; `PartyInboxScreen`; `useParty` / `party.store`; `FRONTEND_IMPLEMENTATION_ROADMAP` P7 satiri.
 
 ---
 

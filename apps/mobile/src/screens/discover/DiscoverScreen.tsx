@@ -184,7 +184,8 @@ export function DiscoverScreen() {
               <Text style={styles.cardTitle}>{item.name}</Text>
               {item.region ? <Text style={styles.cardSub}>{item.region}</Text> : null}
               <Text style={styles.cardMeta}>
-                {t('discover.memberCount', { n: item.membersCount })} · {item.visibility}
+                {t('discover.memberCount', { n: item.membersCount })} ·{' '}
+                {t(`community.visibility.${item.visibility}`)}
               </Text>
             </Pressable>
           )}

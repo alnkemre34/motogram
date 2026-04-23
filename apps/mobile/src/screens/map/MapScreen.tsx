@@ -13,6 +13,7 @@ import Mapbox from '@rnmapbox/maps';
 import * as Location from 'expo-location';
 
 import { env } from '../../config/env';
+import { SosButton } from '../../features/emergency/SosButton';
 import { DiscoverModeSheet } from '../../features/map/panel/DiscoverModeSheet';
 import { MapFilterBar } from '../../features/map/filters/MapFilterBar';
 import { PartySignalFeed } from '../../features/party/PartySignalFeed';
@@ -234,6 +235,15 @@ export function MapScreen() {
           />
         )}
 
+        {env.mapboxAccessToken && center && (
+          <View
+            style={[styles.sosOverlay, mode === 'RIDE' && party ? styles.sosOverlayAboveHud : null]}
+            pointerEvents="box-none"
+          >
+            <SosButton latitude={center[1]} longitude={center[0]} />
+          </View>
+        )}
+
         <PartyCreateModal
           visible={partyCreateOpen}
           onClose={() => setPartyCreateOpen(false)}
@@ -270,7 +280,7 @@ export function MapScreen() {
 
       {__DEV__ && lastDuration !== null && mode === 'DISCOVER' && (
         <View style={styles.devBadge}>
-          <Text style={styles.devBadgeText}>nearby {lastDuration} ms</Text>
+          <Text style={styles.devBadgeText}>{t('map.devNearbyMs', { ms: lastDuration })}</Text>
         </View>
       )}
     </SafeAreaView>
@@ -299,6 +309,9 @@ const styles = StyleSheet.create({
   segmentTextActive: { color: '#0b0b10' },
   segmentTextDisabled: { color: 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: 14 },
   mapWrap: { flex: 1 },
+  sosOverlay: { position: 'absolute', left: 12, bottom: 20, zIndex: 2 },
+  /** RideModeHUD alt sinyal barının üstüne (yaklaşık 96px + padding). */
+  sosOverlayAboveHud: { bottom: 130 },
   pin: {
     width: 18,
     height: 18,

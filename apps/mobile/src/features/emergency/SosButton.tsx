@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   Pressable,
@@ -38,6 +39,7 @@ export function SosButton({
   onSuccess,
   onError,
 }: SosButtonProps) {
+  const { t } = useTranslation();
   const [holding, setHolding] = useState(false);
   const [sending, setSending] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
@@ -129,8 +131,8 @@ export function SosButton({
   return (
     <View style={styles.wrap}>
       <Pressable
-        accessibilityLabel="SOS"
-        accessibilityHint="3 saniye basili tutarak acil durum cagrisi gonderir"
+        accessibilityLabel={t('map.sos.a11yLabel')}
+        accessibilityHint={t('map.sos.a11yHint')}
         disabled={sending}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
@@ -157,10 +159,14 @@ export function SosButton({
           ]}
         />
         <Text style={styles.label}>
-          {sending ? 'Gonderiliyor…' : inCooldown ? 'Bekleyin' : 'SOS'}
+          {sending ? t('map.sos.sending') : inCooldown ? t('map.sos.cooldownWait') : t('map.sos.label')}
         </Text>
         <Text style={styles.sub}>
-          {holding ? '3 saniye basili tut' : inCooldown ? 'Cooldown 30s' : '3 saniye'}
+          {holding
+            ? t('map.sos.hintHold')
+            : inCooldown
+              ? t('map.sos.hintCooldown')
+              : t('map.sos.hintShort')}
         </Text>
       </Pressable>
     </View>

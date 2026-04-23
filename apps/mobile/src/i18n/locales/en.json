@@ -310,7 +310,18 @@
       "signalStop": "STOP",
       "signalFuel": "FUEL",
       "a11ySignal": "Signal {{label}}"
-    }
+    },
+    "sos": {
+      "label": "SOS",
+      "sending": "Sending…",
+      "cooldownWait": "Wait",
+      "hintHold": "Hold 3s to send",
+      "hintCooldown": "30s cooldown",
+      "hintShort": "3 seconds",
+      "a11yLabel": "SOS — emergency",
+      "a11yHint": "Hold 3 seconds to send an emergency alert"
+    },
+    "devNearbyMs": "nearby {{ms}} ms"
   },
   "discover": {
     "searchPlaceholder": "Search communities (2+ characters)",
@@ -373,6 +384,23 @@
     "fallbackGroup": "Group",
     "fallbackCommunityChat": "Community chat",
     "mediaPreview": "[media]",
-    "newConversation": "New conversation"
+    "newConversation": "New conversation",
+    "partyTitle": "Parties",
+    "partyActiveLabel": "ACTIVE PARTY",
+    "partyRidersStatus": "{{count}} riders · {{status}}",
+    "partyMapCta": "Back to map",
+    "partyInvitesTitle": "Invitations",
+    "partyNoInvites": "No pending invites.",
+    "partyInviteFrom": "Invite: {{id}}",
+    "partyInviteParty": "Party: {{id}}",
+    "partyDecline": "Decline",
+    "partyJoin": "Join",
+    "partyInviteError": "Couldn’t respond to the invite.",
+    "partyStatus": {
+      "WAITING": "Waiting",
+      "RIDING": "Riding",
+      "PAUSED": "Paused",
+      "ENDED": "Ended"
+    }
   }
 }

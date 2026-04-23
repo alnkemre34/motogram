@@ -15,6 +15,7 @@ const MODES: LocationSharingMode[] = [
   'OFF',
   'FOLLOWERS_ONLY',
   'MUTUAL_FOLLOWERS',
+  'GROUP_MEMBERS',
   'PARTY_ONLY',
   'PUBLIC',
 ];

@@ -88,7 +88,7 @@ export function CommunityDetailScreen({ route }: Props) {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StackScreenHeader title={c.name} />
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.visibility}>{c.visibility}</Text>
+        <Text style={styles.visibility}>{t(`community.visibility.${c.visibility}`)}</Text>
         {c.description ? <Text style={styles.description}>{c.description}</Text> : null}
 
         <View style={styles.statsRow}>

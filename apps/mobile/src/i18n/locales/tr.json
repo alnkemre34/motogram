@@ -310,7 +310,18 @@
       "signalStop": "DUR",
       "signalFuel": "YAKIT",
       "a11ySignal": "Sinyal {{label}}"
-    }
+    },
+    "sos": {
+      "label": "SOS",
+      "sending": "Gönderiliyor…",
+      "cooldownWait": "Bekleyin",
+      "hintHold": "3 sn basılı tut",
+      "hintCooldown": "30 sn bekleme",
+      "hintShort": "3 saniye",
+      "a11yLabel": "SOS — acil durum",
+      "a11yHint": "Acil çağrı göndermek için 3 saniye basılı tutun"
+    },
+    "devNearbyMs": "yakın {{ms}} ms"
   },
   "discover": {
     "searchPlaceholder": "Topluluk ara (en az 2 karakter)",
@@ -373,6 +384,23 @@
     "fallbackGroup": "Grup",
     "fallbackCommunityChat": "Topluluk sohbeti",
     "mediaPreview": "[medya]",
-    "newConversation": "Yeni konuşma"
+    "newConversation": "Yeni konuşma",
+    "partyTitle": "Partiler",
+    "partyActiveLabel": "AKTİF PARTİ",
+    "partyRidersStatus": "{{count}} sürücü · {{status}}",
+    "partyMapCta": "Haritaya dön",
+    "partyInvitesTitle": "Davetiyeler",
+    "partyNoInvites": "Bekleyen davetin yok.",
+    "partyInviteFrom": "Davet: {{id}}",
+    "partyInviteParty": "Parti: {{id}}",
+    "partyDecline": "Reddet",
+    "partyJoin": "Katıl",
+    "partyInviteError": "Davet yanıtlanamadı.",
+    "partyStatus": {
+      "WAITING": "Beklemede",
+      "RIDING": "Sürüşte",
+      "PAUSED": "Duraklatıldı",
+      "ENDED": "Bitti"
+    }
   }
 }

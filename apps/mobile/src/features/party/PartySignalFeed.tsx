@@ -1,15 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePartyStore } from '../../store/party.store';
 
 // Spec 2.3.2 - Sinyal geldiginde ekrana kisa bir uyari dus (DB'de log YOK, sadece live)
-
-const LABELS: Record<string, string> = {
-  REGROUP: 'toplan',
-  STOP: 'dur',
-  FUEL: 'yakit',
-};
 
 const COLORS: Record<string, string> = {
   REGROUP: '#2ecc71',
@@ -18,8 +13,19 @@ const COLORS: Record<string, string> = {
 };
 
 export function PartySignalFeed() {
+  const { t } = useTranslation();
   const signals = usePartyStore((s) => s.recentSignals);
   const dismiss = usePartyStore((s) => s.dismissSignal);
+
+  const labelFor = useCallback(
+    (type: string) => {
+      if (type === 'REGROUP') return t('map.rideHud.signalRegroup');
+      if (type === 'STOP') return t('map.rideHud.signalStop');
+      if (type === 'FUEL') return t('map.rideHud.signalFuel');
+      return type.toLowerCase();
+    },
+    [t],
+  );
 
   // 5 saniye sonra auto-dismiss
   useEffect(() => {
@@ -43,7 +49,7 @@ export function PartySignalFeed() {
           <Text style={[styles.who, { color: COLORS[s.type] ?? '#F5A623' }]}>
             {s.senderName.toUpperCase()}
           </Text>
-          <Text style={styles.msg}>{LABELS[s.type] ?? s.type.toLowerCase()}</Text>
+          <Text style={styles.msg}>{labelFor(s.type)}</Text>
         </Pressable>
       ))}
     </View>

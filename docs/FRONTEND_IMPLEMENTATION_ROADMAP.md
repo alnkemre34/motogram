@@ -1,6 +1,6 @@
 # Motogram — Frontend uygulama yol haritası
 
-> Tarih: 2026-04-23 (§7 + A5 ardıl: e-posta / cihaz / kullanıcı adı + topluluk oluştur + story video)  
+> Tarih: 2026-04-23 (P6 kapanış + **P7 aktif**)  
 > İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
 > Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
 > **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
@@ -25,7 +25,7 @@
 | A3 | Home + story rail + üst bar | Feed, hikayeler, bildirim/mesaj kısayolu | Uygulandı (2026-04-23: tren + `StoryViewer` + `GET /stories/feed` + görüntülenme) |
 | A4 | 4 sekme / navigasyon hedefi | `FRONTEND_UI_UX_BLUEPRINT` §navigasyon; TabNavigator sadeleştirme | Uygulandı (P4) |
 | A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Uygulandı (P5 + `UserProfile` + `ChangePassword` + **2026-04-23:** `ChangeEmail` / `VerifyEmail` B-07, `ChangeUsername` B-06, `Devices` GET/DELETE push, hikâye **video** `expo-av`) |
-| A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | Kısmi (Topluluk `nearby`/`me`/`search` + `CommunityDetail` + **`CreateCommunity`**; `RideModeHUD` i18n; harita/ parti ek polish sırada) |
+| A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | **Uygulandı (2026-04-23 P6 kapanış):** SOS `SosButton` haritada; `PartySignalFeed` + `PartyInboxScreen` i18n; `LocationSharingSheet` `GROUP_MEMBERS`; Discover/Community görünürlük etiketi; dev `map.devNearbyMs` |
 | A7 | WS yüzeyleri | `/messaging` tam, `/realtime` sürüş, gamification/emergency | Kısmi |
 
 Detay: Blueprint §17.4 “İdeal uygulama sırası” ile uyumludur; Inbox aşaması netleştirilerek yukarı taşındı.
@@ -43,10 +43,10 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | **P3** | Home + üst bar | Story rail, bildirim/mesaj kısayolu (root stack) | Tamam: tren, tam ekran yürütücü, **video** `expo-av`, bildirimler ayrılırken okundu |
 | **P4** | Tab navigasyon 4 | `FRONTEND_UI_UX_BLUEPRINT` §5; Inbox tab’dan kaldır | Tamam: `AppStack` + 4 tab |
 | **P5** | Profil + ayarlar | §11, Settings | Tamam: `Settings` + alt ekranlar, `PATCH /users/me`, tercihler, acil, blocks, `account/deletion` |
-| **P6** | Harita + topluluk/parti polish | §8–9 | Kısmi: topluluk + detay + **oluşturma**; `RideModeHUD` i18n; harita/ parti derin polish sırada |
-| **P7** | WS + gamification + acil | §14 | Namespace’ler blueprint ile |
+| **P6** | Harita + topluluk/parti polish | §8–9 | **Tamam** (SOS haritada, parti inbox/sinyal i18n, konum modu tam enum, topluluk görünürlük metinleri) |
+| **P7** | WS + gamification + acil | §14 | **Aktif faz** — namespace’ler blueprint ile |
 
-**Aktif sıra (2026-04-23):** P1–P5 tam; **P6** ilerleme (Topluluk + topluluk oluştur + harita ride HUD i18n + story video); cihaz/e-posta/kullanıcı adı ardılları kapatıldı.
+**Aktif sıra (2026-04-23):** P1–**P6** tam; **P7** sıradaki (WS yüzeyleri, gamification, acil entegrasyon derinliği).
 
 ---
 
@@ -79,6 +79,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
+- **2026-04-23 (6):** **P6 kapanış:** `SosButton` harita üstü (konum + üst üste binmeyi azaltmak için sürüş HUD’da `bottom` offset); `PartySignalFeed` / `PartyInboxScreen` tam i18n; `LocationSharingSheet` — `GROUP_MEMBERS` modu; `CommunityDetail` + `Discover` görünürlük `community.visibility.*`; `map.sos.*`, `map.devNearbyMs`, `inbox.party*`.
 - **2026-04-24 (3):** P6 (topluluk): `DiscoverScreen` — yakın (`/communities/nearby`), benim (`/communities/me`), B-12 arama; `searchCommunities` + `canQueryCommunitySearch` Jest; `CommunityDetail` `AppStack` + `linking` `community/:id` + i18n; `MapScreen` parti ayrılma i18n.
 - **2026-04-24 (2):** A5 tamamlama: `getUserByUsername`, `follows.api` (follow/unfollow, `checkIsFollowingUser`), `UserProfile` + `UserProfile:home/story` navigasyon, `changePasswordRequest` + `ChangePasswordScreen`, `linking` `user/:username` ve `settings/password`.
 - **2026-04-24 (1):** Oturum handoff: `SESSION_HANDOFF.md` mobil özet tablosu; bu belgeye **§7 Nerede kaldık**; `PROJECT_BOARD` §1 tarih/commit; mobil `typecheck` + `test` tekrar koşuldu (15/59).
@@ -94,10 +95,10 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 | Nerede? | Ne yapıldı (özet) | Sırada |
 |--------|-------------------|--------|
-| **P1–P5** | Yukarıdakiler + **UserProfile** (`GET /users/:username`) + takip/engel + **ChangePassword** | Kapanı kabul: `typecheck` + `test` yeşil |
-| **A5** | P5 + `UserProfile` + `follows` + şifre ekranı | Cihaz listesi, e-posta değişim UI (ardıl) |
-| **A6** | `Discover` + `GET communities/*` (2026-04-24) | Kalan: parti UI polish, harita ince ayar |
-| **Hikâye video** | Placeholder + i18n | `expo-av` (opsiyonel faz) |
+| **P1–P6** | A5 ardıllar (e-posta, cihaz, kullanıcı adı) + topluluk + **P6** harita/parti polish | Kabul: `typecheck` + `test` yeşil |
+| **A5** | Public profil, ayarlar, cihaz/e-posta/kullanıcı adı, şifre | Tamam (mobil kapsamı) |
+| **A6** | Harita: SOS, filtre, panel, sürüş HUD, parti inbox/sinyal i18n, konum `GROUP_MEMBERS` | P7’ye geçildi |
+| **Hikâye video** | `expo-av` tam ekran oynatıcı | Uygulandı |
 | **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |
 
 **Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (16 suite / 62 test, 2026-04-24).
