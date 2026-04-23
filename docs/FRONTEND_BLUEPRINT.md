@@ -330,7 +330,7 @@ Tab badge sayısı için `useQuery(qk.notificationsUnread)` 60 sn polling + `not
 - **Liste:** `GET /v1/posts/user/:userId` (infinite).
 - **Aksiyon:** Takip et → `POST /v1/follows/:userId` (`FollowActionResponseSchema`); takipten çık → `DELETE /v1/follows/:userId`.
 - **Mesaj gönder:** `POST /v1/conversations` `{ type: 'DIRECT', userIds: [me, them] }` → `Conversation` ekranına geç.
-- **Followers/Following sayfası:** **Backend Eksik** (`GET /v1/users/:id/followers` / `following` yok).
+- **Followers/Following sayfası:** `GET /v1/users/:userId/followers` & `/following` (+ `GET /v1/users/me/followers` / `me/following`) — `FollowListPageResponseSchema`.
 
 ---
 
@@ -657,7 +657,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | ~~B4~~ | ~~`POST /v1/auth/email/change` + `/verify`~~ | **TAMAMLANDI (2026-04-23)** — `pendingEmail` + `EmailChangeToken` + mail kuyruğu | — |
 | B5 | `POST /v1/auth/otp/request` + `/verify` | Telefon/email OTP | EVET (Otp ekranı için) |
 | ~~B6~~ | ~~`GET /v1/users/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — blok filtresi + sayfalama | — |
-| B7 | `GET /v1/users/:id/followers` & `/following` | Takipçi/takip listesi | YES |
+| ~~B7~~ | ~~`GET /v1/users/:userId/followers` & `/following`~~ | **TAMAMLANDI (2026-04-23)** — `me/…` kolaylığı + `FollowListPageResponseSchema` | — |
 | B8 | `GET/POST/DELETE /v1/blocks` | Engelle | YES |
 | B9 | `POST /v1/reports` (post/comment/user/community) | İçerik raporlama | YES |
 | B10 | `GET/POST/DELETE /v1/emergency/contacts` | Acil durum kişileri | OPSIYONEL |

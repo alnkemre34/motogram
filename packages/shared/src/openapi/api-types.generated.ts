@@ -3885,6 +3885,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/me/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FollowListPageResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/me/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FollowListPageResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/me/username": {
         parameters: {
             query?: never;
@@ -3947,6 +4017,76 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["UserSearchResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{userId}/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FollowListPageResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{userId}/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FollowListPageResponseSchema"];
                     };
                 };
             };
@@ -5221,6 +5361,64 @@ export interface components {
         FollowActionSchema: {
             /** Format: uuid */
             targetUserId: string;
+        };
+        FollowListPageResponseSchema: {
+            items: {
+                /** Format: uri */
+                avatarUrl: string | null;
+                bio: string | null;
+                city: string | null;
+                country: string | null;
+                /** Format: uri */
+                coverImageUrl: string | null;
+                createdAt: string;
+                followersCount: number;
+                followingCount: number;
+                /** Format: uuid */
+                id: string;
+                isFollowedByMe: boolean;
+                isPrivate: boolean;
+                isVerified: boolean;
+                level: number;
+                name: string | null;
+                postsCount: number;
+                ridingStyle: string[];
+                username: string;
+                xp: number;
+            }[];
+            /** Format: uuid */
+            nextCursor: string | null;
+        };
+        FollowListQuerySchema: {
+            /** Format: uuid */
+            cursor?: string | null;
+            /** @default 20 */
+            limit: number;
+        };
+        FollowListUserSchema: {
+            /** Format: uri */
+            avatarUrl: string | null;
+            bio: string | null;
+            city: string | null;
+            country: string | null;
+            /** Format: uri */
+            coverImageUrl: string | null;
+            createdAt: string;
+            followersCount: number;
+            followingCount: number;
+            /** Format: uuid */
+            id: string;
+            isFollowedByMe: boolean;
+            isPrivate: boolean;
+            isVerified: boolean;
+            level: number;
+            name: string | null;
+            postsCount: number;
+            ridingStyle: string[];
+            username: string;
+            xp: number;
+        } & {
+            [key: string]: unknown;
         };
         FollowSchema: {
             /** Format: date-time */

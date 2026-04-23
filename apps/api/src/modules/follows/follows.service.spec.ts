@@ -14,8 +14,8 @@ function createPrismaMock() {
   };
   return {
     user: { findFirst: jest.fn() },
-    block: { findFirst: jest.fn() },
-    follow: { findUnique: jest.fn() },
+    block: { findFirst: jest.fn(), findMany: jest.fn() },
+    follow: { findUnique: jest.fn(), findMany: jest.fn() },
     $transaction: jest.fn(async (cb: (tx: typeof txApi) => unknown) => cb(txApi)),
     __tx: txApi,
   };
@@ -82,5 +82,61 @@ describe('FollowsService (Spec 2.6, 7.2.2, 9.4)', () => {
     prisma.follow.findUnique.mockResolvedValue(null);
     await service.unfollow('u1', 'u2');
     expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  describe('B-09 list followers/following', () => {
+    const followerRow = {
+      id: 'f1',
+      username: 'fan',
+      name: 'Fan',
+      bio: null,
+      avatarUrl: null,
+      coverImageUrl: null,
+      city: null,
+      country: null,
+      ridingStyle: [] as string[],
+      isPrivate: false,
+      isVerified: false,
+      followersCount: 0,
+      followingCount: 1,
+      postsCount: 0,
+      xp: 0,
+      level: 1,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    };
+
+    it('listFollowersForProfile throws when profile missing', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+      await expect(
+        service.listFollowersForProfile('viewer', 'missing', { limit: 20 }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('listFollowersForProfile maps isFollowedByMe', async () => {
+      prisma.user.findFirst.mockResolvedValue({ id: 'profile' });
+      prisma.block.findMany.mockResolvedValue([]);
+      prisma.follow.findMany
+        .mockResolvedValueOnce([
+          { id: 'follow-row-1', follower: followerRow },
+        ])
+        .mockResolvedValueOnce([{ followingId: followerRow.id }]);
+      const res = await service.listFollowersForProfile('viewer', 'profile', { limit: 20 });
+      expect(res.items).toHaveLength(1);
+      expect(res.items[0]!.id).toBe(followerRow.id);
+      expect(res.items[0]!.isFollowedByMe).toBe(true);
+      expect(res.nextCursor).toBeNull();
+    });
+
+    it('listFollowingForProfile maps isFollowedByMe false when not following', async () => {
+      prisma.user.findFirst.mockResolvedValue({ id: 'profile' });
+      prisma.block.findMany.mockResolvedValue([]);
+      prisma.follow.findMany
+        .mockResolvedValueOnce([
+          { id: 'follow-row-2', following: followerRow },
+        ])
+        .mockResolvedValueOnce([]);
+      const res = await service.listFollowingForProfile('viewer', 'profile', { limit: 20 });
+      expect(res.items[0]!.isFollowedByMe).toBe(false);
+    });
   });
 });

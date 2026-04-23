@@ -869,6 +869,20 @@
   },
   {
     "method": "GET",
+    "path": "/users/:userId/followers",
+    "responseSchema": "FollowListPageResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/users/:userId/following",
+    "responseSchema": "FollowListPageResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
     "path": "/users/:username",
     "responseSchema": "UserPublicApiResponseSchema",
     "responseStatus": 200,
@@ -900,6 +914,20 @@
     "method": "POST",
     "path": "/users/me/cancel-deletion",
     "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/followers",
+    "responseSchema": "FollowListPageResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/users/me/following",
+    "responseSchema": "FollowListPageResponseSchema",
     "responseStatus": 200,
     "auth": true
   },

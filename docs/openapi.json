@@ -4850,6 +4850,276 @@
         ],
         "type": "object"
       },
+      "FollowListPageResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "properties": {
+                "avatarUrl": {
+                  "format": "uri",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "bio": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "city": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "country": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "coverImageUrl": {
+                  "format": "uri",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "anyOf": [
+                    {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "followersCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "followingCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "isFollowedByMe": {
+                  "type": "boolean"
+                },
+                "isPrivate": {
+                  "type": "boolean"
+                },
+                "isVerified": {
+                  "type": "boolean"
+                },
+                "level": {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "postsCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "ridingStyle": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "xp": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "username",
+                "name",
+                "bio",
+                "avatarUrl",
+                "coverImageUrl",
+                "city",
+                "country",
+                "ridingStyle",
+                "isPrivate",
+                "isVerified",
+                "followersCount",
+                "followingCount",
+                "postsCount",
+                "xp",
+                "level",
+                "createdAt",
+                "isFollowedByMe"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
+      "FollowListQuerySchema": {
+        "properties": {
+          "cursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 50,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "FollowListUserSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "avatarUrl": {
+            "format": "uri",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bio": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "city": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "coverImageUrl": {
+            "format": "uri",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "followersCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "followingCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isFollowedByMe": {
+            "type": "boolean"
+          },
+          "isPrivate": {
+            "type": "boolean"
+          },
+          "isVerified": {
+            "type": "boolean"
+          },
+          "level": {
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "postsCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "ridingStyle": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "type": "string"
+          },
+          "xp": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "name",
+          "bio",
+          "avatarUrl",
+          "coverImageUrl",
+          "city",
+          "country",
+          "ridingStyle",
+          "isPrivate",
+          "isVerified",
+          "followersCount",
+          "followingCount",
+          "postsCount",
+          "xp",
+          "level",
+          "createdAt",
+          "isFollowedByMe"
+        ],
+        "type": "object"
+      },
       "FollowSchema": {
         "properties": {
           "createdAt": {
@@ -16268,6 +16538,50 @@
         ]
       }
     },
+    "/users/me/followers": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowListPageResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/users/me/following": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowListPageResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
     "/users/me/username": {
       "patch": {
         "requestBody": {
@@ -16308,6 +16622,50 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserSearchResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/users/{userId}/followers": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowListPageResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/users/{userId}/following": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowListPageResponseSchema"
                 }
               }
             },

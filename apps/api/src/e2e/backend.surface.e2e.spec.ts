@@ -28,6 +28,7 @@ import {
   EventsMineResponseSchema,
   FeatureFlagEvaluationSchema,
   FollowActionResponseSchema,
+  FollowListPageResponseSchema,
   FollowUnfollowResponseSchema,
   LikeToggleResponseSchema,
   LiveLocationSessionResponseSchema,
@@ -538,6 +539,34 @@ describeE2E('E2E: HTTP surface (USER rolleri + RBAC)', () => {
       .set('Authorization', `Bearer ${tokenA}`)
       .expect(200);
     FollowUnfollowResponseSchema.parse(unfollowRes.body);
+  });
+
+  it('B-09 — GET users/me/following ve :userId/followers (FollowListPageResponseSchema)', async () => {
+    await request(app.getHttpServer())
+      .post(`/v1/follows/${userIdB}`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(201);
+
+    const mineFollowing = await request(app.getHttpServer())
+      .get('/v1/users/me/following')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    FollowListPageResponseSchema.parse(mineFollowing.body);
+    const bRow = mineFollowing.body.items.find((u: { id: string }) => u.id === userIdB);
+    expect(bRow).toBeDefined();
+    expect(bRow.isFollowedByMe).toBe(true);
+
+    const bFollowers = await request(app.getHttpServer())
+      .get(`/v1/users/${userIdB}/followers`)
+      .set('Authorization', `Bearer ${tokenB}`)
+      .expect(200);
+    FollowListPageResponseSchema.parse(bFollowers.body);
+    expect(bFollowers.body.items.some((u: { id: string }) => u.id === userIdA)).toBe(true);
+
+    await request(app.getHttpServer())
+      .delete(`/v1/follows/${userIdB}`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
   });
 
   it('location — session start/stop, sharing, tek konum pingi', async () => {

@@ -1,7 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   ChangeUsernameSchema,
+  FollowListPageResponseSchema,
+  FollowListQuerySchema,
   SuccessTrueSchema,
   UpdateProfileSchema,
   UserMeResponseSchema,
@@ -9,6 +21,7 @@ import {
   UserSearchQuerySchema,
   UserSearchResponseSchema,
   type ChangeUsernameDto,
+  type FollowListQueryDto,
   type UpdateProfileDto,
   type UserSearchQueryDto,
 } from '@motogram/shared';
@@ -20,11 +33,16 @@ import {
 import { ZodResponse } from '../../common/interceptors/zod-serializer.interceptor';
 import { ZodBody } from '../../common/pipes/zod-body.pipe';
 
+import { FollowsService } from '../follows/follows.service';
+
 import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly users: UsersService) {}
+  constructor(
+    private readonly users: UsersService,
+    private readonly follows: FollowsService,
+  ) {}
 
   @Get('me')
   @ZodResponse(UserMeResponseSchema)
@@ -81,6 +99,69 @@ export class UsersController {
     }
     const query: UserSearchQueryDto = UserSearchQuerySchema.parse(flat);
     return this.users.searchUsers(user.userId, query);
+  }
+
+  /** B-09 — `:username` ile çakışmaması için `me/...` ve `:userId/...` açık path’ler. */
+  @Throttle({ default: { ttl: 60_000, limit: 60 } })
+  @Get('me/followers')
+  @ZodResponse(FollowListPageResponseSchema)
+  async myFollowers(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() rawQuery: Record<string, string | string[] | undefined>,
+  ) {
+    const flat: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawQuery)) {
+      flat[k] = Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+    }
+    const query: FollowListQueryDto = FollowListQuerySchema.parse(flat);
+    return this.follows.listFollowersForProfile(user.userId, user.userId, query);
+  }
+
+  @Throttle({ default: { ttl: 60_000, limit: 60 } })
+  @Get('me/following')
+  @ZodResponse(FollowListPageResponseSchema)
+  async myFollowing(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() rawQuery: Record<string, string | string[] | undefined>,
+  ) {
+    const flat: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawQuery)) {
+      flat[k] = Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+    }
+    const query: FollowListQueryDto = FollowListQuerySchema.parse(flat);
+    return this.follows.listFollowingForProfile(user.userId, user.userId, query);
+  }
+
+  @Throttle({ default: { ttl: 60_000, limit: 60 } })
+  @Get(':userId/followers')
+  @ZodResponse(FollowListPageResponseSchema)
+  async userFollowers(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('userId', ParseUUIDPipe) profileUserId: string,
+    @Query() rawQuery: Record<string, string | string[] | undefined>,
+  ) {
+    const flat: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawQuery)) {
+      flat[k] = Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+    }
+    const query: FollowListQueryDto = FollowListQuerySchema.parse(flat);
+    return this.follows.listFollowersForProfile(user.userId, profileUserId, query);
+  }
+
+  @Throttle({ default: { ttl: 60_000, limit: 60 } })
+  @Get(':userId/following')
+  @ZodResponse(FollowListPageResponseSchema)
+  async userFollowing(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('userId', ParseUUIDPipe) profileUserId: string,
+    @Query() rawQuery: Record<string, string | string[] | undefined>,
+  ) {
+    const flat: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawQuery)) {
+      flat[k] = Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+    }
+    const query: FollowListQueryDto = FollowListQuerySchema.parse(flat);
+    return this.follows.listFollowingForProfile(user.userId, profileUserId, query);
   }
 
   @Get(':username')

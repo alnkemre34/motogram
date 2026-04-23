@@ -1,7 +1,7 @@
 # Motogram — Backend Gap Closure Roadmap (B‑01 → B‑18)
 
 > **Sürüm:** 1.2 — 2026-04-23  
-> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** (`POST /v1/auth/password/change`, throttle, tüm refresh iptali, `ChangePasswordResponseSchema`).  
+> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑08** (önceki tur); **B‑09** (`FollowListQuerySchema`, `FollowListPageResponseSchema`, `GET /v1/users/:userId/followers|following`, `GET /v1/users/me/followers|following`).  
 > **Kapsam:** `FRONTEND_BLUEPRINT.md` §17 “Backend Eksikleri” listesini (B1–B17) mevcut Zod / OpenAPI pipeline’ı **hiç bozmadan** kapatmak. Hayalet ekran üretmemek için öncelik burada; frontend’in F0/F1 sprintleri bu liste bittikten sonra güvenle açılır.  
 > **Anayasa (asla dışına çıkılmaz):**  
 > 1. **Zod SSOT** — şema önce `packages/shared/src/schemas/*.ts` içine, oradan export.  
@@ -64,7 +64,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 6 | **B‑06** ✅ | Username change (`PATCH /users/me/username`) | Settings ▸ Kullanıcı adı | S |
 | 7 | **B‑07** ✅ | Email change + verify (`/auth/email/change`, `/verify`) | Settings ▸ E‑posta | M |
 | 8 | **B‑08** ✅ | User search (`GET /users/search?q=`) | NewConversation, invite flows | S |
-| 9 | **B‑09** | Followers / Following (`GET /users/:id/followers` / `/following`) | Profile sekmeleri | S |
+| 9 | **B‑09** ✅ | Followers / Following (`GET /users/:userId/followers` / `/following` + `me/…`) | Profile sekmeleri | S |
 | 10 | **B‑10** | Blocks modülü (`GET/POST/DELETE /blocks`) | Settings ▸ Engellenmiş kullanıcılar | S (yarı hazır) |
 | 11 | **B‑11** | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
 | 12 | **B‑12** | Communities search (`GET /communities/search?q=`) | Discover ▸ arama | S |
@@ -279,24 +279,16 @@ export const UserSearchResponseSchema = z.object({
 
 ---
 
-### B‑09 · Followers / Following listesi
+### B‑09 · Followers / Following listesi ✅ (kodlandı)
 
-**Zod:** `packages/shared/src/schemas/follow.schema.ts`
-
-```ts
-export const FollowersQuerySchema = z.object({ cursor: z.string().optional(), limit: z.number().int().min(1).max(50).default(20) });
-export const FollowersListResponseSchema = z.object({
-  items: z.array(UserPublicApiSchema),
-  nextCursor: z.string().nullable(),
-});
-```
+**Zod:** `packages/shared/src/schemas/follow.schema.ts` — `FollowListQuerySchema`, `FollowListUserSchema`, `FollowListPageResponseSchema` (`items[].isFollowedByMe`).
 
 **Endpoint’ler:**
 - `GET /v1/users/:userId/followers`
 - `GET /v1/users/:userId/following`
-- (+ `GET /v1/users/me/followers`, `GET /v1/users/me/following` — kolaylık)
+- `GET /v1/users/me/followers`, `GET /v1/users/me/following`
 
-**Servis:** `Follow` tablosu üzerinden cursor pagination; `isFollowedByMe` her item için hesapla (ekstra sorgu yerine `IN` map).
+**Servis:** `FollowsService` — `Follow` satırı `id` ile cursor; blok ilişkisindeki kullanıcılar listeden çıkar; `isFollowedByMe` tek `findMany` ile toplu.
 
 **PR başlığı:** `feat(users): add followers/following list endpoints (B-09)`
 
