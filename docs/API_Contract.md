@@ -2,7 +2,6 @@
 # Motogram API Contract
 
 **Kaynak:** `docs/openapi.json` (sha256: `a557ad7cfc75af9dbb010400fd4d28ec8f3c0c0b5b061871832d2f570f1be80c`)
-**Üretim tarihi:** `2026-04-23T12:54:49.150Z`
 **OpenAPI:** `3.1.0`
 **API title:** `@motogram/api`
 **API version:** `0.0.0`

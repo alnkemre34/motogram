@@ -25,8 +25,8 @@
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "db:seed": "TS_NODE_PROJECT=tsconfig.json TS_NODE_COMPILER_OPTIONS='{\"module\":\"CommonJS\",\"moduleResolution\":\"Node\"}' node -r ts-node/register/transpile-only prisma/seed.ts",
-    "db:seed:test-users": "TS_NODE_PROJECT=tsconfig.json TS_NODE_COMPILER_OPTIONS='{\"module\":\"CommonJS\",\"moduleResolution\":\"Node\"}' node -r ts-node/register/transpile-only prisma/seed-test-users.ts",
+    "db:seed": "cross-env TS_NODE_PROJECT=tsconfig.json TS_NODE_COMPILER_OPTIONS=\"{\\\"module\\\":\\\"Node16\\\",\\\"moduleResolution\\\":\\\"Node16\\\"}\" node -r ts-node/register/transpile-only prisma/seed.ts",
+    "db:seed:test-users": "cross-env TS_NODE_PROJECT=tsconfig.json TS_NODE_COMPILER_OPTIONS=\"{\\\"module\\\":\\\"Node16\\\",\\\"moduleResolution\\\":\\\"Node16\\\"}\" node -r ts-node/register/transpile-only prisma/seed-test-users.ts",
     "db:seed:prod": "node dist-seed/seed.js"
   },
   "dependencies": {
