@@ -65,10 +65,16 @@ export const envSchema = z.object({
   DISABLE_BULLMQ_WORKER: z.boolean().default(false),
   DISABLE_WS_ADAPTER: z.string().optional(),
 
-  /** Sign in with Apple — Services ID veya iOS bundle id (`aud` doğrulaması). */
-  APPLE_CLIENT_ID: z.string().min(1).optional(),
-  /** Google Sign-In — virgülle ayrılmış OAuth client id listesi (`aud` doğrulaması). */
-  GOOGLE_CLIENT_IDS: z.string().optional(),
+  /** Sign in with Apple — boş string (Docker `.env` / Compose) yok sayılır. */
+  APPLE_CLIENT_ID: z.preprocess(
+    (v) => (v === '' || v === undefined ? undefined : v),
+    z.string().min(1).optional(),
+  ),
+  /** Google Sign-In — boş string yok sayılır. */
+  GOOGLE_CLIENT_IDS: z.preprocess(
+    (v) => (v === '' || v === undefined ? undefined : v),
+    z.string().optional(),
+  ),
 
   /** Optional: Prometheus base URL for scripts/check-slo.sh (e.g. http://prometheus:9090) */
   PROMETHEUS_URL: z.string().url().optional(),
