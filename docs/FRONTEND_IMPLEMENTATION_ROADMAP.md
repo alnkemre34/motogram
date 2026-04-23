@@ -1,6 +1,6 @@
 # Motogram — Frontend uygulama yol haritası
 
-> Tarih: 2026-04-23 (P6 kapanış + **P7 aktif**)  
+> Tarih: 2026-04-23 (P6 kapanış; **P7 planı: §8**)  
 > İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
 > Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
 > **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
@@ -79,6 +79,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
+- **2026-04-23 (7):** **P7 planı eklendi:** `FRONTEND_IMPLEMENTATION_ROADMAP.md` **§8** — Blueprint §14/§17.4 ile hizalı dalgalar 7.1–7.5 (`/realtime`, `/messaging`, `/gamification`, `/emergency`, kabul + §13 paralel notu); SSOT `socket-events.schema.ts`, referans `PROJECT_BOARD`.
 - **2026-04-23 (6):** **P6 kapanış:** `SosButton` harita üstü (konum + üst üste binmeyi azaltmak için sürüş HUD’da `bottom` offset); `PartySignalFeed` / `PartyInboxScreen` tam i18n; `LocationSharingSheet` — `GROUP_MEMBERS` modu; `CommunityDetail` + `Discover` görünürlük `community.visibility.*`; `map.sos.*`, `map.devNearbyMs`, `inbox.party*`.
 - **2026-04-24 (3):** P6 (topluluk): `DiscoverScreen` — yakın (`/communities/nearby`), benim (`/communities/me`), B-12 arama; `searchCommunities` + `canQueryCommunitySearch` Jest; `CommunityDetail` `AppStack` + `linking` `community/:id` + i18n; `MapScreen` parti ayrılma i18n.
 - **2026-04-24 (2):** A5 tamamlama: `getUserByUsername`, `follows.api` (follow/unfollow, `checkIsFollowingUser`), `UserProfile` + `UserProfile:home/story` navigasyon, `changePasswordRequest` + `ChangePasswordScreen`, `linking` `user/:username` ve `settings/password`.
@@ -102,3 +103,34 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |
 
 **Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (16 suite / 62 test, 2026-04-24).
+
+---
+
+## 8. P7 — Uygulama sırası ve teslimler (Blueprint §14, §17.4: 7–8)
+
+> **Amaç:** `FRONTEND_UI_UX_BLUEPRINT.md` **§14** (WebSocket) ve **§17.4** maddeleri 7 (Gamification realtime) + 8 (Emergency polish) ile hizalı, PR’lara bölünebilir mobil iş paketleri.  
+> **SSOT olay sözleşmesi:** `packages/shared/src/schemas/socket-events.schema.ts` (`WS_EVENTS` + Zod payload’lar). Olay adı / payload bu dosyadan şaşmamalı.  
+> **Mevcut kod (çıkış noktası):** `apps/mobile/src/lib/socket.ts` + `useParty` (`/realtime`); `messaging-socket.ts` ( `/messaging` , henüz ekranlarla tam sarılmamış olabilir); `ws-typed.ts`. Backend ve gateway ayrıntıları: `docs/PROJECT_BOARD.md` (R7, R14, Messaging/Party gateway).
+
+### 8.1 Dalga özeti (önerilen uygulama sırası)
+
+| Sıra | Dalga | Namespace / odak | Blueprint | Teslim (mobil) |
+|------|--------|------------------|------------|----------------|
+| **1** | **7.1** | `/realtime` sertleştirme | §14.1 (zorunlu) | Oturum kesintisinde **yeniden `party:join`**, arka plandan dönüş; `party:status_changed` ile store / ekran senkronu; konum: REST zinciri + **isteğe bağlı** `party:update_location` ile backend PROJECT_BOARD hizası (çift yol kabul edilmez, tek strateji seç). |
+| **2** | **7.2** | `/messaging` tam | §14.1 (zorunlu) | Konuşma ekranında **Socket.IO** lifecycle: `connectMessagingSocket`, `conversation:join` / `leave`, `message:send` / `message:received` (Zod `ws-typed`); typing (`message:typing`); `message:read` ↔ liste okunmuş; offline / reconnect stratejisi. |
+| **3** | **7.3** | `/gamification` | §14.2 (önerilen) + §17.4 (7) | Ayrı client (`io(…/gamification)`) veya mevcut pattern ile: **`quest:completed` / `badge:earned`** → toast / üst bant; profil sekmesinde `GET /v1/gamification/*` (rozet, quest) verileriyle birleşik. |
+| **4** | **7.4** | `/emergency` | §14.2 (önerilen) + §17.4 (8) | `emergency:nearby` (ve ilgili server→client) dinleyiciler; harita veya global overlay’de “yakın SOS” (mevcut `SosButton` REST akışı ile çakışmayı ürün kararına göre netleştir: bilgilendirme vs. yönlendirme). |
+| **5** | **7.5** | Sertleştirme | — | `typecheck` + `test` + kısa **manuel smoke**: dört namespace bağlantı, auth token yenileme sonrası reconnect. Jest: mümkünse `ws-typed` / handler saf fonksiyonları; native socket’i mock’la. |
+
+**Not:** Aynı sprint içinde `docs/PROJECT_BOARD` ile backend’de `GamificationGateway` / `EmergencyGateway` hazır mı diye eşgüdüm; yalnız mobilde “dinleyici + UI” yetmezse API önce merge edilmeli.
+
+### 8.2 Blueprint §13 ile paralel (P7 dışı ama aynı dönemde açılabilir)
+
+Ürün dışı kalmamak için (§13) şu REST yüzeyleri ayrı iş paketi olarak planlanabilir; **P7 WS bitişini bloke etmez:** kullanıcı arama / takip listeleri, `POST /v1/reports`, konuşma `mute` / `leave` — `API_Contract` + mevcut şemalar.
+
+### 8.3 P7 kapanış kabulü (Checklist)
+
+- [ ] Blueprint §14.1: `/realtime` + `/messaging` “görünür” kullanım maddeleri karşılandı; §14.2 gamification + emergency en az **dinleme + kullanıcıya görünen geri bildirim** ile işaretlendi.  
+- [ ] Tüm yeni UI metinleri `en.json` / `tr.json`.  
+- [ ] Sentry: WS bağlantı / parse hataları `captureException` ile mevcut kalıba uygun.  
+- [ ] `SESSION_HANDOFF.md` + bu belge **§2 / §7** + `PROJECT_BOARD` §1 güncel; commit referansı yazıldı.

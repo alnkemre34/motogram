@@ -17,7 +17,7 @@
 | **A5 (profil + public)** | `UserProfile`, `follows`, `ChangePassword` + e-posta/cihaz/kullanici adi ekranlari. |
 | **Onceki ref. commit** | `git log -1 --oneline` ile dogrula. |
 | **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **16 suite / 62 test** (son kosum 2026-04-23). |
-| **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §7, `docs/FRONTEND_UI_UX_BLUEPRINT.md` v1.5+, `docs/PROJECT_BOARD.md` §1. |
+| **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` **§7–§8** (P7 detay §8), `docs/FRONTEND_UI_UX_BLUEPRINT.md` §14, `docs/PROJECT_BOARD.md` (WS/gateway) |
 
 **Ardil / acik isler (P7 oncelik):**
 
@@ -25,6 +25,8 @@
 - Istege bagli: `GET /devices` yanitina token veya `DELETE` id-ile cihaz satiri.
 
 **Kod giris noktalari (mobil):** `MapScreen` + `SosButton`; `PartyInboxScreen`; `useParty` / `party.store`; `FRONTEND_IMPLEMENTATION_ROADMAP` P7 satiri.
+
+**P7 yol haritasi (ayrinti):** `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` **§8** — sira: **7.1** `/realtime` sertlestirme → **7.2** `/messaging` tam → **7.3** `/gamification` → **7.4** `/emergency` WS → **7.5** smoke + test. Olay adlari: `packages/shared/.../socket-events.schema.ts`.
 
 ---
 
