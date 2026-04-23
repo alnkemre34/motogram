@@ -1,4 +1,4 @@
-import type { CreateConversationDto, SendMessageDto } from '@motogram/shared';
+import type { ConversationType, CreateConversationDto, SendMessageDto } from '@motogram/shared';
 import {
   ConversationDetailSchema,
   ConversationsListResponseSchema,
@@ -8,12 +8,16 @@ import {
   MessageSendResponseSchema,
 } from '@motogram/shared';
 
+import { getConversationsListPath } from './messaging-path';
 import { apiRequest } from '../lib/api-client';
 
 // Spec 2.5 - REST: DM/group conversations + mesaj listesi (pagination)
+// B-02 — `GET /v1/conversations?type=` sunucu tarafı filtre
 
-export async function listConversations() {
-  return apiRequest('/conversations', ConversationsListResponseSchema);
+export { getConversationsListPath } from './messaging-path';
+
+export async function listConversations(q?: { type?: ConversationType }) {
+  return apiRequest(getConversationsListPath(q), ConversationsListResponseSchema);
 }
 
 export async function createConversation(dto: CreateConversationDto) {

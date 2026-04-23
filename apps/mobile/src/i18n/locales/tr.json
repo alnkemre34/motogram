@@ -152,5 +152,25 @@
         "PUBLIC": "Motogram'daki herkes görebilir."
       }
     }
+  },
+  "inbox": {
+    "tabDm": "DM",
+    "tabCommunity": "Topluluk",
+    "tabParties": "Parti",
+    "titleDm": "DM ve gruplar",
+    "titleCommunity": "Topluluk mesajları",
+    "sectionCommunityInbox": "Topluluk sohbetlerin",
+    "sectionDirect": "Direkt mesajlar",
+    "sectionGroups": "Gruplar",
+    "emptyDirect": "Henüz bire bir sohbet yok.",
+    "emptyGroups": "Arkadaş grubu sohbetin yok.",
+    "emptyAllDm": "Henüz DM veya grup sohbetin yok. Bir topluluktan veya profilden başlayabilirsin.",
+    "emptyCommunity": "Bu topluluk sohbetinde mesaj yok.",
+    "emptyCommunityList": "Topluluk sohbetin yok. Topluluklara katılarak sohbetleri açabilirsin.",
+    "unknownUser": "Bilinmeyen",
+    "fallbackGroup": "Grup",
+    "fallbackCommunityChat": "Topluluk sohbeti",
+    "mediaPreview": "[medya]",
+    "newConversation": "Yeni konuşma"
   }
 }

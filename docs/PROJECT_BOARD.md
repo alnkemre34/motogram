@@ -31,9 +31,9 @@
 
 | Alan | Deger |
 |---|---|
-| **Aktif Faz** | Faz 7 - Enterprise Prod Hardening (Asama 0 + Asama 1 kismi TAMAMLANDI; TLS ertelendi) |
-| **Son Tamamlanan** | BACKEND_GAP B-14…B-18 + B-16 OTP: notification-preferences, emergency/contacts, OTP, users/me silme hizası, sohbet mute/leave |
-| **Son Guncelleme** | 2026-04-23 — B-14…B-18; Prisma migration `20260423240000_b14_b18_gap`; OpenAPI / `API_Contract.md` |
+| **Aktif Faz** | Faz 7 - Enterprise Prod Hardening; paralel: mobil A2 Inbox (DM/Topluluk/Parti) tamam |
+| **Son Tamamlanan** | Mobil Inbox: `GET /v1/conversations?type=` ile DIRECT + GROUP_CHAT (bölümlü) + COMMUNITY_CHAT (ayrı sekme); `expo-blur` sekmeler; i18n; `messaging-path` Jest |
+| **Son Guncelleme** | 2026-04-23 — `FRONTEND_UI_UX_BLUEPRINT` v1.2; `FRONTEND_IMPLEMENTATION_ROADMAP.md`; Inbox ekran kodu + testler |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,18 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] Mobil Inbox (A2) — DM + Gruplar + Topluluk + Parti
+
+**Ürün:** Gelen kutusu üst sekmeler: **DM** (bire bir `DIRECT` üstte, `GROUP_CHAT` "Gruplar" alt başlığında), **Topluluk** (`COMMUNITY_CHAT` only), **Parti** (mevcut davet akışı). Blueprint v1.2 ile aynı.
+
+**API:** B-02 `ListConversationsQuerySchema` — `listConversations({ type })`; dosya: `messaging.api.ts` + `messaging-path.ts`.
+
+**UX:** `expo-blur` üst şerit; i18n `inbox.*` (tr/en). Test: `messaging-path.spec.ts` (3 tip sorgu string).
+
+**Doküman:** `docs/FRONTEND_UI_UX_BLUEPRINT.md` §10 güncel; yeni `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` (A2 kabul + test stratejisi).
+
+---
 
 ### [2026-04-23] BACKEND_GAP — B-14 … B-18 toplu kapanış (+ B-16 OTP)
 

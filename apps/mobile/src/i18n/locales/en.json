@@ -152,5 +152,25 @@
         "PUBLIC": "Everyone on Motogram can see you."
       }
     }
+  },
+  "inbox": {
+    "tabDm": "DM",
+    "tabCommunity": "Community",
+    "tabParties": "Party",
+    "titleDm": "DM & groups",
+    "titleCommunity": "Community messages",
+    "sectionCommunityInbox": "Your community chats",
+    "sectionDirect": "Direct messages",
+    "sectionGroups": "Groups",
+    "emptyDirect": "No one-to-one chats yet.",
+    "emptyGroups": "No friend group chats yet.",
+    "emptyAllDm": "No DMs or group chats yet. Start from a community or profile.",
+    "emptyCommunity": "No messages in this community chat.",
+    "emptyCommunityList": "No community chats yet. Join communities to open chats.",
+    "unknownUser": "Unknown",
+    "fallbackGroup": "Group",
+    "fallbackCommunityChat": "Community chat",
+    "mediaPreview": "[media]",
+    "newConversation": "New conversation"
   }
 }
