@@ -35,6 +35,7 @@ export function useParty(partyId: string | null | undefined): UsePartyResult {
   const removeMember = usePartyStore((s) => s.removeMember);
   const setLeader = usePartyStore((s) => s.setLeader);
   const clearParty = usePartyStore((s) => s.clearParty);
+  const setPartyStatus = usePartyStore((s) => s.setPartyStatus);
   const updateLiveMember = usePartyStore((s) => s.updateLiveMember);
   const pushSignal = usePartyStore((s) => s.pushSignal);
   const party = usePartyStore((s) => s.party);
@@ -77,8 +78,9 @@ export function useParty(partyId: string | null | undefined): UsePartyResult {
       }),
     );
     unsub.push(
-      wsOnServerParsed(socket, WS_EVENTS.partyStatusChanged, WsPartyStatusChangedSchema, (_p) => {
-        // UI ayrica party.status refetch edebilir; iskelet
+      wsOnServerParsed(socket, WS_EVENTS.partyStatusChanged, WsPartyStatusChangedSchema, (p) => {
+        if (p.partyId !== partyId) return;
+        setPartyStatus(p.status);
       }),
     );
     unsub.push(
@@ -117,6 +119,7 @@ export function useParty(partyId: string | null | undefined): UsePartyResult {
   }, [
     partyId,
     setConnected,
+    setPartyStatus,
     upsertMember,
     removeMember,
     updateLiveMember,

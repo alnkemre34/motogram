@@ -12,21 +12,24 @@
 
 | Konu | Durum |
 |------|--------|
-| **Mobil yol haritasi (P1–P7)** | **P1–P6 tamam.** **P7 aktif** — WS, gamification, acil (blueprint §14). |
+| **Mobil yol haritasi (P1–P7)** | **P1–P6 tamam.** **P7 devam** — 7.1 kismen; sira: 7.2 `/messaging` (§8). |
 | **P6 kapanis ozeti** | Haritada `SosButton`; `PartyInboxScreen` + `PartySignalFeed` i18n; `LocationSharingSheet` `GROUP_MEMBERS`; Discover/Community `visibility` etiketleri; `map.sos` / `devNearbyMs` / `inbox.party*`. |
+| **P7.1 ozet** | `party:status_changed` → `setPartyStatus`; WS `auth(cb)`; test `party-ws-helpers.spec.ts`. |
 | **A5 (profil + public)** | `UserProfile`, `follows`, `ChangePassword` + e-posta/cihaz/kullanici adi ekranlari. |
 | **Onceki ref. commit** | `git log -1 --oneline` ile dogrula. |
-| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **16 suite / 62 test** (son kosum 2026-04-23). |
+| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **17 suite / 64 test** (P7.1 son kosum 2026-04-23). |
 | **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` **§7–§8** (P7 detay §8), `docs/FRONTEND_UI_UX_BLUEPRINT.md` §14, `docs/PROJECT_BOARD.md` (WS/gateway) |
 
 **Ardil / acik isler (P7 oncelik):**
 
-- **P7:** `/realtime` ve `/messaging` yuzey derinligi, rozet/quest, acil (blueprint).
+- **P7.2+:** `/messaging` ekran Socket.IO tam lifecycle; ardından gamification + emergency namespace (§8).
 - Istege bagli: `GET /devices` yanitina token veya `DELETE` id-ile cihaz satiri.
 
 **Kod giris noktalari (mobil):** `MapScreen` + `SosButton`; `PartyInboxScreen`; `useParty` / `party.store`; `FRONTEND_IMPLEMENTATION_ROADMAP` P7 satiri.
 
 **P7 yol haritasi (ayrinti):** `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` **§8** — sira: **7.1** `/realtime` sertlestirme → **7.2** `/messaging` tam → **7.3** `/gamification` → **7.4** `/emergency` WS → **7.5** smoke + test. Olay adlari: `packages/shared/.../socket-events.schema.ts`.
+
+**P7.1 (son commit):** `party:status_changed` store akrani (`setPartyStatus`, `party-ws-helpers`); `socket` / `messaging-socket` `auth(cb)`; Jest: `party-ws-helpers.spec.ts`.
 
 ---
 

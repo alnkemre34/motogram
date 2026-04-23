@@ -1,6 +1,6 @@
 # Motogram — Frontend uygulama yol haritası
 
-> Tarih: 2026-04-23 (P6 kapanış; **P7 planı: §8**)  
+> Tarih: 2026-04-23 (P7.1 ilerleme: §8 + aşağıdaki **§8.1** satırı)  
 > İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
 > Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
 > **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
@@ -79,6 +79,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
+- **2026-04-23 (8):** **P7.1 (mobil, /realtime):** `party:status_changed` → `setPartyStatus` + `lib/party-ws-helpers.ts` + Jest `party-ws-helpers.spec.ts`; `socket` / `messaging-socket` `auth: (cb) => cb({ token })` (reconnect’te taze access token). Kod: `useParty`, `party.store`, `apps/mobile/src/lib/socket.ts`.
 - **2026-04-23 (7):** **P7 planı eklendi:** `FRONTEND_IMPLEMENTATION_ROADMAP.md` **§8** — Blueprint §14/§17.4 ile hizalı dalgalar 7.1–7.5 (`/realtime`, `/messaging`, `/gamification`, `/emergency`, kabul + §13 paralel notu); SSOT `socket-events.schema.ts`, referans `PROJECT_BOARD`.
 - **2026-04-23 (6):** **P6 kapanış:** `SosButton` harita üstü (konum + üst üste binmeyi azaltmak için sürüş HUD’da `bottom` offset); `PartySignalFeed` / `PartyInboxScreen` tam i18n; `LocationSharingSheet` — `GROUP_MEMBERS` modu; `CommunityDetail` + `Discover` görünürlük `community.visibility.*`; `map.sos.*`, `map.devNearbyMs`, `inbox.party*`.
 - **2026-04-24 (3):** P6 (topluluk): `DiscoverScreen` — yakın (`/communities/nearby`), benim (`/communities/me`), B-12 arama; `searchCommunities` + `canQueryCommunitySearch` Jest; `CommunityDetail` `AppStack` + `linking` `community/:id` + i18n; `MapScreen` parti ayrılma i18n.
@@ -97,12 +98,13 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | Nerede? | Ne yapıldı (özet) | Sırada |
 |--------|-------------------|--------|
 | **P1–P6** | A5 ardıllar (e-posta, cihaz, kullanıcı adı) + topluluk + **P6** harita/parti polish | Kabul: `typecheck` + `test` yeşil |
+| **P7.1** | `/realtime` `party:status_changed` + WS `auth(cb)` | Devam: **7.2** `/messaging` (§8 tablo) |
 | **A5** | Public profil, ayarlar, cihaz/e-posta/kullanıcı adı, şifre | Tamam (mobil kapsamı) |
 | **A6** | Harita: SOS, filtre, panel, sürüş HUD, parti inbox/sinyal i18n, konum `GROUP_MEMBERS` | P7’ye geçildi |
 | **Hikâye video** | `expo-av` tam ekran oynatıcı | Uygulandı |
 | **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |
 
-**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (16 suite / 62 test, 2026-04-24).
+**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (**17 suite / 64 test**, 2026-04-23).
 
 ---
 
@@ -116,7 +118,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 | Sıra | Dalga | Namespace / odak | Blueprint | Teslim (mobil) |
 |------|--------|------------------|------------|----------------|
-| **1** | **7.1** | `/realtime` sertleştirme | §14.1 (zorunlu) | Oturum kesintisinde **yeniden `party:join`**, arka plandan dönüş; `party:status_changed` ile store / ekran senkronu; konum: REST zinciri + **isteğe bağlı** `party:update_location` ile backend PROJECT_BOARD hizası (çift yol kabul edilmez, tek strateji seç). |
+| **1** | **7.1** | `/realtime` sertleştirme | §14.1 (zorunlu) | **Kısmen (2026-04-23):** `party:status_changed` → `useParty` → `party.store` `setPartyStatus` (`applyPartyStatusChange`); `socket.ts` + `messaging-socket.ts` el sıkışması `auth(cb)` ile reconnect’te güncel JWT. **Sırada:** konum yolu netliği (REST vs `party:update_location` tek strateji); gerekiyorsa sürüş ekranında `sendLocation` kullanımı. |
 | **2** | **7.2** | `/messaging` tam | §14.1 (zorunlu) | Konuşma ekranında **Socket.IO** lifecycle: `connectMessagingSocket`, `conversation:join` / `leave`, `message:send` / `message:received` (Zod `ws-typed`); typing (`message:typing`); `message:read` ↔ liste okunmuş; offline / reconnect stratejisi. |
 | **3** | **7.3** | `/gamification` | §14.2 (önerilen) + §17.4 (7) | Ayrı client (`io(…/gamification)`) veya mevcut pattern ile: **`quest:completed` / `badge:earned`** → toast / üst bant; profil sekmesinde `GET /v1/gamification/*` (rozet, quest) verileriyle birleşik. |
 | **4** | **7.4** | `/emergency` | §14.2 (önerilen) + §17.4 (8) | `emergency:nearby` (ve ilgili server→client) dinleyiciler; harita veya global overlay’de “yakın SOS” (mevcut `SosButton` REST akışı ile çakışmayı ürün kararına göre netleştir: bilgilendirme vs. yönlendirme). |
@@ -130,7 +132,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ### 8.3 P7 kapanış kabulü (Checklist)
 
-- [ ] Blueprint §14.1: `/realtime` + `/messaging` “görünür” kullanım maddeleri karşılandı; §14.2 gamification + emergency en az **dinleme + kullanıcıya görünen geri bildirim** ile işaretlendi.  
+- [ ] Blueprint §14.1: `/realtime` + `/messaging` “görünür” kullanım maddeleri karşılandı; **P7.1 (devam):** `party:status_changed` UI store senkronu + WS auth `cb` yapıldı. §14.2 gamification + emergency en az **dinleme + kullanıcıya görünen geri bildirim** ile işaretlenecek.  
 - [ ] Tüm yeni UI metinleri `en.json` / `tr.json`.  
 - [ ] Sentry: WS bağlantı / parse hataları `captureException` ile mevcut kalıba uygun.  
 - [ ] `SESSION_HANDOFF.md` + bu belge **§2 / §7** + `PROJECT_BOARD` §1 güncel; commit referansı yazıldı.

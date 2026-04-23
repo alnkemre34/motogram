@@ -13,7 +13,10 @@ export function getSocket(): Socket {
     socket = io(`${env.wsUrl}/realtime`, {
       autoConnect: false,
       transports: ['websocket'],
-      auth: () => ({ token: getString(StorageKeys.AccessToken) ?? '' }),
+      // Her bağlantı denemesinde (reconnect dahil) güncel token — Spec 3.5 + JWT refresh
+      auth: (cb) => {
+        cb({ token: getString(StorageKeys.AccessToken) ?? '' });
+      },
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,

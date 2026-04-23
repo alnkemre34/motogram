@@ -13,7 +13,9 @@ export function getMessagingSocket(): Socket {
     socket = io(`${env.wsUrl}/messaging`, {
       autoConnect: false,
       transports: ['websocket'],
-      auth: () => ({ token: getString(StorageKeys.AccessToken) ?? '' }),
+      auth: (cb) => {
+        cb({ token: getString(StorageKeys.AccessToken) ?? '' });
+      },
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,

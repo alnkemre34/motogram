@@ -963,6 +963,8 @@ Mobil için aktif veya aktif edilmesi gereken namespace’ler:
 - `/gamification`: anlık rozet / görev tamamlama
 - `/emergency`: yakın SOS bildirimi
 
+**Uygulama notu (mobil, 2026-04-23):** P7.1 kapsamında `/realtime` tarafında `party:status_changed` istemci store ile senkronize edildi; el sıkışmasında `auth` için Socket.IO `auth(cb)` biçimi kullanılarak reconnect sonrası güncel JWT ile uyum hedeflendi. Tam P7 takibi: `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §8.
+
 ---
 
 ## 15. Mevcut mobil uygulamadan hedefe geçiş farkları
@@ -975,7 +977,7 @@ Bugünkü mobil taramada görülen önemli farklar:
    - story rail: `GET /v1/stories/feed`, kullanıcı başına halka, `StoryViewer` + `POST .../views`
    - üst barda Gelen / Bildirim; `GET /v1/notifications/unread-count` rozeti
    - feed beğenisi `likedByMe` + optimistik `likedByMe` güncellemesi
-   - **video hikâye:** tam oynatıcı sonraki iterasyon (şimdilik bilgi metni)
+   - **video hikâye:** `expo-av` tam ekran oynatıcı (mobil; hata/fallback i18n)
 4. `InboxStack` ayrı root ekran: **DM** + **Topluluk** + **Parti**; B-02; cam üst sekmeler.
 5. `ProfileScreen` şu an:
    - üst sağda ayarlar (Settings) ile `AppStack` hub’a gider (v1.5+)

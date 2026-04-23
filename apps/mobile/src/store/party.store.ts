@@ -2,9 +2,12 @@ import { create } from 'zustand';
 import type {
   PartyDetail,
   PartyMemberDto,
+  PartyStatus,
   WsPartyMemberUpdatedPayload,
   WsPartySignalReceivedPayload,
 } from '@motogram/shared';
+
+import { applyPartyStatusChange } from '../lib/party-ws-helpers';
 
 // Spec 9.6 - Zustand senkron UI state (parti + HUD + canli uye konumlari)
 
@@ -34,6 +37,7 @@ interface PartyState {
   setParty: (party: PartyDetail | null) => void;
   clearParty: () => void;
   setConnected: (c: boolean) => void;
+  setPartyStatus: (status: PartyStatus) => void;
   upsertMember: (member: PartyMemberDto) => void;
   removeMember: (userId: string) => void;
   setLeader: (leaderId: string) => void;
@@ -59,6 +63,12 @@ export const usePartyStore = create<PartyState>((set) => ({
     set(() => ({ party: null, liveMembers: {}, recentSignals: [] })),
 
   setConnected: (connected) => set(() => ({ connected })),
+
+  setPartyStatus: (status) =>
+    set((state) => {
+      if (!state.party) return state;
+      return { party: applyPartyStatusChange(state.party, status) };
+    }),
 
   upsertMember: (member) =>
     set((state) => {
