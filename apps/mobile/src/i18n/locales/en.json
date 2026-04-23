@@ -78,10 +78,15 @@
     "home": "Home",
     "discover": "Discover",
     "map": "Map",
+    "community": "Community",
     "inbox": "Inbox",
     "profile": "Profile"
   },
   "home": {
+    "a11yOpenInbox": "Open inbox",
+    "a11yOpenNotifications": "Open notifications",
+    "notificationsTitle": "Notifications",
+    "notificationsEmpty": "No notifications yet.",
     "storiesTitle": "Stories",
     "emptyFeed": "No posts yet. Follow someone to fill your feed.",
     "like": "Like",

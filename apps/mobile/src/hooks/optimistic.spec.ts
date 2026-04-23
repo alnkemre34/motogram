@@ -10,20 +10,24 @@ describe('applyOptimisticLike (Spec 7.1.1)', () => {
   const base: FeedLikeShape = {
     nextCursor: null,
     items: [
-      { id: 'p1', likesCount: 3 },
-      { id: 'p2', likesCount: 10 },
-      { id: 'p3', likesCount: 0 },
+      { id: 'p1', likesCount: 3, likedByMe: false },
+      { id: 'p2', likesCount: 10, likedByMe: true },
+      { id: 'p3', likesCount: 0, likedByMe: false },
     ],
   };
 
   it('increments likesCount by 1 on like (currentlyLiked=false)', () => {
     const updated = applyOptimisticLike(base, 'p1', false);
-    expect(updated.items.find((p) => p.id === 'p1')!.likesCount).toBe(4);
+    const p1 = updated.items.find((p) => p.id === 'p1')!;
+    expect(p1.likesCount).toBe(4);
+    expect(p1.likedByMe).toBe(true);
   });
 
   it('decrements likesCount by 1 on unlike (currentlyLiked=true)', () => {
     const updated = applyOptimisticLike(base, 'p2', true);
-    expect(updated.items.find((p) => p.id === 'p2')!.likesCount).toBe(9);
+    const p2 = updated.items.find((p) => p.id === 'p2')!;
+    expect(p2.likesCount).toBe(9);
+    expect(p2.likedByMe).toBe(false);
   });
 
   it('never goes below 0 on unlike', () => {

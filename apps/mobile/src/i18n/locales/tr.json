@@ -78,10 +78,15 @@
     "home": "Ana Sayfa",
     "discover": "Keşfet",
     "map": "Harita",
+    "community": "Topluluk",
     "inbox": "Gelen Kutusu",
     "profile": "Profil"
   },
   "home": {
+    "a11yOpenInbox": "Gelen kutusunu aç",
+    "a11yOpenNotifications": "Bildirimleri aç",
+    "notificationsTitle": "Bildirimler",
+    "notificationsEmpty": "Bildirimin yok.",
     "storiesTitle": "Hikayeler",
     "emptyFeed": "Henüz gönderi yok. Birilerini takip ederek akışını doldur.",
     "like": "Beğen",

@@ -31,9 +31,9 @@
 
 | Alan | Deger |
 |---|---|
-| **Aktif Faz** | Faz 7 + mobil **P1** (Auth OAuth) uygulandı; sırada P3–P4 (ürün planına göre) |
-| **Son Tamamlanan** | **P1:** Apple/Google `POST /auth/oauth/*`, `SocialAuthBlock`, `expo-auth-session` + `expo-web-browser`, EULA, `auth-paths` + i18n; `.env.example` Google client alanları |
-| **Son Guncelleme** | 2026-04-23 — `FRONTEND_IMPLEMENTATION_ROADMAP` P1–P7 faz tablosu; OAuth CTA (Login/Register) |
+| **Aktif Faz** | Faz 7 + mobil **P3/P4** (Home üst bar + 4 sekmeli nav); sırada P3 kalan: story rail |
+| **Son Tamamlanan** | **P4:** `AppStackNavigator` (4 tab, Inbox + Notifications root); **P3 (kısmi):** `GET /v1/notifications*`, `NotificationsScreen`, Home rozet, `likedByMe`; `linking` AppStack; `Inbox`→`MainTabs/Map` |
+| **Son Guncelleme** | 2026-04-23 — navigasyon + bildirim; `FRONTEND_IMPLEMENTATION_ROADMAP` A3–A4/P3–P4 |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,12 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] Mobil P3/P4 — 4 tab + Gelen/ Bildirim Home’dan
+
+**Nav:** `AppStackNavigator` → `MainTabs` (Home, Map, Community, Profile) + `Inbox` (stack) + `Notifications`. Eski 5. sekme (Inbox) kaldırıldı. **API:** `notifications.api.ts` (`/notifications`, `/notifications/unread-count`, Zod). **Inbox ekranı:** `PartyInboxScreen` “Haritaya dön” → `navigate('MainTabs', { screen: 'Map' })`. **Kısıt:** P3’te story rail henüz yok. **Test:** `pnpm --filter @motogram/mobile typecheck` + `test` yeşil.
+
+---
 
 ### [2026-04-23] Mobil P1 — OAuth (Apple / Google) + sözleşme hizası
 

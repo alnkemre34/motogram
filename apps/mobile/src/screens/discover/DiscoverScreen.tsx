@@ -9,7 +9,7 @@ export function DiscoverScreen() {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.inner}>
-        <Text style={styles.title}>{t('tabs.discover')}</Text>
+        <Text style={styles.title}>{t('tabs.community')}</Text>
         <Text style={styles.muted}>Coming soon — Faz 2 / Faz 5</Text>
       </View>
     </SafeAreaView>

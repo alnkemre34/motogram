@@ -6,15 +6,13 @@ import { DiscoverScreen } from '../screens/discover/DiscoverScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { MapScreen } from '../screens/map/MapScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
-import { InboxStackNavigator } from './InboxStackNavigator';
 
-// Spec 2.1 - Ana Navigasyon: 5 sekmeli Tab Bar
+// Spec 2.1 / FRONTEND_UI_UX_BLUEPRINT §5.1 - 4 sekmeli Tab Bar (Inbox ayrı tab değil)
 
 export type MainTabParamList = {
   Home: undefined;
-  Discover: undefined;
   Map: undefined;
-  Inbox: undefined;
+  Community: undefined;
   Profile: undefined;
 };
 
@@ -38,19 +36,14 @@ export function TabNavigator() {
         options={{ title: t('tabs.home'), tabBarIcon: tabIcon('🏠') }}
       />
       <Tab.Screen
-        name="Discover"
-        component={DiscoverScreen}
-        options={{ title: t('tabs.discover'), tabBarIcon: tabIcon('🔍') }}
-      />
-      <Tab.Screen
         name="Map"
         component={MapScreen}
         options={{ title: t('tabs.map'), tabBarIcon: tabIcon('🗺️') }}
       />
       <Tab.Screen
-        name="Inbox"
-        component={InboxStackNavigator}
-        options={{ title: t('tabs.inbox'), tabBarIcon: tabIcon('💬') }}
+        name="Community"
+        component={DiscoverScreen}
+        options={{ title: t('tabs.community'), tabBarIcon: tabIcon('👥') }}
       />
       <Tab.Screen
         name="Profile"

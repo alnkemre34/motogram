@@ -4,9 +4,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { PartyInboxScreen } from '../party/PartyInboxScreen';
 import { ConversationsListScreen } from './ConversationsListScreen';
+import type { AppStackParamList } from '../../navigation/types';
 
 // Spec 2.5 — Üst seviye: DM (DIRECT + GROUP_CHAT alt bölümleri), Topluluk (COMMUNITY_CHAT), Parti davetleri
 
@@ -15,7 +17,8 @@ type Tab = 'dm' | 'community' | 'parties';
 export function InboxScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<{ navigate: (route: string) => void }>();
+  const navigation = useNavigation();
+  const rootNav = navigation.getParent<NativeStackNavigationProp<AppStackParamList>>();
   const [tab, setTab] = useState<Tab>('dm');
 
   return (
@@ -46,11 +49,7 @@ export function InboxScreen() {
       ) : (
         <PartyInboxScreen
           onJumpToMap={() => {
-            try {
-              navigation.navigate('Map' as never);
-            } catch {
-              // noop
-            }
+            rootNav?.navigate('MainTabs', { screen: 'Map' });
           }}
         />
       )}

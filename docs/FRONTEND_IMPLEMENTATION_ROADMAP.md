@@ -21,8 +21,8 @@
 |---|--------|--------|--------|
 | A1 | Auth tamamlama | Apple/Google + şifre + OTP; token yenileme; hata i18n | Devam (backend hazır) |
 | A2 | Gelen kutusu (Inbox) | DM bölümlü + Topluluk + Parti; `GET /v1/conversations?type=` (B-02) | Uygulandı (v1.2) |
-| A3 | Home + story rail + üst bar | Feed, hikayeler, bildirim/mesaj kısayolu | Plan |
-| A4 | 4 sekme / navigasyon hedefi | `FRONTEND_UI_UX_BLUEPRINT` §navigasyon; TabNavigator sadeleştirme | Plan |
+| A3 | Home + story rail + üst bar | Feed, hikayeler, bildirim/mesaj kısayolu | Kısmi (2026-04-23: kısayol; story rail açık) |
+| A4 | 4 sekme / navigasyon hedefi | `FRONTEND_UI_UX_BLUEPRINT` §navigasyon; TabNavigator sadeleştirme | Uygulandı (P4) |
 | A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Kısmi |
 | A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | Kısmi |
 | A7 | WS yüzeyleri | `/messaging` tam, `/realtime` sürüş, gamification/emergency | Kısmi |
@@ -39,13 +39,13 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 |-----|----|-----------------|-----------|
 | **P1** | Auth OAuth + sözleşme | `FRONTEND_UI_UX_BLUEPRINT` §6; `auth.schema` Apple/Google | Apple/Google/şifre giriş; EULA; hata i18n |
 | **P2** | (A2) Gelen kutusu | §10 Inbox | `?type=` DM / topluluk / parti; i18n |
-| **P3** | Home + üst bar | Story rail, bildirim/mesaj kısayolu (modal stack) | Feed + WS/story; loading/empty/error |
-| **P4** | Tab navigasyon 4 | `FRONTEND_UI_UX_BLUEPRINT` §5; Inbox tab’dan kaldır | 4 tab; Inbox/notification Home’dan |
+| **P3** | Home + üst bar | Story rail, bildirim/mesaj kısayolu (root stack) | Kısmi: üst bar + bildirim ekranı + rozet; **story rail sonraki sprint** |
+| **P4** | Tab navigasyon 4 | `FRONTEND_UI_UX_BLUEPRINT` §5; Inbox tab’dan kaldır | Tamam: `AppStack` + 4 tab |
 | **P5** | Profil + ayarlar | §11, Settings | `users/me`, public user, account API |
 | **P6** | Harita + topluluk/parti polish | §8–9 | Mapbox; ekranlar contract ile |
 | **P7** | WS + gamification + acil | §14 | Namespace’ler blueprint ile |
 
-**Aktif sıra (2026-04-23):** P1 uygulandı (OAuth CTA, API, i18n, `expo-web-browser` + Google env). Sırada: P1 tamamlandı mı cihaz testi; sonra P3 veya P4 (ürün tercihine göre—tablo önce Home mu navigation mu).
+**Aktif sıra (2026-04-23):** P1 (OAuth) + P4 (4 sekme) + P3 (Home üst bar) birlikte; **P3’te kalan:** story rail, `stories/feed` ile liste (blueprint). Sonraki: P5 / story rail tamamlama.
 
 ---
 
@@ -78,5 +78,6 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
+- **2026-04-23 (3):** P4: `AppStackNavigator` (MainTabs + Inbox + Notifications), 4 sekmeli tab, `linking` AppStack. P3: Home üst bar (gelen + bildirim), `GET /notifications` + `unread-count`, feed beğeni `likedByMe` düzeltmesi, `Inbox`→Harita `MainTabs/Map` geçişi.
 - **2026-04-23 (2):** P1 faz tablosu (P1–P7), OAuth implementasyonu, `auth-path` test.
 - **2026-04-23:** A2 (Inbox) yol haritası ve test stratejisi eklendi; Blueprint v1.2 ile eşgüdüm.

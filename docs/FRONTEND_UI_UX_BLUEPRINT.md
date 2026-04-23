@@ -1,6 +1,6 @@
 # Motogram — Frontend UI/UX Blueprint
 
-> Sürüm: 1.2  
+> Sürüm: 1.3  
 > Tarih: 2026-04-23  
 > Kapsam: `apps/mobile` odaklı frontend şartnamesi, `apps/web-admin` için görünür olmayan backend yüzeyleri notları  
 > Ana hedef: mobil uygulamanın ekran, navigasyon, state, veri akışı ve UX davranışlarını backend sözleşmesine birebir oturtmak  
@@ -961,12 +961,12 @@ Mobil için aktif veya aktif edilmesi gereken namespace’ler:
 Bugünkü mobil taramada görülen önemli farklar:
 
 1. `RootNavigator` şu an yalnız auth var/yok bazlı basit ayrım yapıyor; global modal yapısı yok.
-2. `TabNavigator` 5 sekmeli, hedef 4 sekmeli.
+2. `TabNavigator` artık **4 sekmeli**; `Inbox` tab bar’da yok, `AppStack` içinde. (v1.2+ 2026-04-23 uygulaması)
 3. `HomeScreen` şu an:
-   - story rail içermiyor
-   - bildirim / mesaj header aksiyonlarını içermiyor
-   - `currentlyLiked: false` sabitiyle çalışıyor
-4. `InboxScreen` (hedef, v1.2): **DM** (DIRECT + GROUP_CHAT bölümlü), **Topluluk** (`COMMUNITY_CHAT`), **Parti** — cam efektli üst sekmeler; B-02 ile tipe göre API.
+   - story rail **henüz yok** (P3 açık iş)
+   - üst barda Gelen / Bildirim kısayolu ve okunmamış rozet var
+   - feed beğenisi `likedByMe` ile
+4. `InboxStack` ayrı root ekran: **DM** + **Topluluk** + **Parti**; B-02; cam üst sekmeler.
 5. `ProfileScreen` şu an:
    - ayarlar butonu içermiyor
    - logout doğrudan profil altında
