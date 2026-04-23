@@ -16,6 +16,7 @@ import {
   MapShardStatsResponseSchema,
   NearbyRidersResponseSchema,
   PostFeedPageSchema,
+  UserSearchResponseSchema,
 } from '@motogram/shared';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -244,6 +245,15 @@ describeContract('Contract: public HTTP', () => {
       .send({ username: 'ab' })
       .expect(400);
     ApiErrorSchema.parse(res.body);
+  });
+
+  it('GET /v1/users/search — JWT ile UserSearchResponseSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/v1/users/search')
+      .query({ q: 'ct', limit: '5' })
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    UserSearchResponseSchema.parse(res.body);
   });
 
   it('GET /v1/posts/feed — JWT ile PostFeedPageSchema + likedByMe', async () => {

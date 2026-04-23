@@ -51,6 +51,23 @@ export const UpdateProfileSchema = z.object({
 });
 export type UpdateProfileDto = z.infer<typeof UpdateProfileSchema>;
 
+/** GET /users/search (B-08) — query string; boş cursor atlanır. */
+export const UserSearchQuerySchema = z.object({
+  q: z.string().min(2).max(50),
+  limit: z.coerce.number().int().min(1).max(30).default(10),
+  cursor: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.string().uuid().optional(),
+  ),
+});
+export type UserSearchQueryDto = z.infer<typeof UserSearchQuerySchema>;
+
+export const UserSearchResponseSchema = z.object({
+  items: z.array(UserPublicApiResponseSchema),
+  nextCursor: z.string().uuid().nullable(),
+});
+export type UserSearchResponse = z.infer<typeof UserSearchResponseSchema>;
+
 /** B-06 — Depoda küçük harf; URL/girdi karışık olsa da tekilleştirme. */
 export function normalizeUsernameForStorage(raw: string): string {
   return raw.trim().toLowerCase();

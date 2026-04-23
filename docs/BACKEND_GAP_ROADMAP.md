@@ -63,7 +63,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 5 | **B‑05** ✅ | Forgot + Reset password (`/auth/password/forgot`, `/reset`) | Auth ▸ Şifremi unuttum | M |
 | 6 | **B‑06** ✅ | Username change (`PATCH /users/me/username`) | Settings ▸ Kullanıcı adı | S |
 | 7 | **B‑07** ✅ | Email change + verify (`/auth/email/change`, `/verify`) | Settings ▸ E‑posta | M |
-| 8 | **B‑08** | User search (`GET /users/search?q=`) | NewConversation, invite flows | S |
+| 8 | **B‑08** ✅ | User search (`GET /users/search?q=`) | NewConversation, invite flows | S |
 | 9 | **B‑09** | Followers / Following (`GET /users/:id/followers` / `/following`) | Profile sekmeleri | S |
 | 10 | **B‑10** | Blocks modülü (`GET/POST/DELETE /blocks`) | Settings ▸ Engellenmiş kullanıcılar | S (yarı hazır) |
 | 11 | **B‑11** | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
@@ -253,7 +253,7 @@ export const ChangeEmailResponseSchema = z.object({ success: z.literal(true), pe
 
 ---
 
-### B‑08 · `GET /v1/users/search?q=`
+### B‑08 · `GET /v1/users/search?q=` *(tamamlandı — 2026-04-23)*
 
 **Zod:**
 

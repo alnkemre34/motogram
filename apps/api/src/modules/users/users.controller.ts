@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   ChangeUsernameSchema,
@@ -6,8 +6,11 @@ import {
   UpdateProfileSchema,
   UserMeResponseSchema,
   UserPublicApiResponseSchema,
+  UserSearchQuerySchema,
+  UserSearchResponseSchema,
   type ChangeUsernameDto,
   type UpdateProfileDto,
+  type UserSearchQueryDto,
 } from '@motogram/shared';
 
 import {
@@ -62,6 +65,22 @@ export class UsersController {
   async cancelDeletion(@CurrentUser() user: AuthenticatedUser) {
     await this.users.cancelAccountDeletion(user.userId);
     return { success: true };
+  }
+
+  /** B-08 — `search` route’u `:username`’den önce tanımlanmalı. */
+  @Throttle({ default: { ttl: 60_000, limit: 30 } })
+  @Get('search')
+  @ZodResponse(UserSearchResponseSchema)
+  async search(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() rawQuery: Record<string, string | string[] | undefined>,
+  ) {
+    const flat: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawQuery)) {
+      flat[k] = Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+    }
+    const query: UserSearchQueryDto = UserSearchQuerySchema.parse(flat);
+    return this.users.searchUsers(user.userId, query);
   }
 
   @Get(':username')

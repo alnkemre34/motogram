@@ -656,7 +656,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | ~~B3~~ | ~~`PATCH /v1/users/me/username`~~ | **TAMAMLANDI (2026-04-23)** — 30 gün cooldown + rezerv liste + küçük harf | — |
 | ~~B4~~ | ~~`POST /v1/auth/email/change` + `/verify`~~ | **TAMAMLANDI (2026-04-23)** — `pendingEmail` + `EmailChangeToken` + mail kuyruğu | — |
 | B5 | `POST /v1/auth/otp/request` + `/verify` | Telefon/email OTP | EVET (Otp ekranı için) |
-| B6 | `GET /v1/users/search?q=` | Mesaj/grup için kullanıcı arama | YES |
+| ~~B6~~ | ~~`GET /v1/users/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — blok filtresi + sayfalama | — |
 | B7 | `GET /v1/users/:id/followers` & `/following` | Takipçi/takip listesi | YES |
 | B8 | `GET/POST/DELETE /v1/blocks` | Engelle | YES |
 | B9 | `POST /v1/reports` (post/comment/user/community) | İçerik raporlama | YES |
@@ -677,7 +677,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 
 1. **`api-client.tryRefresh`** access token’ı yenilemiyor — düzelt (§1.2).
 2. **`HomeScreen` like toggle** hâlâ `currentlyLiked: false` sabitliyor — backend `likedByMe` döndürüyor; mobilde `post.likedByMe` kullanılacak şekilde düzelt (F0).
-3. **`OtpScreen`** route’u erişilemez — backend (B5) gelene kadar gizle.
+3. **`OtpScreen`** route’u erişilemez — OTP uçları (§17 satırı **B5**) gelene kadar gizle.
 4. **`CommunityDetailScreen`, `EventCreateScreen`, `StoryCreateScreen`** yetim — yukarıdaki ağaca bağla.
 5. **`SosButton`, `LocationSharingSheet`** kullanılmıyor — ilgili Settings ve Map akışlarına bağla.
 6. **`auth.api.logoutRequest` ve `refreshRequest`** import edilmiyor — sırasıyla §3.6 ve §1.2 ile bağla.

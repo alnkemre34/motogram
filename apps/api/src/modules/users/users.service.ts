@@ -10,6 +10,7 @@ import {
   normalizeUsernameForStorage,
   type ChangeUsernameDto,
   type UpdateProfileDto,
+  type UserSearchQueryDto,
 } from '@motogram/shared';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -120,6 +121,52 @@ export class UsersService {
       where: { id: userId },
       data: { deletedAt: null },
     });
+  }
+
+  /** B-08 — Kullanıcı adı prefix veya isim içerir; blok ilişkisi + kendin hariç. */
+  async searchUsers(viewerId: string, query: UserSearchQueryDto) {
+    const q = query.q.trim();
+    const limit = query.limit;
+    const cursor = query.cursor;
+    const excluded = await this.blockRelatedUserIds(viewerId);
+    const rows = await this.prisma.user.findMany({
+      where: {
+        id: { notIn: excluded },
+        deletedAt: null,
+        isBanned: false,
+        OR: [
+          { username: { startsWith: q, mode: 'insensitive' } },
+          { name: { contains: q, mode: 'insensitive' } },
+        ],
+        ...(cursor ? { id: { gt: cursor } } : {}),
+      },
+      orderBy: { id: 'asc' },
+      take: limit + 1,
+      select: this.publicSelect(),
+    });
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    return {
+      items: page,
+      nextCursor: hasMore ? page[page.length - 1]!.id : null,
+    };
+  }
+
+  /** İki yönlü blok: viewer başlattıysa hedef, başkası viewer’ı blokladıysa initiator hariç tutulur. */
+  private async blockRelatedUserIds(viewerId: string): Promise<string[]> {
+    const rows = await this.prisma.block.findMany({
+      where: { OR: [{ initiatorId: viewerId }, { targetId: viewerId }] },
+      select: { initiatorId: true, targetId: true },
+    });
+    const ids = new Set<string>([viewerId]);
+    for (const r of rows) {
+      if (r.initiatorId === viewerId) {
+        ids.add(r.targetId);
+      } else {
+        ids.add(r.initiatorId);
+      }
+    }
+    return [...ids];
   }
 
   private publicSelect() {

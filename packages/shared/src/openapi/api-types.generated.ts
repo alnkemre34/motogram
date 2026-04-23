@@ -3924,6 +3924,41 @@ export interface paths {
         };
         trace?: never;
     };
+    "/users/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserSearchResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{username}": {
         parameters: {
             query?: never;
@@ -7009,6 +7044,39 @@ export interface components {
         };
         /** @enum {string} */
         UserRoleEnum: "USER" | "MODERATOR" | "ADMIN";
+        UserSearchQuerySchema: {
+            /** Format: uuid */
+            cursor?: string | null;
+            /** @default 10 */
+            limit: number;
+            q: string;
+        };
+        UserSearchResponseSchema: {
+            items: {
+                /** Format: uri */
+                avatarUrl: string | null;
+                bio: string | null;
+                city: string | null;
+                country: string | null;
+                /** Format: uri */
+                coverImageUrl: string | null;
+                createdAt: string;
+                followersCount: number;
+                followingCount: number;
+                /** Format: uuid */
+                id: string;
+                isPrivate: boolean;
+                isVerified: boolean;
+                level: number;
+                name: string | null;
+                postsCount: number;
+                ridingStyle: string[];
+                username: string;
+                xp: number;
+            }[];
+            /** Format: uuid */
+            nextCursor: string | null;
+        };
         UserSettingsSchema: {
             /**
              * @default tr

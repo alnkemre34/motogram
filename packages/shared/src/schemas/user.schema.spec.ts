@@ -1,5 +1,6 @@
 import {
   ChangeUsernameSchema,
+  UserSearchQuerySchema,
   isReservedUsername,
   normalizeUsernameForStorage,
 } from './user.schema';
@@ -26,5 +27,27 @@ describe('ChangeUsernameSchema (B-06)', () => {
 
   it('rejects short username', () => {
     expect(ChangeUsernameSchema.safeParse({ username: 'ab' }).success).toBe(false);
+  });
+});
+
+describe('UserSearchQuerySchema (B-08)', () => {
+  it('accepts q and coerces limit', () => {
+    const r = UserSearchQuerySchema.safeParse({ q: 'ab', limit: '5' });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.limit).toBe(5);
+    }
+  });
+
+  it('rejects q shorter than 2', () => {
+    expect(UserSearchQuerySchema.safeParse({ q: 'a' }).success).toBe(false);
+  });
+
+  it('drops empty cursor', () => {
+    const r = UserSearchQuerySchema.safeParse({ q: 'ab', cursor: '' });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.cursor).toBeUndefined();
+    }
   });
 });

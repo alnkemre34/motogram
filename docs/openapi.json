@@ -12221,6 +12221,163 @@
         ],
         "type": "string"
       },
+      "UserSearchQuerySchema": {
+        "properties": {
+          "cursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 30,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "type": "object"
+      },
+      "UserSearchResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "properties": {
+                "avatarUrl": {
+                  "format": "uri",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "bio": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "city": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "country": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "coverImageUrl": {
+                  "format": "uri",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "anyOf": [
+                    {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "followersCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "followingCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "isPrivate": {
+                  "type": "boolean"
+                },
+                "isVerified": {
+                  "type": "boolean"
+                },
+                "level": {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "postsCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "ridingStyle": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "xp": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "username",
+                "name",
+                "bio",
+                "avatarUrl",
+                "coverImageUrl",
+                "city",
+                "country",
+                "ridingStyle",
+                "isPrivate",
+                "isVerified",
+                "followersCount",
+                "followingCount",
+                "postsCount",
+                "xp",
+                "level",
+                "createdAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
       "UserSettingsSchema": {
         "properties": {
           "language": {
@@ -16129,6 +16286,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserPublicApiResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/users/search": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSearchResponseSchema"
                 }
               }
             },

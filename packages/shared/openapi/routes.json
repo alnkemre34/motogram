@@ -910,5 +910,12 @@
     "responseSchema": "UserPublicApiResponseSchema",
     "responseStatus": 200,
     "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/users/search",
+    "responseSchema": "UserSearchResponseSchema",
+    "responseStatus": 200,
+    "auth": true
   }
 ]

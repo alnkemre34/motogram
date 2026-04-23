@@ -8,8 +8,10 @@ function createPrismaMock() {
     user: {
       findFirst: jest.fn(),
       findFirstOrThrow: jest.fn(),
+      findMany: jest.fn(),
       update: jest.fn(),
     },
+    block: { findMany: jest.fn() },
   } as const;
 }
 
@@ -121,5 +123,63 @@ describe('UsersService (B-06 changeUsername)', () => {
         data: expect.objectContaining({ username: 'carol_01' }),
       }),
     );
+  });
+});
+
+describe('UsersService (B-08 searchUsers)', () => {
+  let prisma: ReturnType<typeof createPrismaMock>;
+  let service: UsersService;
+
+  beforeEach(() => {
+    prisma = createPrismaMock();
+    service = new UsersService(prisma as never);
+    prisma.block.findMany.mockResolvedValue([]);
+  });
+
+  it('loads block list then queries users excluding viewer', async () => {
+    prisma.user.findMany.mockResolvedValue([
+      { id: 'a0000000-0000-4000-8000-000000000002', username: 'alice' },
+    ] as never);
+
+    const out = await service.searchUsers('a0000000-0000-4000-8000-000000000001', {
+      q: 'al',
+      limit: 10,
+    });
+
+    expect(prisma.block.findMany).toHaveBeenCalledWith({
+      where: {
+        OR: [
+          { initiatorId: 'a0000000-0000-4000-8000-000000000001' },
+          { targetId: 'a0000000-0000-4000-8000-000000000001' },
+        ],
+      },
+      select: { initiatorId: true, targetId: true },
+    });
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          id: { notIn: ['a0000000-0000-4000-8000-000000000001'] },
+        }),
+        take: 11,
+      }),
+    );
+    expect(out.items).toHaveLength(1);
+    expect(out.nextCursor).toBeNull();
+  });
+
+  it('returns nextCursor when more than limit', async () => {
+    const rows = Array.from({ length: 11 }, (_, i) => ({
+      id: `00000000-0000-4000-8000-${(0x100000000000 + i).toString(16).padStart(12, '0')}`,
+      username: `u${i}`,
+    }));
+    prisma.user.findMany.mockResolvedValue(rows as never);
+
+    const out = await service.searchUsers('a0000000-0000-4000-8000-000000000001', {
+      q: 'u',
+      limit: 10,
+    });
+
+    expect(out.items).toHaveLength(10);
+    expect(out.nextCursor).toBe(rows[9]!.id);
   });
 });
