@@ -29,6 +29,34 @@ SKIP_SLO_CHECK=1 bash scripts/deploy.sh   # Prometheus yoksa SLO adımını atla
 
 5. Dışarıdan: `curl -fsS https://<host>/v1/livez` ve `.../v1/readyz`
 
+## Deploy sonrası — “her şey olması gerektiği gibi” mi?
+
+Tek script (repo kökü, sunucuda):
+
+```bash
+cd /opt/motogram
+bash scripts/verify-vps-health.sh
+```
+
+Dış dünyadan API host ile doğrulamak için:
+
+```bash
+VERIFY_BASE_URL=https://api.senin-domainin.app bash scripts/verify-vps-health.sh
+```
+
+Script şunları kontrol eder:
+
+- `docker compose ps` çıktısı (genel tablo)
+- **`/v1/livez`** ve **`/v1/readyz`** — nginx üzerinden (`VERIFY_BASE_URL`, varsayılan `http://127.0.0.1`)
+- **API içinden** `http://127.0.0.1:3000/v1/readyz` (nginx’i bypass; Prisma + Redis ping)
+- **`/v1/metrics`** ilk satırlar (nginx engelliyse uyarı, kritik blokaj değil)
+- **Kritik konteynerler** `running`: `postgres`, `redis`, `minio`, `api`, `nginx`
+
+Manuel ek kontroller (isteğe bağlı):
+
+- `docker compose ... logs api --tail 100` — boot sırasında env / Prisma hatası yok mu
+- Public domain üzerinden bir kez `POST /v1/auth/register` veya mevcut mobil/web akışı
+
 ## Sadece migration (stack zaten ayakta)
 
 ```bash
