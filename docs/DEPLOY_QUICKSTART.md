@@ -1,6 +1,6 @@
 # Production deploy — hızlı rehber
 
-Bu dosya `docker-compose.prod.yml` + `scripts/deploy.sh` ile **sorunsuz tek hat** deploy içindir. Ayrıntı: [DEPLOY_RUNBOOK.md](./DEPLOY_RUNBOOK.md).
+Bu dosya `docker-compose.prod.yml` + `scripts/deploy.sh` ile **sorunsuz tek hat** deploy içindir. Ayrıntı: [DEPLOY_RUNBOOK.md](./DEPLOY_RUNBOOK.md). Mobil + mağaza + tüm servisler için bkz. [END_TO_END_RELEASE.md](./END_TO_END_RELEASE.md).
 
 ## `DATABASE_URL` kim üretir?
 
