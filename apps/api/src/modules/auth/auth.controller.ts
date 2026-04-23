@@ -12,6 +12,10 @@ import {
   ForgotPasswordSchema,
   LoginSchema,
   LogoutSchema,
+  OtpRequestResponseSchema,
+  OtpRequestSchema,
+  OtpVerifyResponseSchema,
+  OtpVerifySchema,
   RefreshTokenSchema,
   RegisterSchema,
   ResetPasswordResponseSchema,
@@ -23,6 +27,8 @@ import {
   type ForgotPasswordDto,
   type LoginDto,
   type LogoutDto,
+  type OtpRequestDto,
+  type OtpVerifyDto,
   type RefreshTokenDto,
   type RegisterDto,
   type ResetPasswordDto,
@@ -44,6 +50,26 @@ import { AuthService } from './auth.service';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
+
+  /** B-16 — Telefon OTP isteği (enumeration yok; 60 sn servis içi throttle). */
+  @Public()
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
+  @HttpCode(200)
+  @Post('otp/request')
+  @ZodResponse(OtpRequestResponseSchema)
+  async otpRequest(@Body(new ZodBody(OtpRequestSchema)) dto: OtpRequestDto) {
+    return this.auth.requestOtp(dto);
+  }
+
+  /** B-16 — OTP doğrulama; eşleşen kullanıcıda `phoneVerifiedAt`. */
+  @Public()
+  @Throttle({ default: { ttl: 60_000, limit: 20 } })
+  @HttpCode(200)
+  @Post('otp/verify')
+  @ZodResponse(OtpVerifyResponseSchema)
+  async otpVerify(@Body(new ZodBody(OtpVerifySchema)) dto: OtpVerifyDto) {
+    return this.auth.verifyOtp(dto);
+  }
 
   @Public()
   @Throttle({ default: { ttl: 15 * 60_000, limit: 10 } })

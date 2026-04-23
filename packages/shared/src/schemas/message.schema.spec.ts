@@ -1,4 +1,4 @@
-import { ListConversationsQuerySchema } from './message.schema';
+import { ListConversationsQuerySchema, MuteConversationSchema } from './message.schema';
 
 describe('ListConversationsQuerySchema (B-02)', () => {
   it('accepts empty query', () => {
@@ -16,5 +16,17 @@ describe('ListConversationsQuerySchema (B-02)', () => {
 
   it('rejects invalid type', () => {
     expect(ListConversationsQuerySchema.safeParse({ type: 'INVALID' }).success).toBe(false);
+  });
+});
+
+describe('MuteConversationSchema (B-18)', () => {
+  it('accepts empty body (indefinite mute)', () => {
+    const r = MuteConversationSchema.safeParse({});
+    expect(r.success).toBe(true);
+  });
+
+  it('accepts mutedUntil null (unmute)', () => {
+    const r = MuteConversationSchema.safeParse({ mutedUntil: null });
+    expect(r.success).toBe(true);
   });
 });

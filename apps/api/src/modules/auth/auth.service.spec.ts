@@ -24,6 +24,7 @@ function createPrismaMock() {
       findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      updateMany: jest.Mock;
     };
     accountDeletion: { findUnique: jest.Mock };
     passwordResetToken: {
@@ -38,6 +39,12 @@ function createPrismaMock() {
       findFirst: jest.Mock;
       update: jest.Mock;
     };
+    otpCode: {
+      findFirst: jest.Mock;
+      create: jest.Mock;
+      update: jest.Mock;
+      updateMany: jest.Mock;
+    };
     $transaction: jest.Mock;
   } = {
     user: {
@@ -45,6 +52,7 @@ function createPrismaMock() {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     accountDeletion: { findUnique: jest.fn() },
     passwordResetToken: {
@@ -58,6 +66,12 @@ function createPrismaMock() {
       create: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
+    },
+    otpCode: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
     },
     $transaction: jest.fn(),
   };
@@ -84,6 +98,7 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
   let events: { emit: jest.Mock };
   let passwordResetMail: { enqueue: jest.Mock };
   let emailChangeMail: { enqueue: jest.Mock };
+  let otpSms: { enqueue: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
@@ -91,12 +106,14 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
     events = { emit: jest.fn(() => true) };
     passwordResetMail = { enqueue: jest.fn().mockResolvedValue(undefined) };
     emailChangeMail = { enqueue: jest.fn().mockResolvedValue(undefined) };
+    otpSms = { enqueue: jest.fn().mockResolvedValue(undefined) };
     service = new AuthService(
       prisma as never,
       tokens,
       events as never,
       passwordResetMail as never,
       emailChangeMail as never,
+      otpSms as never,
     );
   });
 
@@ -552,6 +569,41 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
         data: { email: 'next@example.com', pendingEmail: null },
       });
       expect(tokens.revokeAllForUser).toHaveBeenCalledWith('u1');
+    });
+  });
+
+  describe('requestOtp / verifyOtp (B-16)', () => {
+    it('requestOtp no-op when phone not registered', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+      const r = await service.requestOtp({ phoneNumber: '+905551234567' });
+      expect(r.success).toBe(true);
+      expect(prisma.otpCode.create).not.toHaveBeenCalled();
+    });
+
+    it('requestOtp creates row when user exists', async () => {
+      prisma.user.findFirst.mockResolvedValue({ id: 'u1' } as never);
+      prisma.otpCode.findFirst.mockResolvedValue(null);
+      prisma.otpCode.updateMany.mockResolvedValue({ count: 0 } as never);
+      prisma.otpCode.create.mockResolvedValue({ id: 'o1' } as never);
+      const r = await service.requestOtp({ phoneNumber: '+905551234567' });
+      expect(r.success).toBe(true);
+      expect(prisma.otpCode.create).toHaveBeenCalled();
+    });
+
+    it('verifyOtp succeeds and sets phoneVerified when user matches', async () => {
+      const hash = await bcrypt.hash('654321', 10);
+      prisma.otpCode.findFirst.mockResolvedValue({
+        id: 'o1',
+        phone: '+905551234567',
+        codeHash: hash,
+        attemptCount: 0,
+        createdAt: new Date(),
+      } as never);
+      prisma.otpCode.update.mockResolvedValue({} as never);
+      prisma.user.updateMany.mockResolvedValue({ count: 1 } as never);
+      const out = await service.verifyOtp({ phoneNumber: '+905551234567', code: '654321' });
+      expect(out.success).toBe(true);
+      expect(out.phoneVerified).toBe(true);
     });
   });
 });

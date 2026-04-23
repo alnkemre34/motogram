@@ -178,6 +178,22 @@
   },
   {
     "method": "POST",
+    "path": "/auth/otp/request",
+    "requestBodySchema": "OtpRequestSchema",
+    "responseSchema": "OtpRequestResponseSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
+    "path": "/auth/otp/verify",
+    "requestBodySchema": "OtpVerifySchema",
+    "responseSchema": "OtpVerifyResponseSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
     "path": "/auth/password/change",
     "requestBodySchema": "ChangePasswordSchema",
     "responseSchema": "ChangePasswordResponseSchema",
@@ -374,6 +390,13 @@
     "auth": true
   },
   {
+    "method": "POST",
+    "path": "/conversations/:id/leave",
+    "responseSchema": "SuccessTrueSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
     "method": "GET",
     "path": "/conversations/:id/messages",
     "responseSchema": "MessageListPageResponseSchema",
@@ -385,6 +408,14 @@
     "path": "/conversations/:id/messages",
     "responseSchema": "MessageSendResponseSchema",
     "responseStatus": 201,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/conversations/:id/mute",
+    "requestBodySchema": "MuteConversationSchema",
+    "responseSchema": "OkTrueSchema",
+    "responseStatus": 200,
     "auth": true
   },
   {
@@ -450,6 +481,27 @@
     "requestBodySchema": "RespondEmergencyAlertSchema",
     "responseSchema": "EmergencyResponderDtoSchema",
     "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
+    "path": "/emergency/contacts",
+    "responseSchema": "EmergencyContactsListResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/emergency/contacts",
+    "requestBodySchema": "CreateEmergencyContactSchema",
+    "responseSchema": "EmergencyContactRowSchema",
+    "responseStatus": 201,
+    "auth": true
+  },
+  {
+    "method": "DELETE",
+    "path": "/emergency/contacts/:id",
+    "responseStatus": 204,
     "auth": true
   },
   {
@@ -750,6 +802,21 @@
   },
   {
     "method": "GET",
+    "path": "/notification-preferences",
+    "responseSchema": "NotificationPreferencesSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "PATCH",
+    "path": "/notification-preferences",
+    "requestBodySchema": "UpdateNotificationPreferencesSchema",
+    "responseSchema": "NotificationPreferencesSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
     "path": "/notifications",
     "responseSchema": "NotificationListPageResponseSchema",
     "responseStatus": 200,
@@ -933,7 +1000,8 @@
   {
     "method": "DELETE",
     "path": "/users/me",
-    "responseSchema": "SuccessTrueSchema",
+    "requestBodySchema": "RequestAccountDeletionSchema",
+    "responseSchema": "AccountDeletionFromUserMeResponseSchema",
     "responseStatus": 200,
     "auth": true
   },
@@ -955,7 +1023,7 @@
   {
     "method": "POST",
     "path": "/users/me/cancel-deletion",
-    "responseSchema": "SuccessTrueSchema",
+    "responseSchema": "AccountDeletionStatusSchema",
     "responseStatus": 200,
     "auth": true
   },

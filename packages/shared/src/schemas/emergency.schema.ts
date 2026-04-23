@@ -38,6 +38,30 @@ export const ResolveEmergencyAlertSchema = z.object({
 });
 export type ResolveEmergencyAlertDto = z.infer<typeof ResolveEmergencyAlertSchema>;
 
+// B-15 — Kullanıcı acil kişi listesi (max 5 sunucuda doğrulanır).
+const E164PhoneSchema = z.string().regex(/^\+[1-9]\d{6,14}$/, 'phone_e164');
+
+export const CreateEmergencyContactSchema = z.object({
+  name: z.string().min(1).max(50),
+  phone: E164PhoneSchema,
+  relationship: z.string().max(30).optional(),
+});
+export type CreateEmergencyContactDto = z.infer<typeof CreateEmergencyContactSchema>;
+
+export const EmergencyContactRowSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  phone: z.string(),
+  relationship: z.string().nullable().optional(),
+  createdAt: z.string().datetime(),
+});
+export type EmergencyContactRowDto = z.infer<typeof EmergencyContactRowSchema>;
+
+export const EmergencyContactsListResponseSchema = z.object({
+  contacts: z.array(EmergencyContactRowSchema),
+});
+export type EmergencyContactsListResponseDto = z.infer<typeof EmergencyContactsListResponseSchema>;
+
 // ============ DTOs ============
 
 export const EmergencyResponderDtoSchema = z.object({

@@ -11,10 +11,12 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
+  AccountDeletionFromUserMeResponseSchema,
+  AccountDeletionStatusSchema,
   ChangeUsernameSchema,
   FollowListPageResponseSchema,
   FollowListQuerySchema,
-  SuccessTrueSchema,
+  RequestAccountDeletionSchema,
   UpdateProfileSchema,
   UserMeResponseSchema,
   UserPublicApiResponseSchema,
@@ -22,6 +24,7 @@ import {
   UserSearchResponseSchema,
   type ChangeUsernameDto,
   type FollowListQueryDto,
+  type RequestAccountDeletionDto,
   type UpdateProfileDto,
   type UserSearchQueryDto,
 } from '@motogram/shared';
@@ -33,6 +36,7 @@ import {
 import { ZodResponse } from '../../common/interceptors/zod-serializer.interceptor';
 import { ZodBody } from '../../common/pipes/zod-body.pipe';
 
+import { AccountService } from '../account/account.service';
 import { FollowsService } from '../follows/follows.service';
 
 import { UsersService } from './users.service';
@@ -42,6 +46,7 @@ export class UsersController {
   constructor(
     private readonly users: UsersService,
     private readonly follows: FollowsService,
+    private readonly accounts: AccountService,
   ) {}
 
   @Get('me')
@@ -70,19 +75,22 @@ export class UsersController {
     return this.users.changeUsername(user.userId, dto);
   }
 
+  /** B-17 — `AccountService.requestDeletion`; yanıt `deprecated: true` ( `/account/deletion` tercih edilir). */
   @Delete('me')
-  @ZodResponse(SuccessTrueSchema)
-  async deleteAccount(@CurrentUser() user: AuthenticatedUser) {
-    await this.users.requestAccountDeletion(user.userId);
-    return { success: true };
+  @ZodResponse(AccountDeletionFromUserMeResponseSchema)
+  async deleteAccount(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body(new ZodBody(RequestAccountDeletionSchema)) dto: RequestAccountDeletionDto,
+  ) {
+    const status = await this.accounts.requestDeletion(user.userId, dto);
+    return { ...status, deprecated: true as const };
   }
 
-  // Spec 7.2.1 - 30 gun icinde geri donulurse silme iptal olur
+  /** B-17 — Silme iptali; `/account/deletion` DELETE ile aynı akış. */
   @Post('me/cancel-deletion')
-  @ZodResponse(SuccessTrueSchema)
+  @ZodResponse(AccountDeletionStatusSchema)
   async cancelDeletion(@CurrentUser() user: AuthenticatedUser) {
-    await this.users.cancelAccountDeletion(user.userId);
-    return { success: true };
+    return this.accounts.cancelDeletion(user.userId);
   }
 
   /** B-08 — `search` route’u `:username`’den önce tanımlanmalı. */

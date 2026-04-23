@@ -86,8 +86,12 @@ export class MessagingGateway
         this.broadcastMessage(message, recipientIds);
         // Spec 9.3 - recipientlara push notification (offline olanlar icin)
         if (recipientIds.length > 0) {
+          const pushTargets = await this.conversations.filterPushRecipients(
+            message.conversationId,
+            recipientIds,
+          );
           const preview = this.buildPushPreview(message);
-          await this.push.sendToUsers(recipientIds, preview).catch((err) => {
+          await this.push.sendToUsers(pushTargets, preview).catch((err) => {
             this.logger.warn(`push_enqueue_failed err=${(err as Error).message}`);
           });
         }

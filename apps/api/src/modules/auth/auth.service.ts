@@ -1,7 +1,11 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -12,17 +16,20 @@ import {
   type ChangePasswordDto,
   type ForgotPasswordDto,
   type LoginDto,
+  type OtpRequestDto,
+  type OtpVerifyDto,
   type RegisterDto,
   type ResetPasswordDto,
   type TokenPair,
 } from '@motogram/shared';
 import * as bcrypt from 'bcrypt';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, randomInt } from 'node:crypto';
 
 import { ZodEventBus } from '../../common/events/zod-event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { EmailChangeMailQueue } from './email-change-mail.queue';
+import { OtpSmsQueue } from './otp-sms.queue';
 import { PasswordResetMailQueue } from './password-reset-mail.queue';
 import { TokenService } from './token.service';
 
@@ -39,18 +46,31 @@ const BCRYPT_ROUNDS = 12;
 const PASSWORD_RESET_TTL_MS = 30 * 60 * 1000;
 const EMAIL_CHANGE_TTL_MS = 48 * 60 * 60 * 1000;
 
+/** B-16 — OTP süresi, istek aralığı ve deneme limiti. */
+const OTP_TTL_MS = 5 * 60 * 1000;
+const OTP_COOLDOWN_MS = 60 * 1000;
+const OTP_MAX_ATTEMPTS = 5;
+const OTP_BCRYPT_ROUNDS = 10;
+
+function randomOtpCode(): string {
+  return String(randomInt(0, 1_000_000)).padStart(6, '0');
+}
+
 function hashPasswordResetToken(plain: string): string {
   return createHash('sha256').update(plain, 'utf8').digest('hex');
 }
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly tokens: TokenService,
     private readonly events: ZodEventBus,
     private readonly passwordResetMail: PasswordResetMailQueue,
     private readonly emailChangeMail: EmailChangeMailQueue,
+    private readonly otpSms: OtpSmsQueue,
   ) {}
 
   // Spec 9.2 - Email+sifre register. EULA zorunlu (Zod sema literal(true) ile
@@ -464,5 +484,89 @@ export class AuthService {
     });
     await this.tokens.revokeAllForUser(rec.userId);
     return { success: true as const };
+  }
+
+  /** B-16 — Kayıtlı telefon için OTP üretir; 60 sn throttle; enumeration yok (her zaman success). */
+  async requestOtp(dto: OtpRequestDto): Promise<{ success: true }> {
+    const phone = dto.phoneNumber.trim();
+    const user = await this.prisma.user.findFirst({
+      where: { phoneNumber: phone, deletedAt: null, isBanned: false },
+      select: { id: true },
+    });
+    if (!user) {
+      return { success: true as const };
+    }
+    const latest = await this.prisma.otpCode.findFirst({
+      where: { phone, usedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (latest && Date.now() - latest.createdAt.getTime() < OTP_COOLDOWN_MS) {
+      throw new HttpException(
+        {
+          error: 'otp_rate_limited',
+          code: ErrorCodes.RATE_LIMITED,
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    await this.prisma.otpCode.updateMany({
+      where: { phone, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    const plain = randomOtpCode();
+    const codeHash = await bcrypt.hash(plain, OTP_BCRYPT_ROUNDS);
+    const expiresAt = new Date(Date.now() + OTP_TTL_MS);
+    await this.prisma.otpCode.create({
+      data: { phone, codeHash, expiresAt },
+    });
+    try {
+      await this.otpSms.enqueue({ phone, code: plain });
+    } catch (err) {
+      this.logger.warn(`otp_enqueue_failed phone=${phone} err=${(err as Error).message}`);
+    }
+    return { success: true as const };
+  }
+
+  /** B-16 — Kod doğrulanırsa eşleşen kullanıcıda `phoneVerifiedAt` set edilir. */
+  async verifyOtp(dto: OtpVerifyDto): Promise<{ success: true; phoneVerified: boolean }> {
+    const phone = dto.phoneNumber.trim();
+    const code = dto.code.trim();
+    const now = new Date();
+    const row = await this.prisma.otpCode.findFirst({
+      where: { phone, usedAt: null, expiresAt: { gt: now } },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!row) {
+      throw new BadRequestException({
+        error: 'otp_invalid_or_expired',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+    if (row.attemptCount >= OTP_MAX_ATTEMPTS) {
+      throw new ForbiddenException({
+        error: 'otp_locked',
+        code: ErrorCodes.FORBIDDEN,
+      });
+    }
+    const match = await bcrypt.compare(code, row.codeHash);
+    if (!match) {
+      await this.prisma.otpCode.update({
+        where: { id: row.id },
+        data: { attemptCount: { increment: 1 } },
+      });
+      throw new UnauthorizedException({
+        error: 'otp_code_invalid',
+        code: ErrorCodes.INVALID_CREDENTIALS,
+      });
+    }
+    await this.prisma.otpCode.update({
+      where: { id: row.id },
+      data: { usedAt: now },
+    });
+    const res = await this.prisma.user.updateMany({
+      where: { phoneNumber: phone, deletedAt: null },
+      data: { phoneVerifiedAt: now },
+    });
+    return { success: true as const, phoneVerified: res.count > 0 };
   }
 }

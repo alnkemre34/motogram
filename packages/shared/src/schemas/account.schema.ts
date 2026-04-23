@@ -15,3 +15,11 @@ export const AccountDeletionStatusSchema = z.object({
   daysRemaining: z.number().int().nullable(),
 });
 export type AccountDeletionStatusDto = z.infer<typeof AccountDeletionStatusSchema>;
+
+/** B-17 — `DELETE /users/me` yanıtı: `AccountDeletionStatusSchema` + deprecation işareti. */
+export const AccountDeletionFromUserMeResponseSchema = AccountDeletionStatusSchema.extend({
+  deprecated: z.literal(true),
+});
+export type AccountDeletionFromUserMeResponseDto = z.infer<
+  typeof AccountDeletionFromUserMeResponseSchema
+>;

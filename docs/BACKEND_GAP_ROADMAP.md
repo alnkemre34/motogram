@@ -1,7 +1,7 @@
 # Motogram — Backend Gap Closure Roadmap (B‑01 → B‑18)
 
-> **Sürüm:** 1.6 — 2026-04-23  
-> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑11** (önceki tur); **B‑12** (`GET /v1/communities/search`, …); **B‑13** (`GET /v1/events/search`, `EventSearchQuerySchema`, `EventsSearchResponseSchema`, PUBLIC + `startTime`/`endTime` penceresi, `q` title/description).  
+> **Sürüm:** 1.7 — 2026-04-23  
+> **Tamamlanan (kod):** **B‑01** … **B‑13** (önceki); **B‑14** (`notification-preferences` + `NotificationPreference` + `NotificationsService.create` tercih kapısı); **B‑15** (`emergency/contacts` CRUD, max 5); **B‑16** (`POST /auth/otp/request`, `/auth/otp/verify`, `OtpCode`, `phoneVerifiedAt`, `OtpSmsQueue`); **B‑17** (`DELETE /users/me` → `AccountService` + `AccountDeletionFromUserMeResponseSchema`); **B‑18** (`conversations/:id/mute|leave`, `mutedUntil`, push süzme).  
 > **Kapsam:** `FRONTEND_BLUEPRINT.md` §17 “Backend Eksikleri” listesini (B1–B17) mevcut Zod / OpenAPI pipeline’ı **hiç bozmadan** kapatmak. Hayalet ekran üretmemek için öncelik burada; frontend’in F0/F1 sprintleri bu liste bittikten sonra güvenle açılır.  
 > **Anayasa (asla dışına çıkılmaz):**  
 > 1. **Zod SSOT** — şema önce `packages/shared/src/schemas/*.ts` içine, oradan export.  
@@ -69,11 +69,11 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 11 | **B‑11** ✅ | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
 | 12 | **B‑12** ✅ | Communities search (`GET /communities/search?q=`) | Discover ▸ arama | S |
 | 13 | **B‑13** ✅ | Events search (`GET /events/search?q=`) | Discover ▸ arama | S |
-| 14 | **B‑14** | Notification preferences (`/notification-preferences`) | Settings ▸ Bildirimler | S |
-| 15 | **B‑15** | Emergency contacts (`/emergency/contacts`) | Settings ▸ Acil kişiler | S |
-| 16 | **B‑16** | OTP (request/verify) — `/auth/otp/*` | Auth ▸ Otp ekranı | M |
-| 17 | **B‑17** | Account deletion tekleştirme (`DELETE /users/me` → deprecate) | DeleteAccount ekranı tutarlılığı | XS |
-| 18 | **B‑18** | Conversation mute / group leave | Conversation info ekranı | M |
+| 14 | **B‑14** ✅ | Notification preferences (`/notification-preferences`) | Settings ▸ Bildirimler | S |
+| 15 | **B‑15** ✅ | Emergency contacts (`/emergency/contacts`) | Settings ▸ Acil kişiler | S |
+| 16 | **B‑16** ✅ | OTP (request/verify) — `/auth/otp/*` | Auth ▸ Otp ekranı | M |
+| 17 | **B‑17** ✅ | Account deletion tekleştirme (`DELETE /users/me` → deprecate) | DeleteAccount ekranı tutarlılığı | XS |
+| 18 | **B‑18** ✅ | Conversation mute / group leave | Conversation info ekranı | M |
 
 Tahmini toplam: **~14–16 iş günü** (tek geliştirici, testler dahil).
 
@@ -345,122 +345,63 @@ export const UserSearchResponseSchema = z.object({
 
 ---
 
-### B‑14 · Notification preferences
+### B‑14 · Notification preferences ✅ (kodlandı)
 
-**Yeni Prisma modeli:** `NotificationPreference { userId PK, pushFollow Boolean @default(true), pushLike Boolean @default(true), pushComment, pushMention, pushParty, pushEmergency, pushCommunity, pushEvent, emailDigest Boolean @default(false) }`.
+**Prisma:** `NotificationPreference` (`userId` PK, `pushFollow` … `emailDigest`).
 
-**Zod:**
-```ts
-export const NotificationPreferencesSchema = z.object({
-  pushFollow: z.boolean(),
-  pushLike: z.boolean(),
-  pushComment: z.boolean(),
-  pushMention: z.boolean(),
-  pushParty: z.boolean(),
-  pushEmergency: z.boolean(),
-  pushCommunity: z.boolean(),
-  pushEvent: z.boolean(),
-  emailDigest: z.boolean(),
-});
-export const UpdateNotificationPreferencesSchema = NotificationPreferencesSchema.partial();
-```
+**Zod:** `NotificationPreferencesSchema`, `UpdateNotificationPreferencesSchema` (`notification.schema.ts`).
 
-**Endpoint:**
-- `GET /v1/notification-preferences`
-- `PATCH /v1/notification-preferences` (`UpdateNotificationPreferencesSchema`)
+**Endpoint:** `GET` / `PATCH /v1/notification-preferences` — `NotificationPreferencesController`.
 
-**NotificationService** yollamadan önce prefs kontrol eder (örn. `like` için `pushLike === true`).
+**Davranış:** `NotificationsService.create` bildirim tipine göre tercih kapalıysa kayıt oluşturmaz.
 
 **PR başlığı:** `feat(notifications): user push preferences (B-14)`
 
 ---
 
-### B‑15 · Emergency contacts
+### B‑15 · Emergency contacts ✅ (kodlandı)
 
-**Yeni Prisma modeli:** `EmergencyContact { id, userId, name, phone, relationship?, createdAt }` (max 5 per user).
+**Prisma:** `EmergencyContact` (kullanıcı başına max **5**).
 
-**Zod:**
-```ts
-export const CreateEmergencyContactSchema = z.object({
-  name: z.string().min(1).max(50),
-  phone: z.string().regex(/^\+[1-9]\d{6,14}$/),  // E.164
-  relationship: z.string().max(30).optional(),
-});
-```
+**Zod:** `CreateEmergencyContactSchema`, `EmergencyContactRowSchema`, `EmergencyContactsListResponseSchema`.
 
-**Endpoint’ler:**
-- `GET /v1/emergency/contacts`
-- `POST /v1/emergency/contacts`
-- `DELETE /v1/emergency/contacts/:id`
-
-**Emergency servisi** SOS alert’te bu kişilere SMS/email kuyruğuna job düşer (future integration; şimdilik audit log + WS event yeterli — MD’de not düş).
+**Endpoint:** `GET/POST /v1/emergency/contacts`, `DELETE /v1/emergency/contacts/:id`.
 
 **PR başlığı:** `feat(emergency): user emergency contacts (B-15)`
 
 ---
 
-### B‑16 · OTP request/verify
+### B‑16 · OTP request/verify ✅ (kodlandı)
 
-**Kullanım niyeti:** Şu an `OtpScreen` form var ama route’a bağlı değil. Kullanıcı onayını **telefon doğrulama** olarak modellemek en hizalı yoldur.
+**Zod:** Mevcut `OtpRequestSchema` / `OtpVerifySchema` (`phoneNumber` E.164) + `OtpRequestResponseSchema`, `OtpVerifyResponseSchema`.
 
-**Zod:**
-```ts
-export const OtpRequestSchema = z.object({
-  phone: z.string().regex(/^\+[1-9]\d{6,14}$/),
-});
-export const OtpVerifySchema = z.object({
-  phone: z.string().regex(/^\+[1-9]\d{6,14}$/),
-  code: z.string().length(6).regex(/^\d+$/),
-});
-```
+**Prisma:** `OtpCode`; `User.phoneVerifiedAt`.
 
-**Prisma:** `OtpCode { id, userId?, phone, codeHash, expiresAt, attemptCount, usedAt }`.
-
-**Servis:**
-- `request(phone)` — 6 haneli kod üret, hashle, 5 dk TTL, SMS queue; **her 60 sn’de 1 kod** throttle, aynı telefon için.
-- `verify(phone, code)` — 5 deneme sonrası kilitle; başarılıysa `User.phoneVerifiedAt`.
-
-**Auth şemasına hizalama:** Register/Login’de zorunlu değil — opsiyonel telefon doğrulama.
+**Endpoint:** `POST /v1/auth/otp/request`, `POST /v1/auth/otp/verify` (`@Public`), throttle; 60 sn telefon başına cooldown; 5 dk TTL; 5 yanlış deneme kilidi; `OtpSmsQueue` (dev log).
 
 **PR başlığı:** `feat(auth): phone OTP request/verify (B-16)`
 
 ---
 
-### B‑17 · Account deletion tekleştirme
+### B‑17 · Account deletion tekleştirme ✅ (kodlandı)
 
-**Amaç:** Mevcut iki yol (`DELETE /users/me` ve `/account/deletion`) arasındaki tutarsızlığı kaldır.
+**`DELETE /v1/users/me`:** `AccountService.requestDeletion` + gövde `RequestAccountDeletionSchema`; yanıt `AccountDeletionFromUserMeResponseSchema` (`deprecated: true`).
 
-**Plan:**
-- `DELETE /users/me` → controller içinde **deprecation flag** döndür (HTTP 308 permanent redirect YAPMA — sadece service’te `AccountService.requestDeletion` çağır + `deprecated: true` içeren response; schema’ya `AccountDeletionStatusSchema` wrap).
-- Yanıt schema’sı **aynı** `AccountDeletionStatusSchema` → OpenAPI’da birleşik görünür.
-- `POST /users/me/cancel-deletion` → `AccountService.cancel` çağır.
-- Frontend zaten sadece `/account/deletion`’ı kullanacak (blueprint §10.4).
-
-**Test:** `DELETE /users/me` sonrası `GET /account/deletion` → `pending` status.
+**`POST /v1/users/me/cancel-deletion`:** `AccountService.cancelDeletion` → `AccountDeletionStatusSchema`.
 
 **PR başlığı:** `refactor(users): route DELETE /users/me through account deletion flow (B-17)`
 
 ---
 
-### B‑18 · Conversation mute + group leave
+### B‑18 · Conversation mute + group leave ✅ (kodlandı)
 
-**Zod:**
-```ts
-export const MuteConversationSchema = z.object({ mutedUntil: z.string().datetime().optional() }); // null → unmute
-export const LeaveConversationResponseSchema = z.object({ success: z.literal(true) });
-```
+**Prisma:** `ConversationParticipant.mutedUntil` (mevcut `leftAt` / `isMuted` ile birlikte).
 
-**Yeni Prisma alanları:** `ConversationParticipant.mutedUntil DateTime?`, `leftAt DateTime?`.
+**Zod:** `MuteConversationSchema`, `LeaveConversationResponseSchema`; `ConversationDetailSchema` katılımcıda `mutedUntil`.
 
-**Endpoint’ler:**
-- `POST /v1/conversations/:id/mute` (body `MuteConversationSchema`) → 200 `OkTrueSchema`
-- `POST /v1/conversations/:id/leave` → `LeaveConversationResponseSchema`
-  - DM için 400 (ayrılamaz, sadece block/delete).
-  - GROUP_CHAT / COMMUNITY_CHAT için `leftAt = now`; son kalan admin ise otomatik transfer veya 400 (karar: transfer to oldest member).
+**Endpoint:** `POST /v1/conversations/:id/mute` → `OkTrueSchema`; `POST /v1/conversations/:id/leave` → DM 400, tek üye 400, aksi `leftAt`.
 
-**MessageService:**
-- `sendMessage` participant’ın `leftAt === null` kontrolü.
-- Push: `mutedUntil > now` ise push **gönderilmez** (okunmamış sayısı artmaya devam eder).
+**Push:** `MessagingGateway` `filterPushRecipients` ile sessiz alıcılar hariç.
 
 **PR başlığı:** `feat(messaging): mute/leave conversation (B-18)`
 

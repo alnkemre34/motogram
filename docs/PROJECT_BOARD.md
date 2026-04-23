@@ -32,8 +32,8 @@
 | Alan | Deger |
 |---|---|
 | **Aktif Faz** | Faz 7 - Enterprise Prod Hardening (Asama 0 + Asama 1 kismi TAMAMLANDI; TLS ertelendi) |
-| **Son Tamamlanan** | BACKEND_GAP B-13: `GET /v1/events/search` + `EventsSearchResponseSchema` + surface E2E |
-| **Son Guncelleme** | 2026-04-23 — B-13; `EventSearchQuerySchema` + OpenAPI / `API_Contract.md` |
+| **Son Tamamlanan** | BACKEND_GAP B-14…B-18 + B-16 OTP: notification-preferences, emergency/contacts, OTP, users/me silme hizası, sohbet mute/leave |
+| **Son Guncelleme** | 2026-04-23 — B-14…B-18; Prisma migration `20260423240000_b14_b18_gap`; OpenAPI / `API_Contract.md` |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,26 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] BACKEND_GAP — B-14 … B-18 toplu kapanış (+ B-16 OTP)
+
+**Prisma:** `NotificationPreference`, `EmergencyContact`, `OtpCode`; `User.phoneVerifiedAt`; `ConversationParticipant.mutedUntil`. Migration: `20260423240000_b14_b18_gap`.
+
+**B-14:** `GET/PATCH /v1/notification-preferences`; `NotificationsService` tercih kapısı.
+
+**B-15:** `GET/POST/DELETE /v1/emergency/contacts` (max 5).
+
+**B-16:** `POST /v1/auth/otp/request`, `POST /v1/auth/otp/verify`; `OtpSmsQueue`; shared yanıt şemaları.
+
+**B-17:** `DELETE /v1/users/me` → `AccountService.requestDeletion` + `AccountDeletionFromUserMeResponseSchema`; `POST /v1/users/me/cancel-deletion` → `AccountDeletionStatusSchema`.
+
+**B-18:** `POST /v1/conversations/:id/mute`, `.../leave`; push alıcı süzme.
+
+**Test:** `pnpm --filter @motogram/shared test`, `pnpm --filter @motogram/api test`, `pnpm --filter @motogram/api test:contract`; `pnpm openapi:generate` + `openapi:check`.
+
+**Dokuman:** `BACKEND_GAP_ROADMAP.md` v1.7; `FRONTEND_BLUEPRINT.md` §17 B5/B10/B11/B15 + §18 notu.
+
+---
 
 ### [2026-04-23] BACKEND_GAP — B-13 `GET /v1/events/search`
 

@@ -41,3 +41,10 @@ export const EmailChangeMailJobSchema = z.object({
   verifyToken: z.string().min(32).max(128),
 });
 export type EmailChangeMailJob = z.infer<typeof EmailChangeMailJobSchema>;
+
+/** BullMQ AUTH_OTP_SMS — dev worker loglar; prod’da SMS sağlayıcı entegrasyonu (B-16). */
+export const OtpSmsJobSchema = z.object({
+  phone: z.string().min(8).max(20),
+  code: z.string().regex(/^\d{6}$/),
+});
+export type OtpSmsJob = z.infer<typeof OtpSmsJobSchema>;

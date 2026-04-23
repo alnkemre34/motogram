@@ -3,16 +3,20 @@ import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 
+import { RedisModule } from '../redis/redis.module';
+
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { EmailChangeMailQueue } from './email-change-mail.queue';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { OtpSmsQueue } from './otp-sms.queue';
 import { PasswordResetMailQueue } from './password-reset-mail.queue';
 import { TokenService } from './token.service';
 
 @Global()
 @Module({
   imports: [
+    RedisModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -26,6 +30,7 @@ import { TokenService } from './token.service';
     TokenService,
     PasswordResetMailQueue,
     EmailChangeMailQueue,
+    OtpSmsQueue,
     JwtAuthGuard,
     // Spec 8.6 - tum endpoint'ler default korumali; @Public() ile acilir
     { provide: APP_GUARD, useClass: JwtAuthGuard },

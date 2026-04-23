@@ -630,6 +630,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/otp/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["OtpRequestSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OtpRequestResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/otp/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["OtpVerifySchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OtpVerifyResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/password/change": {
         parameters: {
             query?: never;
@@ -1547,6 +1625,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/conversations/{id}/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SuccessTrueSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/conversations/{id}/messages": {
         parameters: {
             query?: never;
@@ -1591,6 +1704,45 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["MessageSendResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/conversations/{id}/mute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MuteConversationSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OkTrueSchema"];
                     };
                 };
             };
@@ -1891,6 +2043,97 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/emergency/contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EmergencyContactsListResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateEmergencyContactSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EmergencyContactRowSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/emergency/contacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -3219,6 +3462,64 @@ export interface paths {
         };
         trace?: never;
     };
+    "/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NotificationPreferencesSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateNotificationPreferencesSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NotificationPreferencesSchema"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -4005,7 +4306,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RequestAccountDeletionSchema"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -4013,7 +4318,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SuccessTrueSchema"];
+                        "application/json": components["schemas"]["AccountDeletionFromUserMeResponseSchema"];
                     };
                 };
             };
@@ -4070,7 +4375,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SuccessTrueSchema"];
+                        "application/json": components["schemas"]["AccountDeletionStatusSchema"];
                     };
                 };
             };
@@ -4393,6 +4698,16 @@ export interface components {
             label?: string;
             /** @description Dagilim agirligi (1-100); toplam tum variantlarda 100 olmali */
             weight: number;
+        };
+        AccountDeletionFromUserMeResponseSchema: {
+            daysRemaining: number | null;
+            /** @enum {boolean} */
+            deprecated: true;
+            pending: boolean;
+            /** Format: date-time */
+            requestedAt: string | null;
+            /** Format: date-time */
+            scheduledFor: string | null;
         };
         AccountDeletionJobSchema: {
             reason?: string | null;
@@ -4950,6 +5265,8 @@ export interface components {
                 joinedAt: string;
                 lastReadAt?: string | null;
                 leftAt?: string | null;
+                /** Format: date-time */
+                mutedUntil?: string | null;
                 /** Format: uuid */
                 userId: string;
                 username: string;
@@ -5122,6 +5439,11 @@ export interface components {
              * @enum {string}
              */
             type: "GENERAL" | "ACCIDENT" | "MECHANICAL" | "MEDICAL" | "FUEL" | "OTHER";
+        };
+        CreateEmergencyContactSchema: {
+            name: string;
+            phone: string;
+            relationship?: string;
         };
         CreateEventSchema: {
             category?: string;
@@ -5374,6 +5696,26 @@ export interface components {
                 type: "GENERAL" | "ACCIDENT" | "MECHANICAL" | "MEDICAL" | "FUEL" | "OTHER";
                 /** Format: uuid */
                 userId: string;
+            }[];
+        };
+        EmergencyContactRowSchema: {
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            id: string;
+            name: string;
+            phone: string;
+            relationship?: string | null;
+        };
+        EmergencyContactsListResponseSchema: {
+            contacts: {
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string;
+                relationship?: string | null;
             }[];
         };
         EmergencyNearbyPayloadSchema: {
@@ -5788,6 +6130,10 @@ export interface components {
             removed: boolean;
         };
         LatitudeSchema: number;
+        LeaveConversationResponseSchema: {
+            /** @enum {boolean} */
+            success: true;
+        };
         LikeActionSchema: {
             /** Format: uuid */
             postId: string;
@@ -6241,6 +6587,9 @@ export interface components {
             userId: string;
             year: number;
         };
+        MuteConversationSchema: {
+            mutedUntil?: string | null;
+        };
         NearbyCommunitiesQuerySchema: {
             lat: number;
             /** @default 20 */
@@ -6418,6 +6767,17 @@ export interface components {
             }[];
             nextCursor: string | null;
         };
+        NotificationPreferencesSchema: {
+            emailDigest: boolean;
+            pushComment: boolean;
+            pushCommunity: boolean;
+            pushEmergency: boolean;
+            pushEvent: boolean;
+            pushFollow: boolean;
+            pushLike: boolean;
+            pushMention: boolean;
+            pushParty: boolean;
+        };
         NotificationRowResponseSchema: {
             body: string;
             createdAt: string;
@@ -6460,8 +6820,21 @@ export interface components {
             /** @enum {boolean} */
             ok: true;
         };
+        OtpRequestResponseSchema: {
+            /** @enum {boolean} */
+            success: true;
+        };
         OtpRequestSchema: {
             phoneNumber: string;
+        };
+        OtpSmsJobSchema: {
+            code: string;
+            phone: string;
+        };
+        OtpVerifyResponseSchema: {
+            phoneVerified: boolean;
+            /** @enum {boolean} */
+            success: true;
         };
         OtpVerifySchema: {
             code: string;
@@ -7274,6 +7647,17 @@ export interface components {
             status: "ACTIVE" | "SOLD" | "WISHLIST" | "PROJECT_BUILD";
             year?: number;
         };
+        UpdateNotificationPreferencesSchema: {
+            emailDigest?: boolean;
+            pushComment?: boolean;
+            pushCommunity?: boolean;
+            pushEmergency?: boolean;
+            pushEvent?: boolean;
+            pushFollow?: boolean;
+            pushLike?: boolean;
+            pushMention?: boolean;
+            pushParty?: boolean;
+        };
         UpdatePostSchema: {
             caption?: string;
             hashtags?: string[];
@@ -7433,6 +7817,9 @@ export interface components {
             name: string | null;
             /** Format: email */
             pendingEmail?: string | null;
+            phoneNumber?: string | null;
+            /** Format: date-time */
+            phoneVerifiedAt?: string | null;
             postsCount: number;
             ridingStyle: string[];
             settings?: unknown;

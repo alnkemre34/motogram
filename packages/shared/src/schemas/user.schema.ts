@@ -36,6 +36,9 @@ export const UserMeResponseSchema = UserPublicApiResponseSchema.extend({
   email: z.string().email(),
   /** B-07 — Doğrulanmayı bekleyen yeni e-posta; yoksa null/omit. */
   pendingEmail: z.string().email().nullable().optional(),
+  /** B-16 — Profilde kayıtlı E.164 telefon (yoksa null). */
+  phoneNumber: z.string().nullable().optional(),
+  phoneVerifiedAt: z.string().datetime().nullable().optional(),
   settings: z.unknown().nullable(),
 }).passthrough();
 

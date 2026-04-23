@@ -209,6 +209,47 @@
         ],
         "type": "object"
       },
+      "AccountDeletionFromUserMeResponseSchema": {
+        "properties": {
+          "daysRemaining": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "deprecated": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "pending": {
+            "type": "boolean"
+          },
+          "requestedAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scheduledFor": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "pending",
+          "requestedAt",
+          "scheduledFor",
+          "daysRemaining",
+          "deprecated"
+        ],
+        "type": "object"
+      },
       "AccountDeletionJobSchema": {
         "properties": {
           "reason": {
@@ -2442,6 +2483,13 @@
                     "null"
                   ]
                 },
+                "mutedUntil": {
+                  "format": "date-time",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "userId": {
                   "format": "uuid",
                   "type": "string"
@@ -3125,6 +3173,28 @@
         "required": [
           "latitude",
           "longitude"
+        ],
+        "type": "object"
+      },
+      "CreateEmergencyContactSchema": {
+        "properties": {
+          "name": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "phone": {
+            "pattern": "^\\+[1-9]\\d{6,14}$",
+            "type": "string"
+          },
+          "relationship": {
+            "maxLength": 30,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "phone"
         ],
         "type": "object"
       },
@@ -4140,6 +4210,79 @@
         },
         "required": [
           "alerts"
+        ],
+        "type": "object"
+      },
+      "EmergencyContactRowSchema": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "phone",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "EmergencyContactsListResponseSchema": {
+        "properties": {
+          "contacts": {
+            "items": {
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                },
+                "relationship": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "phone",
+                "createdAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "contacts"
         ],
         "type": "object"
       },
@@ -5781,6 +5924,20 @@
         "maximum": 90,
         "minimum": -90,
         "type": "number"
+      },
+      "LeaveConversationResponseSchema": {
+        "properties": {
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ],
+        "type": "object"
       },
       "LikeActionSchema": {
         "properties": {
@@ -7692,6 +7849,25 @@
         ],
         "type": "object"
       },
+      "MuteConversationSchema": {
+        "properties": {
+          "mutedUntil": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "NearbyCommunitiesQuerySchema": {
         "properties": {
           "lat": {
@@ -8451,6 +8627,49 @@
         ],
         "type": "object"
       },
+      "NotificationPreferencesSchema": {
+        "properties": {
+          "emailDigest": {
+            "type": "boolean"
+          },
+          "pushComment": {
+            "type": "boolean"
+          },
+          "pushCommunity": {
+            "type": "boolean"
+          },
+          "pushEmergency": {
+            "type": "boolean"
+          },
+          "pushEvent": {
+            "type": "boolean"
+          },
+          "pushFollow": {
+            "type": "boolean"
+          },
+          "pushLike": {
+            "type": "boolean"
+          },
+          "pushMention": {
+            "type": "boolean"
+          },
+          "pushParty": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pushFollow",
+          "pushLike",
+          "pushComment",
+          "pushMention",
+          "pushParty",
+          "pushEmergency",
+          "pushCommunity",
+          "pushEvent",
+          "emailDigest"
+        ],
+        "type": "object"
+      },
       "NotificationRowResponseSchema": {
         "additionalProperties": true,
         "properties": {
@@ -8624,6 +8843,20 @@
         ],
         "type": "object"
       },
+      "OtpRequestResponseSchema": {
+        "properties": {
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ],
+        "type": "object"
+      },
       "OtpRequestSchema": {
         "properties": {
           "phoneNumber": {
@@ -8633,6 +8866,42 @@
         },
         "required": [
           "phoneNumber"
+        ],
+        "type": "object"
+      },
+      "OtpSmsJobSchema": {
+        "properties": {
+          "code": {
+            "pattern": "^\\d{6}$",
+            "type": "string"
+          },
+          "phone": {
+            "maxLength": 20,
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "phone",
+          "code"
+        ],
+        "type": "object"
+      },
+      "OtpVerifyResponseSchema": {
+        "properties": {
+          "phoneVerified": {
+            "type": "boolean"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "phoneVerified"
         ],
         "type": "object"
       },
@@ -11912,6 +12181,38 @@
         },
         "type": "object"
       },
+      "UpdateNotificationPreferencesSchema": {
+        "properties": {
+          "emailDigest": {
+            "type": "boolean"
+          },
+          "pushComment": {
+            "type": "boolean"
+          },
+          "pushCommunity": {
+            "type": "boolean"
+          },
+          "pushEmergency": {
+            "type": "boolean"
+          },
+          "pushEvent": {
+            "type": "boolean"
+          },
+          "pushFollow": {
+            "type": "boolean"
+          },
+          "pushLike": {
+            "type": "boolean"
+          },
+          "pushMention": {
+            "type": "boolean"
+          },
+          "pushParty": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "UpdatePostSchema": {
         "additionalProperties": false,
         "properties": {
@@ -12438,6 +12739,19 @@
           },
           "pendingEmail": {
             "format": "email",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phoneNumber": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phoneVerifiedAt": {
+            "format": "date-time",
             "type": [
               "string",
               "null"
@@ -14560,6 +14874,58 @@
         ]
       }
     },
+    "/auth/otp/request": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpRequestSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpRequestResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/otp/verify": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpVerifySchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpVerifyResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/auth/password/change": {
       "post": {
         "requestBody": {
@@ -15208,6 +15574,28 @@
         ]
       }
     },
+    "/conversations/{id}/leave": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessTrueSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
     "/conversations/{id}/messages": {
       "get": {
         "responses": {
@@ -15236,6 +15624,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MessageSendResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/conversations/{id}/mute": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MuteConversationSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkTrueSchema"
                 }
               }
             },
@@ -15459,6 +15879,73 @@
                 }
               }
             },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/emergency/contacts": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactsListResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmergencyContactSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmergencyContactRowSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/emergency/contacts/{id}": {
+      "delete": {
+        "responses": {
+          "204": {
             "description": "OK"
           }
         },
@@ -16387,6 +16874,58 @@
         ]
       }
     },
+    "/notification-preferences": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationPreferencesSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
     "/notifications": {
       "get": {
         "responses": {
@@ -16931,12 +17470,22 @@
     },
     "/users/me": {
       "delete": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAccountDeletionSchema"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessTrueSchema"
+                  "$ref": "#/components/schemas/AccountDeletionFromUserMeResponseSchema"
                 }
               }
             },
@@ -17008,7 +17557,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessTrueSchema"
+                  "$ref": "#/components/schemas/AccountDeletionStatusSchema"
                 }
               }
             },

@@ -12,6 +12,7 @@ import {
   type ListConversationsQueryDto,
   type MarkReadDto,
   type MessageDto,
+  type MuteConversationDto,
 } from '@motogram/shared';
 import type {
   Conversation,
@@ -255,6 +256,86 @@ export class ConversationService {
     return rows.map((r) => r.userId);
   }
 
+  /** B-18 — Push için: `mutedUntil > now` veya `isMuted` alıcılar çıkarılır. */
+  async filterPushRecipients(conversationId: string, recipientIds: string[]): Promise<string[]> {
+    if (recipientIds.length === 0) return [];
+    const now = new Date();
+    const rows = await this.prisma.conversationParticipant.findMany({
+      where: { conversationId, userId: { in: recipientIds } },
+      select: { userId: true, isMuted: true, mutedUntil: true },
+    });
+    return recipientIds.filter((id) => {
+      const p = rows.find((r) => r.userId === id);
+      if (!p) return false;
+      const muted =
+        p.isMuted || (p.mutedUntil !== null && p.mutedUntil !== undefined && p.mutedUntil > now);
+      return !muted;
+    });
+  }
+
+  /** B-18 — Sessiz / sessiz kaldır. */
+  async muteConversation(
+    userId: string,
+    conversationId: string,
+    dto: MuteConversationDto,
+  ): Promise<void> {
+    await this.assertParticipant(conversationId, userId);
+    if (dto.mutedUntil === null) {
+      await this.prisma.conversationParticipant.update({
+        where: { conversationId_userId: { conversationId, userId } },
+        data: { isMuted: false, mutedUntil: null },
+      });
+      return;
+    }
+    if (dto.mutedUntil !== undefined) {
+      const until = new Date(dto.mutedUntil);
+      await this.prisma.conversationParticipant.update({
+        where: { conversationId_userId: { conversationId, userId } },
+        data: { isMuted: true, mutedUntil: until },
+      });
+      return;
+    }
+    const far = new Date('2099-12-31T23:59:59.999Z');
+    await this.prisma.conversationParticipant.update({
+      where: { conversationId_userId: { conversationId, userId } },
+      data: { isMuted: true, mutedUntil: far },
+    });
+  }
+
+  /** B-18 — DM ayrılamaz; tek üye kalamaz. */
+  async leaveConversation(userId: string, conversationId: string): Promise<void> {
+    await this.assertParticipant(conversationId, userId);
+    const conv = await this.prisma.conversation.findFirst({
+      where: { id: conversationId, deletedAt: null },
+      select: { type: true },
+    });
+    if (!conv) {
+      throw new NotFoundException({
+        error: 'Conversation not found',
+        code: ErrorCodes.NOT_FOUND,
+      });
+    }
+    if (conv.type === 'DIRECT') {
+      throw new BadRequestException({
+        error: 'cannot_leave_direct',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+    const active = await this.prisma.conversationParticipant.count({
+      where: { conversationId, leftAt: null },
+    });
+    if (active <= 1) {
+      throw new BadRequestException({
+        error: 'cannot_leave_sole_member',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+    await this.prisma.conversationParticipant.update({
+      where: { conversationId_userId: { conversationId, userId } },
+      data: { leftAt: new Date() },
+    });
+  }
+
   async getDirectPartner(
     conversationId: string,
     userId: string,
@@ -302,6 +383,7 @@ export class ConversationService {
         username: p.user.username,
         avatarUrl: p.user.avatarUrl ?? null,
         isMuted: p.isMuted,
+        mutedUntil: p.mutedUntil?.toISOString() ?? null,
         lastReadAt: p.lastReadAt?.toISOString() ?? null,
         joinedAt: p.joinedAt.toISOString(),
         leftAt: p.leftAt?.toISOString() ?? null,

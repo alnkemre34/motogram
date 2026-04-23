@@ -23,6 +23,7 @@ model User {
   // B-07 — Doğrulanmamış yeni e-posta (verify sonrası `email` güncellenir).
   pendingEmail    String?
   phoneNumber     String?   @unique
+  phoneVerifiedAt DateTime? // B-16 OTP sonrası
   passwordHash    String?
   name            String?
   bio             String?
@@ -96,6 +97,8 @@ model User {
   accountDeletion      AccountDeletion?
   passwordResetTokens  PasswordResetToken[]
   emailChangeTokens    EmailChangeToken[]
+  notificationPreference NotificationPreference?
+  emergencyContacts      EmergencyContact[]
 
   @@index([username])
   @@index([email])
@@ -747,6 +750,7 @@ model ConversationParticipant {
   userId         String
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   isMuted        Boolean      @default(false)
+  mutedUntil     DateTime? // B-18 sessiz bitiş zamanı
   lastReadAt     DateTime?
   joinedAt       DateTime     @default(now())
   leftAt         DateTime?
@@ -1090,6 +1094,53 @@ model EmailChangeToken {
 
   @@index([userId, expiresAt])
   @@map("email_change_tokens")
+}
+
+// ============ AUTH - TELEFON OTP (B-16) ============
+model OtpCode {
+  id           String    @id @default(uuid())
+  phone        String
+  codeHash     String
+  expiresAt    DateTime
+  attemptCount Int       @default(0)
+  usedAt       DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([phone, createdAt])
+  @@map("otp_codes")
+}
+
+// ============ BILDIRIM TERCIHLERI (B-14) ============
+model NotificationPreference {
+  userId          String   @id
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pushFollow      Boolean  @default(true)
+  pushLike        Boolean  @default(true)
+  pushComment     Boolean  @default(true)
+  pushMention     Boolean  @default(true)
+  pushParty       Boolean  @default(true)
+  pushEmergency   Boolean  @default(true)
+  pushCommunity   Boolean  @default(true)
+  pushEvent       Boolean  @default(true)
+  emailDigest     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("notification_preferences")
+}
+
+// ============ ACIL KISILER (B-15) ============
+model EmergencyContact {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  phone        String
+  relationship String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@map("emergency_contacts")
 }
 
 // ============ FAZ 5 - VERI IMHA POLITIKASI (Spec 5.2 + 8.11.4) ============

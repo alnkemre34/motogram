@@ -50,6 +50,19 @@ export const OtpVerifySchema = z.object({
 });
 export type OtpVerifyDto = z.infer<typeof OtpVerifySchema>;
 
+/** B-16 — Her zaman 200 (enumeration yok); SMS kuyruğu yalnızca kayıtlı telefonda. */
+export const OtpRequestResponseSchema = z.object({
+  success: z.literal(true),
+});
+export type OtpRequestResponse = z.infer<typeof OtpRequestResponseSchema>;
+
+export const OtpVerifyResponseSchema = z.object({
+  success: z.literal(true),
+  /** Eşleşen `User.phoneNumber` satırı güncellendiyse true. */
+  phoneVerified: z.boolean(),
+});
+export type OtpVerifyResponse = z.infer<typeof OtpVerifyResponseSchema>;
+
 export const AppleSignInSchema = z.object({
   identityToken: z.string().min(10, 'apple_token_invalid'),
   authorizationCode: z.string().optional(),

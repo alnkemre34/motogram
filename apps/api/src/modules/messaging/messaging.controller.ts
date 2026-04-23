@@ -16,16 +16,20 @@ import {
   ConversationsListResponseSchema,
   CreateConversationSchema,
   ErrorCodes,
+  LeaveConversationResponseSchema,
   ListConversationsQuerySchema,
   MarkReadSchema,
   MessageDtoResponseSchema,
   MessageListPageResponseSchema,
   MessageReactHttpResponseSchema,
   MessageSendResponseSchema,
+  MuteConversationSchema,
+  OkTrueSchema,
   ReactMessageSchema,
   SendMessageSchema,
   type CreateConversationDto,
   type ListConversationsQueryDto,
+  type MuteConversationDto,
   type ReactMessageDto,
 } from '@motogram/shared';
 import { ZodError } from 'zod';
@@ -91,6 +95,31 @@ export class MessagingController {
     @Param('id') conversationId: string,
   ) {
     return this.conversations.getDetail(conversationId, user.userId);
+  }
+
+  /** B-18 — Katılımcı sessiz (push WS dışı davranışı gateway’de süzülür). */
+  @Post('conversations/:id/mute')
+  @HttpCode(200)
+  @ZodResponse(OkTrueSchema)
+  async mute(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') conversationId: string,
+    @Body(new ZodBody(MuteConversationSchema)) dto: MuteConversationDto,
+  ) {
+    await this.conversations.muteConversation(user.userId, conversationId, dto);
+    return { ok: true as const };
+  }
+
+  /** B-18 — Grup / topluluk sohbetinden ayrıl (DM’de 400). */
+  @Post('conversations/:id/leave')
+  @HttpCode(200)
+  @ZodResponse(LeaveConversationResponseSchema)
+  async leave(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') conversationId: string,
+  ) {
+    await this.conversations.leaveConversation(user.userId, conversationId);
+    return { success: true as const };
   }
 
   @Get('conversations/:id/messages')

@@ -655,22 +655,22 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | ~~B2~~ | ~~`POST /v1/auth/password/change`~~ | **TAMAMLANDI (2026-04-23)** | — |
 | ~~B3~~ | ~~`PATCH /v1/users/me/username`~~ | **TAMAMLANDI (2026-04-23)** — 30 gün cooldown + rezerv liste + küçük harf | — |
 | ~~B4~~ | ~~`POST /v1/auth/email/change` + `/verify`~~ | **TAMAMLANDI (2026-04-23)** — `pendingEmail` + `EmailChangeToken` + mail kuyruğu | — |
-| B5 | `POST /v1/auth/otp/request` + `/verify` | Telefon/email OTP | EVET (Otp ekranı için) |
+| ~~B5~~ | ~~`POST /v1/auth/otp/request` + `/verify`~~ | **TAMAMLANDI (2026-04-23)** — `OtpRequestResponseSchema` / `OtpVerifyResponseSchema`; `phoneVerifiedAt` | — |
 | ~~B6~~ | ~~`GET /v1/users/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — blok filtresi + sayfalama | — |
 | ~~B7~~ | ~~`GET /v1/users/:userId/followers` & `/following`~~ | **TAMAMLANDI (2026-04-23)** — `me/…` kolaylığı + `FollowListPageResponseSchema` | — |
 | ~~B8~~ | ~~`GET/POST/DELETE /v1/blocks`~~ | **TAMAMLANDI (2026-04-23)** — liste + idempotent engel; feed / post detay blok filtresi | — |
 | ~~B9~~ | ~~`POST /v1/reports`~~ | **TAMAMLANDI (2026-04-23)** — `CreateReportSchema` → `ReportDtoSchema`; 24 saat dedup 409; `GROUP`/`EVENT` Prisma enum ile | — |
-| B10 | `GET/POST/DELETE /v1/emergency/contacts` | Acil durum kişileri | OPSIYONEL |
-| B11 | `GET/POST /v1/notification-preferences` | Bildirim tercihleri | OPSIYONEL |
+| ~~B10~~ | ~~`GET/POST/DELETE /v1/emergency/contacts`~~ | **TAMAMLANDI (2026-04-23)** — `EmergencyContactsListResponseSchema` | — |
+| ~~B11~~ | ~~`GET/PATCH /v1/notification-preferences`~~ | **TAMAMLANDI (2026-04-23)** — `NotificationPreferencesSchema` | — |
 | B12 | `GET /v1/users/me/data-export` | KVKK / veri indirme | OPSIYONEL |
 | ~~B13a~~ | ~~`GET /v1/communities/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — `CommunitiesSearchResponseSchema` + cursor | — |
 | ~~B13~~ | ~~`GET /v1/events/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — `EventsSearchResponseSchema` + cursor | — |
 | ~~B14~~ | ~~Posts response `likedByMe`~~ | **TAMAMLANDI (2026-04-23)** — `GET/POST/PATCH` post yanıtları + feed | — |
-| B15 | `POST /v1/conversations/:id/mute` & `/leave` | Grup yönetimi | OPSIYONEL |
+| ~~B15~~ | ~~`POST /v1/conversations/:id/mute` & `/leave`~~ | **TAMAMLANDI (2026-04-23)** — `MuteConversationSchema` / `LeaveConversationResponseSchema` | — |
 | ~~B16~~ | ~~`?type=` filtresi `GET /v1/conversations`~~ | **TAMAMLANDI (2026-04-23)** — `ListConversationsQuerySchema` | — |
 | B17 | Sosyal giriş (Apple/Google) | İsteğe bağlı | OPSIYONEL |
 
-> Bu liste, frontend’in **hayalet ekran açmaması** için bir koruma kapısıdır. **B5 (OTP)** hâlâ mobil GA için zorunlu; B1–B4 ve B6–B9 backend uçları tamam; Discover araması (**B13a** + **B13**) backend’de tamam; gerisi v1.1.
+> Bu liste, frontend’in **hayalet ekran açmaması** için bir koruma kapısıdır. §17’deki **zorunlu** backend satırları tamamlandı; kalan **B12** (KVKK veri indirme) ve tablodaki **B17** (Apple/Google sosyal giriş) opsiyonel / v1.1.
 
 ---
 
@@ -678,7 +678,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 
 1. **`api-client.tryRefresh`** access token’ı yenilemiyor — düzelt (§1.2).
 2. **`HomeScreen` like toggle** hâlâ `currentlyLiked: false` sabitliyor — backend `likedByMe` döndürüyor; mobilde `post.likedByMe` kullanılacak şekilde düzelt (F0).
-3. **`OtpScreen`** route’u erişilemez — OTP uçları (§17 satırı **B5**) gelene kadar gizle.
+3. **`OtpScreen`** route’unu §17 **B5** uçlarına bağla (backend hazır); navigasyonda erişilebilir yap.
 4. **`CommunityDetailScreen`, `EventCreateScreen`, `StoryCreateScreen`** yetim — yukarıdaki ağaca bağla.
 5. **`SosButton`, `LocationSharingSheet`** kullanılmıyor — ilgili Settings ve Map akışlarına bağla.
 6. **`auth.api.logoutRequest` ve `refreshRequest`** import edilmiyor — sırasıyla §3.6 ve §1.2 ile bağla.

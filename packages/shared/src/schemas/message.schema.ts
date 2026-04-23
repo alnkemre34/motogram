@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { ConversationTypeEnum, MessageTypeEnum } from '../enums';
-import { DateLikeSchema } from '../lib/api-response';
+import { DateLikeSchema, SuccessTrueSchema } from '../lib/api-response';
 
 // Spec 2.5 / 3.2 / 3.5 - Mesajlar ekrani (DM + Gruplar) ve sohbet odasi.
 // Ozel mesaj tipleri (RIDE_INVITE / EVENT_INVITE) ayri inviteData yuku tasir.
@@ -207,6 +207,7 @@ export const ConversationDetailSchema = z.object({
       username: z.string(),
       avatarUrl: z.string().url().nullable().optional(),
       isMuted: z.boolean(),
+      mutedUntil: z.string().datetime().nullable().optional(),
       lastReadAt: z.string().nullable().optional(),
       joinedAt: z.string(),
       leftAt: z.string().nullable().optional(),
@@ -231,3 +232,13 @@ export type ListConversationsQueryDto = z.infer<typeof ListConversationsQuerySch
 export const ConversationsListResponseSchema = z.object({
   conversations: z.array(ConversationPreviewSchema.passthrough()),
 });
+
+/** B-18 — `mutedUntil` ISO veya null (sessizi kaldır). Gövde boş = süresiz sessiz. */
+export const MuteConversationSchema = z.object({
+  mutedUntil: z.union([z.string().datetime(), z.null()]).optional(),
+});
+export type MuteConversationDto = z.infer<typeof MuteConversationSchema>;
+
+/** B-18 — Gruptan ayrıl yanıtı. */
+export const LeaveConversationResponseSchema = SuccessTrueSchema;
+export type LeaveConversationResponseDto = z.infer<typeof LeaveConversationResponseSchema>;

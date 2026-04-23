@@ -6,6 +6,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { PushModule } from '../push/push.module';
 import { RedisModule } from '../redis/redis.module';
+import { EmergencyContactsController } from './emergency-contacts.controller';
+import { EmergencyContactsService } from './emergency-contacts.service';
 import { EmergencyController } from './emergency.controller';
 import { EmergencyGateway } from './emergency.gateway';
 import { EmergencyService } from './emergency.service';
@@ -19,8 +21,8 @@ import { EmergencyService } from './emergency.service';
     NotificationsModule,
     AuthModule,
   ],
-  controllers: [EmergencyController],
-  providers: [EmergencyService, EmergencyGateway],
+  controllers: [EmergencyController, EmergencyContactsController],
+  providers: [EmergencyService, EmergencyGateway, EmergencyContactsService],
   exports: [EmergencyService],
 })
 export class EmergencyModule {}

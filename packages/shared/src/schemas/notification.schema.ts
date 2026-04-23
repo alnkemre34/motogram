@@ -34,3 +34,20 @@ export const NotificationListPageResponseSchema = z.object({
 export const NotificationUnreadCountResponseSchema = z.object({
   count: z.number().int().nonnegative(),
 });
+
+// B-14 — Kullanıcı push / özet tercihleri (GET/PATCH notification-preferences).
+export const NotificationPreferencesSchema = z.object({
+  pushFollow: z.boolean(),
+  pushLike: z.boolean(),
+  pushComment: z.boolean(),
+  pushMention: z.boolean(),
+  pushParty: z.boolean(),
+  pushEmergency: z.boolean(),
+  pushCommunity: z.boolean(),
+  pushEvent: z.boolean(),
+  emailDigest: z.boolean(),
+});
+export type NotificationPreferencesDto = z.infer<typeof NotificationPreferencesSchema>;
+
+export const UpdateNotificationPreferencesSchema = NotificationPreferencesSchema.partial();
+export type UpdateNotificationPreferencesDto = z.infer<typeof UpdateNotificationPreferencesSchema>;

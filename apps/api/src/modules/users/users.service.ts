@@ -39,7 +39,14 @@ export class UsersService {
   async getMe(userId: string) {
     const user = await this.prisma.user.findFirst({
       where: { id: userId, deletedAt: null },
-      select: { ...this.publicSelect(), email: true, pendingEmail: true, settings: true },
+      select: {
+        ...this.publicSelect(),
+        email: true,
+        pendingEmail: true,
+        phoneNumber: true,
+        phoneVerifiedAt: true,
+        settings: true,
+      },
     });
     if (!user) {
       throw new NotFoundException({ error: 'user_not_found', code: ErrorCodes.NOT_FOUND });
@@ -104,22 +111,6 @@ export class UsersService {
       where: { id: userId },
       data: { username: next, usernameChangedAt: new Date() },
       select: this.publicSelect(),
-    });
-  }
-
-  // Spec 7.2.1 - Hesap silme: 30 gun soft delete, sonra BullMQ ile fiziksel
-  async requestAccountDeletion(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { deletedAt: new Date() },
-    });
-    // Faz 6'da DELETE_USER_DATA BullMQ job'i eklenecek (Spec 7.2.1)
-  }
-
-  async cancelAccountDeletion(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { deletedAt: null },
     });
   }
 
