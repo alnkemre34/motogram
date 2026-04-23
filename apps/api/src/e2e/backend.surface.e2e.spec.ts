@@ -18,6 +18,7 @@ import {
   CommentListPageResponseSchema,
   CommentRowResponseSchema,
   CommunitiesMineResponseSchema,
+  CommunitiesSearchResponseSchema,
   CommunityDetailSchema,
   CommunityJoinHttpResponseSchema,
   ConversationDetailSchema,
@@ -412,6 +413,14 @@ describeE2E('E2E: HTTP surface (USER rolleri + RBAC)', () => {
       .expect(201);
     const detail = CommunityDetailSchema.parse(createRes.body);
     communityId = detail.id;
+
+    const searchRes = await request(app.getHttpServer())
+      .get('/v1/communities/search')
+      .query({ q: 'E2E', limit: '10' })
+      .set('Authorization', `Bearer ${tokenA}`)
+      .expect(200);
+    const searchParsed = CommunitiesSearchResponseSchema.parse(searchRes.body);
+    expect(searchParsed.items.some((c: { id: string }) => c.id === communityId)).toBe(true);
 
     const mineRes = await request(app.getHttpServer())
       .get('/v1/communities/me')

@@ -7,6 +7,7 @@ import {
 import {
   ErrorCodes,
   type CommunityDetail,
+  type CommunitySearchQueryDto,
   type CommunitySummary,
   type CreateCommunityDto,
   type JoinCommunityDto,
@@ -282,6 +283,35 @@ export class CommunityService {
 
   // Spec 2.4.2 - Yakindaki Onerilen Topluluklar (PostGIS ST_DWithin).
   // PostGIS hazir degilse (test DB), tablolari duz sorguyla dondurecegiz.
+  /** B-12 — PUBLIC + PRIVATE; isim veya açıklamada `q` (case-insensitive); HIDDEN listede yok. */
+  async searchCommunities(query: CommunitySearchQueryDto): Promise<{
+    items: CommunitySummary[];
+    nextCursor: string | null;
+  }> {
+    const q = query.q.trim();
+    const limit = query.limit;
+    const cursor = query.cursor;
+    const rows = await this.prisma.community.findMany({
+      where: {
+        deletedAt: null,
+        visibility: { in: ['PUBLIC', 'PRIVATE'] },
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+        ],
+        ...(cursor ? { id: { gt: cursor } } : {}),
+      },
+      orderBy: { id: 'asc' },
+      take: limit + 1,
+    });
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    return {
+      items: page.map((c) => this.toSummary(c)),
+      nextCursor: hasMore ? page[page.length - 1]!.id : null,
+    };
+  }
+
   async listNearby(
     dto: NearbyCommunitiesQueryDto,
   ): Promise<Array<CommunitySummary & { distance: number | null }>> {

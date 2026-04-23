@@ -105,6 +105,23 @@ export type NearbyCommunitiesResponse = z.infer<
   typeof NearbyCommunitiesResponseSchema
 >;
 
+/** B-12 — İsim / açıklama metni; `PUBLIC` + `PRIVATE` (HIDDEN hariç); `id` ile sayfalama. */
+export const CommunitySearchQuerySchema = z.object({
+  q: z.string().min(2).max(50),
+  limit: z.coerce.number().int().min(1).max(30).default(10),
+  cursor: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : v),
+    z.string().uuid().optional(),
+  ),
+});
+export type CommunitySearchQueryDto = z.infer<typeof CommunitySearchQuerySchema>;
+
+export const CommunitiesSearchResponseSchema = z.object({
+  items: z.array(CommunitySummarySchema),
+  nextCursor: z.string().uuid().nullable(),
+});
+export type CommunitiesSearchResponseDto = z.infer<typeof CommunitiesSearchResponseSchema>;
+
 export const CommunitiesMineResponseSchema = z.object({
   communities: z.array(CommunitySummarySchema),
 });

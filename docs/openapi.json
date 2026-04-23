@@ -1756,6 +1756,109 @@
         ],
         "type": "object"
       },
+      "CommunitiesSearchResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "properties": {
+                "avatarUrl": {
+                  "format": "uri",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "coverImageUrl": {
+                  "format": "uri",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "id": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "longitude": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "membersCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "ownerId": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "region": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "tags": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "visibility": {
+                  "enum": [
+                    "PUBLIC",
+                    "PRIVATE",
+                    "HIDDEN"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "visibility",
+                "tags",
+                "ownerId",
+                "membersCount",
+                "createdAt"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
       "CommunityDetailSchema": {
         "properties": {
           "avatarUrl": {
@@ -2163,6 +2266,32 @@
           "MEMBER"
         ],
         "type": "string"
+      },
+      "CommunitySearchQuerySchema": {
+        "properties": {
+          "cursor": {
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 30,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "type": "object"
       },
       "CommunitySummarySchema": {
         "properties": {
@@ -14655,6 +14784,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NearbyCommunitiesResponseSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
+      }
+    },
+    "/communities/search": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunitiesSearchResponseSchema"
                 }
               }
             },

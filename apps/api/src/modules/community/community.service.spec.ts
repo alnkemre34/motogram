@@ -188,3 +188,18 @@ describe('CommunityService - PostGIS radius (Spec 8.1)', () => {
     expect(result[0]!.distance).toBeNull();
   });
 });
+
+describe('CommunityService - B-12 searchCommunities', () => {
+  test('returns limit rows and nextCursor when more exist', async () => {
+    const prisma = makePrismaMock();
+    const c1 = buildCommunity({ id: '11111111-1111-4111-8111-111111111111' });
+    const c2 = buildCommunity({ id: '22222222-2222-4222-8222-222222222222' });
+    const c3 = buildCommunity({ id: '33333333-3333-4333-8333-333333333333' });
+    prisma.community.findMany.mockResolvedValueOnce([c1, c2, c3]);
+    const service = new CommunityService(prisma as unknown as never);
+    const result = await service.searchCommunities({ q: 'Riders', limit: 2 });
+    expect(result.items).toHaveLength(2);
+    expect(result.items[0]!.id).toBe(c1.id);
+    expect(result.nextCursor).toBe(c2.id);
+  });
+});

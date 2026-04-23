@@ -1,7 +1,7 @@
 # Motogram — Backend Gap Closure Roadmap (B‑01 → B‑18)
 
-> **Sürüm:** 1.4 — 2026-04-23  
-> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑09** (önceki tur); **B‑10** … **B‑11** (`POST /v1/reports`, `CreateReportSchema` → `ReportDtoSchema`, 24 saat dedup 409, throttle 5/dk).  
+> **Sürüm:** 1.5 — 2026-04-23  
+> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑11** (önceki tur); **B‑12** (`GET /v1/communities/search`, `CommunitySearchQuerySchema`, `CommunitiesSearchResponseSchema`, PUBLIC+PRIVATE, `q` name/description).  
 > **Kapsam:** `FRONTEND_BLUEPRINT.md` §17 “Backend Eksikleri” listesini (B1–B17) mevcut Zod / OpenAPI pipeline’ı **hiç bozmadan** kapatmak. Hayalet ekran üretmemek için öncelik burada; frontend’in F0/F1 sprintleri bu liste bittikten sonra güvenle açılır.  
 > **Anayasa (asla dışına çıkılmaz):**  
 > 1. **Zod SSOT** — şema önce `packages/shared/src/schemas/*.ts` içine, oradan export.  
@@ -67,7 +67,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 9 | **B‑09** ✅ | Followers / Following (`GET /users/:userId/followers` / `/following` + `me/…`) | Profile sekmeleri | S |
 | 10 | **B‑10** ✅ | Blocks modülü (`GET/POST/DELETE /blocks`) | Settings ▸ Engellenmiş kullanıcılar | S (yarı hazır) |
 | 11 | **B‑11** ✅ | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
-| 12 | **B‑12** | Communities search (`GET /communities/search?q=`) | Discover ▸ arama | S |
+| 12 | **B‑12** ✅ | Communities search (`GET /communities/search?q=`) | Discover ▸ arama | S |
 | 13 | **B‑13** | Events search (`GET /events/search?q=`) | Discover ▸ arama | S |
 | 14 | **B‑14** | Notification preferences (`/notification-preferences`) | Settings ▸ Bildirimler | S |
 | 15 | **B‑15** | Emergency contacts (`/emergency/contacts`) | Settings ▸ Acil kişiler | S |
@@ -321,20 +321,13 @@ export const UserSearchResponseSchema = z.object({
 
 ---
 
-### B‑12 · Communities search
+### B‑12 · Communities search ✅ (kodlandı)
 
-**Zod:**
-```ts
-export const CommunitySearchQuerySchema = z.object({
-  q: z.string().min(2).max(50),
-  limit: z.number().int().min(1).max(30).default(10),
-  cursor: z.string().optional(),
-});
-```
+**Zod:** `CommunitySearchQuerySchema`, `CommunitiesSearchResponseSchema` (`items: CommunitySummary[]`, `nextCursor`).
 
-**Endpoint:** `GET /v1/communities/search` → mevcut `CommunityListItemSchema` array’i ile `NearbyCommunitiesResponseSchema`’ya paralel yeni `CommunitiesSearchResponseSchema`.
+**Endpoint:** `GET /v1/communities/search` — `CommunityController` içinde **`search` rotası `:id`’den önce**; throttle 30/dk.
 
-**Servis:** `name ILIKE %:q% OR description ILIKE %:q%` + `visibility IN (PUBLIC, INVITE_ONLY)` (PRIVATE hariç).
+**Servis:** `name` / `description` `contains` + `insensitive`; `visibility IN (PUBLIC, PRIVATE)`; `HIDDEN` yok; `deletedAt` null.
 
 **PR başlığı:** `feat(communities): add search endpoint (B-12)`
 

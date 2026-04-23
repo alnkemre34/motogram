@@ -346,6 +346,13 @@
   },
   {
     "method": "GET",
+    "path": "/communities/search",
+    "responseSchema": "CommunitiesSearchResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "GET",
     "path": "/conversations",
     "responseSchema": "ConversationsListResponseSchema",
     "responseStatus": 200,

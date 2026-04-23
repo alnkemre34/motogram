@@ -10,13 +10,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   CommunitiesMineResponseSchema,
   CommunityDetailSchema,
+  CommunitiesSearchResponseSchema,
   CommunityJoinHttpResponseSchema,
   CommunityMembersResponseSchema,
   CommunityPendingRequestsResponseSchema,
   CommunityRespondJoinHttpResponseSchema,
+  CommunitySearchQuerySchema,
   CreateCommunitySchema,
   JoinCommunitySchema,
   NearbyCommunitiesQuerySchema,
@@ -25,6 +28,7 @@ import {
   RespondCommunityJoinSchema,
   UpdateCommunityMemberRoleSchema,
   UpdateCommunitySchema,
+  type CommunitySearchQueryDto,
   type CreateCommunityDto,
   type JoinCommunityDto,
   type NearbyCommunitiesQueryDto,
@@ -70,6 +74,21 @@ export class CommunityController {
   @ZodResponse(CommunitiesMineResponseSchema)
   async listMine(@CurrentUser() user: AuthenticatedUser) {
     return { communities: await this.service.listMine(user.userId) };
+  }
+
+  /** B-12 — `:id` rotasından önce tanımlanmalı. */
+  @Throttle({ default: { ttl: 60_000, limit: 30 } })
+  @Get('search')
+  @ZodResponse(CommunitiesSearchResponseSchema)
+  async search(
+    @Query() rawQuery: Record<string, string | string[] | undefined>,
+  ) {
+    const flat: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rawQuery)) {
+      flat[k] = Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+    }
+    const query: CommunitySearchQueryDto = CommunitySearchQuerySchema.parse(flat);
+    return this.service.searchCommunities(query);
   }
 
   @Get('nearby')

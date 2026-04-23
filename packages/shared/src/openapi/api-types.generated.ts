@@ -1153,6 +1153,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/communities/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CommunitiesSearchResponseSchema"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/communities/{id}": {
         parameters: {
             query?: never;
@@ -4717,6 +4752,30 @@ export interface components {
                 visibility: "PUBLIC" | "PRIVATE" | "HIDDEN";
             }[];
         };
+        CommunitiesSearchResponseSchema: {
+            items: {
+                /** Format: uri */
+                avatarUrl?: string | null;
+                /** Format: uri */
+                coverImageUrl?: string | null;
+                createdAt: string;
+                description?: string | null;
+                /** Format: uuid */
+                id: string;
+                latitude?: number | null;
+                longitude?: number | null;
+                membersCount: number;
+                name: string;
+                /** Format: uuid */
+                ownerId: string;
+                region?: string | null;
+                tags: string[];
+                /** @enum {string} */
+                visibility: "PUBLIC" | "PRIVATE" | "HIDDEN";
+            }[];
+            /** Format: uuid */
+            nextCursor: string | null;
+        };
         CommunityDetailSchema: {
             /** Format: uri */
             avatarUrl?: string | null;
@@ -4811,6 +4870,13 @@ export interface components {
         };
         /** @enum {string} */
         CommunityRoleEnum: "OWNER" | "ADMIN" | "MODERATOR" | "MEMBER";
+        CommunitySearchQuerySchema: {
+            /** Format: uuid */
+            cursor?: string | null;
+            /** @default 10 */
+            limit: number;
+            q: string;
+        };
         CommunitySummarySchema: {
             /** Format: uri */
             avatarUrl?: string | null;
