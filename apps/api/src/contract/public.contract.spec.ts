@@ -8,6 +8,7 @@ import request from 'supertest';
 import {
   ApiErrorSchema,
   AuthResultSchema,
+  ConversationsListResponseSchema,
   HealthLivezSchema,
   HealthReadyzSchema,
   MapShardStatsResponseSchema,
@@ -137,12 +138,44 @@ describeContract('Contract: public HTTP', () => {
     ApiErrorSchema.parse(res.body);
   });
 
-  it('GET /v1/posts/feed — JWT ile PostFeedPageSchema', async () => {
+  it('GET /v1/posts/feed — JWT ile PostFeedPageSchema + likedByMe', async () => {
     const res = await request(app.getHttpServer())
       .get('/v1/posts/feed')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
-    PostFeedPageSchema.parse(res.body);
+    const page = PostFeedPageSchema.parse(res.body);
+    for (const item of page.items) {
+      expect(typeof item.likedByMe).toBe('boolean');
+    }
+  });
+
+  it('GET /v1/conversations — JWT ile ConversationsListResponseSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/v1/conversations')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    ConversationsListResponseSchema.parse(res.body);
+  });
+
+  it('GET /v1/conversations?type=DIRECT — 200 + schema', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/v1/conversations')
+      .query({ type: 'DIRECT' })
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    const body = ConversationsListResponseSchema.parse(res.body);
+    for (const c of body.conversations) {
+      expect(c.type).toBe('DIRECT');
+    }
+  });
+
+  it('GET /v1/conversations?type=INVALID — 400', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/v1/conversations')
+      .query({ type: 'INVALID' })
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(400);
+    ApiErrorSchema.parse(res.body);
   });
 
   it('GET /v1/map/shards — JWT ile MapShardStatsResponseSchema', async () => {

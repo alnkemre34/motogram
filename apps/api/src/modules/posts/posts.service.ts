@@ -17,6 +17,21 @@ export class PostsService {
     private readonly events: ZodEventBus,
   ) {}
 
+  /** Batch-resolve whether viewer liked each post (B-01). */
+  private async attachLikedByMe<T extends { id: string }>(
+    viewerId: string,
+    rows: T[],
+  ): Promise<Array<T & { likedByMe: boolean }>> {
+    if (rows.length === 0) return [];
+    const ids = rows.map((r) => r.id);
+    const likes = await this.prisma.like.findMany({
+      where: { userId: viewerId, postId: { in: ids } },
+      select: { postId: true },
+    });
+    const liked = new Set(likes.map((l) => l.postId));
+    return rows.map((r) => ({ ...r, likedByMe: liked.has(r.id) }));
+  }
+
   async create(userId: string, dto: CreatePostDto) {
     const post = await this.prisma.$transaction(async (tx) => {
       const created = await tx.post.create({
@@ -48,32 +63,41 @@ export class PostsService {
       increment: 1,
       metadata: { postId: post.id },
     });
-    return post;
+    const enriched = await this.attachLikedByMe(userId, [post]);
+    return enriched[0]!;
   }
 
-  async findById(id: string) {
+  async findById(id: string, viewerId: string) {
     const post = await this.prisma.post.findFirst({
       where: { id, deletedAt: null },
     });
     if (!post) {
       throw new NotFoundException({ error: 'post_not_found', code: ErrorCodes.NOT_FOUND });
     }
-    return post;
+    const enriched = await this.attachLikedByMe(viewerId, [post]);
+    return enriched[0]!;
   }
 
   async update(userId: string, id: string, dto: UpdatePostDto) {
-    const post = await this.findById(id);
+    const post = await this.findById(id, userId);
     if (post.userId !== userId) {
       throw new ForbiddenException({ error: 'forbidden', code: ErrorCodes.FORBIDDEN });
     }
-    return this.prisma.post.update({
+    const updated = await this.prisma.post.update({
       where: { id },
       data: dto,
     });
+    const enriched = await this.attachLikedByMe(userId, [updated]);
+    return enriched[0]!;
   }
 
   async remove(userId: string, id: string): Promise<void> {
-    const post = await this.findById(id);
+    const post = await this.prisma.post.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!post) {
+      throw new NotFoundException({ error: 'post_not_found', code: ErrorCodes.NOT_FOUND });
+    }
     if (post.userId !== userId) {
       throw new ForbiddenException({ error: 'forbidden', code: ErrorCodes.FORBIDDEN });
     }
@@ -119,28 +143,30 @@ export class PostsService {
           include,
         });
 
+    const items = await this.attachLikedByMe(userId, posts);
     return {
-      items: posts,
+      items,
       nextCursor: posts.length === query.limit ? posts[posts.length - 1]!.id : null,
     };
   }
 
-  async userPosts(userId: string, query: PostFeedQueryDto) {
+  async userPosts(profileUserId: string, viewerId: string, query: PostFeedQueryDto) {
     const posts = query.cursor
       ? await this.prisma.post.findMany({
-          where: { userId, deletedAt: null },
+          where: { userId: profileUserId, deletedAt: null },
           orderBy: { createdAt: 'desc' },
           take: query.limit,
           cursor: { id: query.cursor },
           skip: 1,
         })
       : await this.prisma.post.findMany({
-          where: { userId, deletedAt: null },
+          where: { userId: profileUserId, deletedAt: null },
           orderBy: { createdAt: 'desc' },
           take: query.limit,
         });
+    const items = await this.attachLikedByMe(viewerId, posts);
     return {
-      items: posts,
+      items,
       nextCursor: posts.length === query.limit ? posts[posts.length - 1]!.id : null,
     };
   }

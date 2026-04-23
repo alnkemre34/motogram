@@ -222,6 +222,12 @@ export const MarkReadSchema = z.object({
 });
 export type MarkReadDto = z.infer<typeof MarkReadSchema>;
 
+/** GET /v1/conversations — optional filter by conversation type (B-02). */
+export const ListConversationsQuerySchema = z.object({
+  type: ConversationTypeEnum.optional(),
+});
+export type ListConversationsQueryDto = z.infer<typeof ListConversationsQuerySchema>;
+
 export const ConversationsListResponseSchema = z.object({
   conversations: z.array(ConversationPreviewSchema.passthrough()),
 });

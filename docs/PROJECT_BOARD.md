@@ -32,8 +32,8 @@
 | Alan | Deger |
 |---|---|
 | **Aktif Faz** | Faz 7 - Enterprise Prod Hardening (Asama 0 + Asama 1 kismi TAMAMLANDI; TLS ertelendi) |
-| **Son Tamamlanan** | OpenAPI Zod Contract Pipeline — Adim 2 (routes manifest + build-time guard'lar + typecheck fix) |
-| **Son Guncelleme** | 2026-04-23 — OpenAPI Contract: reflektor + `OPENAPI_GENERATE=1` build-time mode, `routes.json` uretimi, TS Node16 moduleResolution duzeltmesi; detay §5 |
+| **Son Tamamlanan** | BACKEND_GAP B-01/B-02/B-03: post `likedByMe`, `GET /conversations?type=`, parti route siralama + OpenAPI/docs guncel |
+| **Son Guncelleme** | 2026-04-23 — B-01/B-02/B-03 merge; contract testleri + shared sema testleri; `docs/openapi.json` + `API_Contract.md` |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,22 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] BACKEND_GAP kapatma — B-01 / B-02 / B-03 (Zod + OpenAPI uyumlu)
+
+**Baglam:** `docs/BACKEND_GAP_ROADMAP.md` oncelik 1–3; frontend blueprint’teki `likedByMe` ve konusma listesi filtresi + parti `invites/me` route guvenligi.
+
+**Kod:**
+
+- `packages/shared`: `PostApiResponseSchema` + feed item’larda zorunlu `likedByMe: boolean`; `ListConversationsQuerySchema` (`type` opsiyonel); sema testleri (`post.schema.spec`, `message.schema.spec`).
+- `apps/api`: `PostsService.attachLikedByMe`, `GET /posts/user/:userId` ve `GET /posts/:id` icin izleyici (`viewer`) ile begeni batch sorgusu; `ConversationService.listMyConversations(userId, query)` tip filtresi; `MessagingController` query parse + 400; `PartyController` statik `invites/*` ve `GET ''` rotalarini `:id` onune alma.
+- `public.contract.spec.ts`: feed `likedByMe`, conversations + invalid `type` 400.
+
+**Dogrulama:** `pnpm --filter @motogram/shared test`, `pnpm --filter @motogram/api typecheck` + `test`, `pnpm openapi:generate` (drift oncesi).
+
+**Dokuman:** `docs/FRONTEND_BLUEPRINT.md` §17 B14/B16 satirlari guncellendi; bu pano + `BACKEND_GAP_ROADMAP` sürüm notu.
+
+---
 
 ### [2026-04-23] OpenAPI Zod Contract Pipeline — Adim 1-2 (Reflektor + Route Manifest)
 

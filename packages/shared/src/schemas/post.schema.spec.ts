@@ -1,4 +1,4 @@
-import { CreatePostSchema, PostFeedQuerySchema } from './post.schema';
+import { CreatePostSchema, PostApiResponseSchema, PostFeedQuerySchema } from './post.schema';
 
 // Spec 7.3.6 - Post zod semasi validate edilir
 
@@ -38,6 +38,37 @@ describe('CreatePostSchema (Spec 7.3.6)', () => {
   it('caps caption at 2200 chars', () => {
     const res = CreatePostSchema.safeParse({ ...base, caption: 'x'.repeat(2201) });
     expect(res.success).toBe(false);
+  });
+});
+
+describe('PostApiResponseSchema (B-01 likedByMe)', () => {
+  const minimal = {
+    id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    userId: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+    caption: null,
+    mediaUrls: ['https://cdn.motogram.test/a.jpg'],
+    mediaType: 'IMAGE' as const,
+    routeId: null,
+    eventId: null,
+    groupId: null,
+    likesCount: 0,
+    commentsCount: 0,
+    sharesCount: 0,
+    latitude: null,
+    longitude: null,
+    locationName: null,
+    hashtags: [] as string[],
+    mentionedUserIds: [] as string[],
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    likedByMe: false,
+  };
+
+  it('requires likedByMe boolean', () => {
+    expect(PostApiResponseSchema.safeParse({ ...minimal, likedByMe: true }).success).toBe(true);
+    expect(PostApiResponseSchema.safeParse({ ...minimal, likedByMe: 'yes' }).success).toBe(false);
+    const { likedByMe: _l, ...withoutLike } = minimal;
+    expect(PostApiResponseSchema.safeParse(withoutLike).success).toBe(false);
   });
 });
 

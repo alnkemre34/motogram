@@ -31,6 +31,8 @@ export type Post = z.infer<typeof PostSchema>;
 export const PostApiResponseSchema = PostSchema.extend({
   createdAt: DateLikeSchema,
   updatedAt: DateLikeSchema,
+  /** Whether the authenticated viewer has liked this post (B-01). */
+  likedByMe: z.boolean(),
 }).passthrough();
 export type PostApiResponse = z.infer<typeof PostApiResponseSchema>;
 

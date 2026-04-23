@@ -5152,6 +5152,19 @@
         },
         "type": "object"
       },
+      "ListConversationsQuerySchema": {
+        "properties": {
+          "type": {
+            "enum": [
+              "DIRECT",
+              "GROUP_CHAT",
+              "COMMUNITY_CHAT"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ListReportsQuerySchema": {
         "properties": {
           "cursor": {
@@ -8538,6 +8551,9 @@
               "null"
             ]
           },
+          "likedByMe": {
+            "type": "boolean"
+          },
           "likesCount": {
             "minimum": 0,
             "type": "integer"
@@ -8624,7 +8640,8 @@
           "hashtags",
           "mentionedUserIds",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "likedByMe"
         ],
         "type": "object"
       },
@@ -8723,6 +8740,9 @@
               "number",
               "null"
             ]
+          },
+          "likedByMe": {
+            "type": "boolean"
           },
           "likesCount": {
             "minimum": 0,
@@ -8836,7 +8856,8 @@
           "hashtags",
           "mentionedUserIds",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "likedByMe"
         ],
         "type": "object"
       },
@@ -8898,6 +8919,9 @@
                     "number",
                     "null"
                   ]
+                },
+                "likedByMe": {
+                  "type": "boolean"
                 },
                 "likesCount": {
                   "minimum": 0,
@@ -9011,7 +9035,8 @@
                 "hashtags",
                 "mentionedUserIds",
                 "createdAt",
-                "updatedAt"
+                "updatedAt",
+                "likedByMe"
               ],
               "type": "object"
             },
@@ -9104,6 +9129,9 @@
                     "null"
                   ]
                 },
+                "likedByMe": {
+                  "type": "boolean"
+                },
                 "likesCount": {
                   "minimum": 0,
                   "type": "integer"
@@ -9190,7 +9218,8 @@
                 "hashtags",
                 "mentionedUserIds",
                 "createdAt",
-                "updatedAt"
+                "updatedAt",
+                "likedByMe"
               ],
               "type": "object"
             },

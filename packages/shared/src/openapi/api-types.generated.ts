@@ -4921,6 +4921,10 @@ export interface components {
             /** Format: date-time */
             toDate?: string;
         };
+        ListConversationsQuerySchema: {
+            /** @enum {string} */
+            type?: "DIRECT" | "GROUP_CHAT" | "COMMUNITY_CHAT";
+        };
         ListReportsQuerySchema: {
             /** Format: uuid */
             cursor?: string;
@@ -5719,6 +5723,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             latitude: number | null;
+            likedByMe: boolean;
             likesCount: number;
             locationName: string | null;
             longitude: number | null;
@@ -5758,6 +5763,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             latitude: number | null;
+            likedByMe: boolean;
             likesCount: number;
             locationName: string | null;
             longitude: number | null;
@@ -5794,6 +5800,7 @@ export interface components {
                 /** Format: uuid */
                 id: string;
                 latitude: number | null;
+                likedByMe: boolean;
                 likesCount: number;
                 locationName: string | null;
                 longitude: number | null;
@@ -5838,6 +5845,7 @@ export interface components {
                 /** Format: uuid */
                 id: string;
                 latitude: number | null;
+                likedByMe: boolean;
                 likesCount: number;
                 locationName: string | null;
                 longitude: number | null;

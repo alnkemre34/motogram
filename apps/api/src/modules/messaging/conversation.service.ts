@@ -9,6 +9,7 @@ import {
   type ConversationDetail,
   type ConversationPreview,
   type CreateConversationDto,
+  type ListConversationsQueryDto,
   type MarkReadDto,
   type MessageDto,
 } from '@motogram/shared';
@@ -140,9 +141,19 @@ export class ConversationService {
     return this.toDetail(created);
   }
 
-  async listMyConversations(userId: string): Promise<ConversationPreview[]> {
+  async listMyConversations(
+    userId: string,
+    query?: ListConversationsQueryDto,
+  ): Promise<ConversationPreview[]> {
     const memberships = await this.prisma.conversationParticipant.findMany({
-      where: { userId, leftAt: null, conversation: { deletedAt: null } },
+      where: {
+        userId,
+        leftAt: null,
+        conversation: {
+          deletedAt: null,
+          ...(query?.type ? { type: query.type } : {}),
+        },
+      },
       include: {
         conversation: {
           include: {

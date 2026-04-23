@@ -16,6 +16,7 @@ import {
   ConversationsListResponseSchema,
   CreateConversationSchema,
   ErrorCodes,
+  ListConversationsQuerySchema,
   MarkReadSchema,
   MessageDtoResponseSchema,
   MessageListPageResponseSchema,
@@ -24,6 +25,7 @@ import {
   ReactMessageSchema,
   SendMessageSchema,
   type CreateConversationDto,
+  type ListConversationsQueryDto,
   type ReactMessageDto,
 } from '@motogram/shared';
 import { ZodError } from 'zod';
@@ -58,8 +60,28 @@ export class MessagingController {
 
   @Get('conversations')
   @ZodResponse(ConversationsListResponseSchema)
-  async listMine(@CurrentUser() user: AuthenticatedUser) {
-    return { conversations: await this.conversations.listMyConversations(user.userId) };
+  async listMine(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() rawQuery: Record<string, string>,
+  ) {
+    const parsed = ListConversationsQuerySchema.safeParse({
+      type: rawQuery.type,
+    });
+    if (!parsed.success) {
+      throw new BadRequestException({
+        error: 'validation_failed',
+        code: ErrorCodes.VALIDATION_FAILED,
+        details: parsed.error.issues.map((i) => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        })),
+      });
+    }
+    const query: ListConversationsQueryDto = parsed.data;
+    return {
+      conversations: await this.conversations.listMyConversations(user.userId, query),
+    };
   }
 
   @Get('conversations/:id')

@@ -142,6 +142,7 @@ describeE2E('E2E: backend edge-to-edge', () => {
     const post = PostApiResponseSchema.parse(res.body);
     postId = post.id;
     expect(post.userId).toBe(userId);
+    expect(post.likedByMe).toBe(false);
   });
 
   it('GET /v1/posts/:id — tek post + PostApiResponseSchema', async () => {
@@ -151,6 +152,7 @@ describeE2E('E2E: backend edge-to-edge', () => {
       .expect(200);
     const post = PostApiResponseSchema.parse(res.body);
     expect(post.id).toBe(postId);
+    expect(typeof post.likedByMe).toBe('boolean');
   });
 
   it('GET /v1/posts/feed — yeni post listede + PostFeedPageSchema', async () => {
@@ -160,6 +162,8 @@ describeE2E('E2E: backend edge-to-edge', () => {
       .expect(200);
     const page = PostFeedPageSchema.parse(res.body);
     expect(page.items.some((p: { id: string }) => p.id === postId)).toBe(true);
+    const mine = page.items.find((p: { id: string }) => p.id === postId);
+    expect(mine?.likedByMe).toBe(false);
   });
 
   it('PATCH /v1/posts/:id — guncelle + PostApiResponseSchema', async () => {

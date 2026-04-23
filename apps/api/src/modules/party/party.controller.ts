@@ -36,6 +36,7 @@ import { PartyService } from './party.service';
 
 // Spec 2.4.2 - REST: /v1/parties CRUD + davetiye uclari.
 // Global prefix 'v1' main.ts'te; burada 'parties'.
+// B-03: Statik yollar (`invites/me`, `invites/respond`, liste `GET ''`) `:id`'den once tanimlanir.
 
 @Controller('parties')
 @UseGuards(JwtAuthGuard)
@@ -52,6 +53,41 @@ export class PartyController {
     @Body(new ZodBody(CreatePartySchema)) dto: CreatePartyDto,
   ) {
     return this.party.createParty(userId, dto);
+  }
+
+  @Get('invites/me')
+  @ZodResponse(PartyInvitesMineResponseSchema)
+  async myInvites(@CurrentUser('id') userId: string) {
+    return this.party.listInvitesForUser(userId);
+  }
+
+  @Post('invites/respond')
+  @HttpCode(200)
+  @ZodResponse(PartyRespondInviteHttpResponseSchema)
+  async respondInvite(
+    @CurrentUser('id') userId: string,
+    @Body(new ZodBody(RespondPartyInviteSchema)) dto: RespondPartyInviteDto,
+  ) {
+    return this.party.respondInvite(userId, dto.inviteId, dto.accept);
+  }
+
+  @Get()
+  @ZodResponse(NearbyPartiesResponseSchema)
+  async listNearby(
+    @Query() query: Record<string, string>,
+  ) {
+    const parsed = NearbyPartiesQuerySchema.safeParse({
+      lat: query.lat ? Number(query.lat) : undefined,
+      lng: query.lng ? Number(query.lng) : undefined,
+      radius: query.radius ? Number(query.radius) : undefined,
+      limit: query.limit ? Number(query.limit) : undefined,
+    } satisfies Partial<NearbyPartiesQueryDto>);
+    if (!parsed.success) {
+      // Zod hatasini standart BadRequest'e cevirme
+      return { parties: [] };
+    }
+    const rows = await this.party.listNearbyPublicParties(parsed.data.limit);
+    return { parties: rows.map((p) => ({ ...p, distance: null })) };
   }
 
   @Post(':id/join')
@@ -75,31 +111,6 @@ export class PartyController {
     return this.party.leaveParty(userId, partyId, 'LEFT');
   }
 
-  @Get(':id')
-  @ZodResponse(PartyDetailSchema)
-  async getDetail(@Param('id') partyId: string) {
-    return this.party.getPartyDetail(partyId);
-  }
-
-  @Get()
-  @ZodResponse(NearbyPartiesResponseSchema)
-  async listNearby(
-    @Query() query: Record<string, string>,
-  ) {
-    const parsed = NearbyPartiesQuerySchema.safeParse({
-      lat: query.lat ? Number(query.lat) : undefined,
-      lng: query.lng ? Number(query.lng) : undefined,
-      radius: query.radius ? Number(query.radius) : undefined,
-      limit: query.limit ? Number(query.limit) : undefined,
-    } satisfies Partial<NearbyPartiesQueryDto>);
-    if (!parsed.success) {
-      // Zod hatasini standart BadRequest'e cevirme
-      return { parties: [] };
-    }
-    const rows = await this.party.listNearbyPublicParties(parsed.data.limit);
-    return { parties: rows.map((p) => ({ ...p, distance: null })) };
-  }
-
   @Post(':id/invite')
   @HttpCode(200)
   @ZodResponse(PartyInviteBatchResponseSchema)
@@ -111,19 +122,9 @@ export class PartyController {
     return this.party.invite(userId, partyId, body.userIds);
   }
 
-  @Get('invites/me')
-  @ZodResponse(PartyInvitesMineResponseSchema)
-  async myInvites(@CurrentUser('id') userId: string) {
-    return this.party.listInvitesForUser(userId);
-  }
-
-  @Post('invites/respond')
-  @HttpCode(200)
-  @ZodResponse(PartyRespondInviteHttpResponseSchema)
-  async respondInvite(
-    @CurrentUser('id') userId: string,
-    @Body(new ZodBody(RespondPartyInviteSchema)) dto: RespondPartyInviteDto,
-  ) {
-    return this.party.respondInvite(userId, dto.inviteId, dto.accept);
+  @Get(':id')
+  @ZodResponse(PartyDetailSchema)
+  async getDetail(@Param('id') partyId: string) {
+    return this.party.getPartyDetail(partyId);
   }
 }

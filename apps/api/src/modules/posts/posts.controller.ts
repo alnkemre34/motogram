@@ -46,17 +46,18 @@ export class PostsController {
   @Get('user/:userId')
   @ZodResponse(PostFeedPageSchema)
   async byUser(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('userId') userId: string,
     @Query() rawQuery: Record<string, string>,
   ) {
     const query: PostFeedQueryDto = PostFeedQuerySchema.parse(rawQuery);
-    return this.posts.userPosts(userId, query);
+    return this.posts.userPosts(userId, user.userId, query);
   }
 
   @Get(':id')
   @ZodResponse(PostApiResponseSchema)
-  async getOne(@Param('id') id: string) {
-    return this.posts.findById(id);
+  async getOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.posts.findById(id, user.userId);
   }
 
   @Patch(':id')
