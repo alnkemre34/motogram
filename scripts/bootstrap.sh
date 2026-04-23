@@ -46,6 +46,11 @@ compose() {
   docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "$@"
 }
 
+healthcheck_api() {
+  # API portu host'a publish edilmez (Spec 8.11). Bu yüzden healthcheck'i container icinden calistiririz.
+  compose exec -T api node -e "require('http').get('http://127.0.0.1:' + (process.env.PORT||3000) + '/v1/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"
+}
+
 wait_healthy() {
   local service="$1"
   local tries=${2:-60}
@@ -116,18 +121,17 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile tooling run -
 log "Adim 4/6: api servisini baslat"
 compose up -d api
 
-log "  -> /v1/healthz 200 bekleniyor (${HEALTH_RETRIES}x${HEALTH_INTERVAL}s)..."
+log "  -> api icinden /v1/healthz 200 bekleniyor (${HEALTH_RETRIES}x${HEALTH_INTERVAL}s)..."
 ok=0
 for i in $(seq 1 "$HEALTH_RETRIES"); do
-  code="$(curl -o /dev/null -s -w '%{http_code}' "$HEALTH_URL" || echo '000')"
-  if [ "$code" = "200" ]; then
-    log "  -> api healthy (${i}. deneme, http ${code})"
+  if healthcheck_api >/dev/null 2>&1; then
+    log "  -> api healthy (${i}. deneme)"
     ok=1
     break
   fi
   sleep "$HEALTH_INTERVAL"
 done
-[ "$ok" = "1" ] || fail "api /v1/healthz 200 donmedi (son kod: $code)"
+[ "$ok" = "1" ] || fail "api /v1/healthz 200 donmedi (container icinden)"
 
 ############################################
 # 5. Reverse proxy + admin panel
