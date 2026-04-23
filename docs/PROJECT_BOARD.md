@@ -32,9 +32,9 @@
 | Alan | Deger |
 |---|---|
 | **Aktif Faz** | Faz 7 + mobil **P6** (harita + topluluk/parti polish) öncelik |
-| **Son Tamamlanan** | **P5 (mobil):** Ayarlar (`AppStack`), `PATCH /v1/users/me`, bildirim tercihleri, acil kişi + engellenenler, `account/deletion` akışı; `blocks.api`; profil sekmeleri i18n |
-| **Son Guncelleme** | 2026-04-24 — P6 öncelik; handoff + §7 yol haritası; mobil test/typecheck tekrar doğrulandı |
-| **Son Commit (mobil P5 ref.)** | `4b54e62` (P5 settings); güncel: `git log -1 --oneline` |
+| **Son Tamamlanan** | **A5 (mobil, devam):** `UserProfile` + `GET /v1/users/:username`, `follows` + `ChangePassword` (B-04); feed/story’den açılış; **P5** önceki: ayarlar hub, tercihler, blocks, acil, hesap silme |
+| **Son Guncelleme** | 2026-04-24 — public profil + parola; yol haritası §7 + SESSION_HANDOFF; `typecheck`/`test` yeşil |
+| **Son Commit** | `git log -1 --oneline` (A5 + doc senkronu bu tarih) |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
 | **Aktif Riskler** | Risk #27 (TLS ertelendi) |
@@ -113,6 +113,12 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-24] Mobil A5 — public profil (username) + takip + parola
+
+**Kod:** `getUserByUsername`, `apps/mobile/src/api/follows.api.ts`, `UserProfileScreen`, `ChangePasswordScreen`, `HomeScreen` / `StoryRail` navigasyon, `linking` `user/:username` + `settings/password`. `POST /auth/password/change` B-04.
+
+---
 
 ### [2026-04-23] Mobil P5 — Profil ayarları (Settings) + sözleşme uyumlu API
 

@@ -1,7 +1,7 @@
 # Motogram — Frontend UI/UX Blueprint
 
-> Sürüm: 1.5  
-> Tarih: 2026-04-23  
+> Sürüm: 1.6  
+> Tarih: 2026-04-24  
 > Kapsam: `apps/mobile` odaklı frontend şartnamesi, `apps/web-admin` için görünür olmayan backend yüzeyleri notları  
 > Ana hedef: mobil uygulamanın ekran, navigasyon, state, veri akışı ve UX davranışlarını backend sözleşmesine birebir oturtmak  
 > Tek gerçek kaynaklar:
@@ -750,6 +750,11 @@ Endpoint:
 ### Kritik not
 
 Route paramı `:userId` değil `:username`'dır.
+
+### Mobil uygulama (v1.6)
+
+- `AppStack` ekranı **UserProfile** — `GET /v1/users/:username` (`encodeURIComponent`); `AppStack` **ChangePassword** — `POST /v1/auth/password/change` (B-04). Ana feed’de gönderi başlığına dokunma ve hikâye hücresinde **uzun basma** aynı kullanıcının public profilini açar. `motogram://user/:username`, `motogram://settings/password`.
+- Takip: `POST/DELETE /v1/follows/:userId` — profilde mevcut. Engel: mevcut `blocks` API ile uyumlu.
 
 ## 11.3 Profil sekmeleri
 

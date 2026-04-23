@@ -9,6 +9,7 @@ import type { AppStackParamList } from '../../navigation/types';
 
 const SETTINGS_ROWS = [
   'EditProfile',
+  'ChangePassword',
   'NotificationPreferences',
   'EmergencyContacts',
   'BlockedUsers',
@@ -17,6 +18,7 @@ const SETTINGS_ROWS = [
 
 const labels: Record<(typeof SETTINGS_ROWS)[number], { titleKey: string; descKey?: string }> = {
   EditProfile: { titleKey: 'settings.rowEditProfile' },
+  ChangePassword: { titleKey: 'settings.rowChangePassword', descKey: 'settings.rowChangePasswordDesc' },
   NotificationPreferences: { titleKey: 'settings.rowNotificationPrefs' },
   EmergencyContacts: { titleKey: 'settings.rowEmergencyContacts' },
   BlockedUsers: { titleKey: 'settings.rowBlocked' },

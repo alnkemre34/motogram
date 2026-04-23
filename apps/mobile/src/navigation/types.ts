@@ -17,6 +17,9 @@ export type AppStackParamList = {
   EmergencyContacts: undefined;
   BlockedUsers: undefined;
   AccountDeletion: undefined;
+  /** GET /v1/users/:username — büyük/küçük harf; path’te encode. */
+  UserProfile: { username: string };
+  ChangePassword: undefined;
 };
 
 export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<

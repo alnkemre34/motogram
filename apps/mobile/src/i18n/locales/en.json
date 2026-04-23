@@ -84,6 +84,7 @@
   },
   "home": {
     "a11yOpenInbox": "Open inbox",
+    "a11yOpenProfile": "Open profile of {{user}}",
     "a11yOpenNotifications": "Open notifications",
     "notificationsTitle": "Notifications",
     "notificationsEmpty": "No notifications yet.",
@@ -177,7 +178,27 @@
     "deletionScheduled": "Planned for: {{at}}",
     "deletionDays": "{{n}} day(s) remaining in the waiting period",
     "deletionCancelCta": "Cancel deletion",
-    "deletionError": "Action failed. Try again."
+    "deletionError": "Action failed. Try again.",
+    "rowChangePassword": "Change password",
+    "rowChangePasswordDesc": "Update your account password",
+    "changePasswordTitle": "Change password",
+    "changePasswordIntro": "You’ll stay signed in on this device. Other sessions may be signed out per server policy.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "passwordValidation": "Check that passwords match and meet the minimum length.",
+    "passwordWrong": "Current password is incorrect or request failed."
+  },
+  "userProfile": {
+    "notFound": "This profile doesn’t exist or is unavailable.",
+    "itsMeCta": "My profile (tab)",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "block": "Block",
+    "blockTitle": "Block this user?",
+    "blockBody": "You won’t see each other in feeds, messages, or on the map. You can unblock later in settings.",
+    "blockCta": "Block",
+    "private": "Private account"
   },
   "map": {
     "segments": {

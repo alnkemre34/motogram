@@ -1,6 +1,6 @@
 # Motogram — Frontend uygulama yol haritası
 
-> Tarih: 2026-04-24 (§7 hızlı özet güncellendi)  
+> Tarih: 2026-04-24 (§7 + A5 public profil)  
 > İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
 > Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
 > **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
@@ -24,7 +24,7 @@
 | A2 | Gelen kutusu (Inbox) | DM bölümlü + Topluluk + Parti; `GET /v1/conversations?type=` (B-02) | Uygulandı (v1.2) |
 | A3 | Home + story rail + üst bar | Feed, hikayeler, bildirim/mesaj kısayolu | Uygulandı (2026-04-23: tren + `StoryViewer` + `GET /stories/feed` + görüntülenme) |
 | A4 | 4 sekme / navigasyon hedefi | `FRONTEND_UI_UX_BLUEPRINT` §navigasyon; TabNavigator sadeleştirme | Uygulandı (P4) |
-| A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Uygulandı (2026-04-23: `PATCH /users/me`, ayarlar hub, bildirim tercihleri, acil kişi, `GET/DELETE` blocks, hesap silme; **ardıl:** `GET /users/:username` başka profil) |
+| A5 | Profil + ayarlar | `users/me`, public profil, garaj, şifre/blocks/hesap | Uygulandı (P5 + 2026-04-24: `UserProfile` `GET /users/:username`, takip, engel; feed/story’den açılış; `ChangePassword` B-04; **ardıl:** cihaz/e-posta, `expo-av` video) |
 | A6 | Harita + parti + topluluk polish | Mapbox, ride mode, community/party ekranları | Kısmi |
 | A7 | WS yüzeyleri | `/messaging` tam, `/realtime` sürüş, gamification/emergency | Kısmi |
 
@@ -79,7 +79,8 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 ## 6. Revizyon günlüğü
 
-- **2026-04-24:** Oturum handoff: `SESSION_HANDOFF.md` mobil özet tablosu; bu belgeye **§7 Nerede kaldık**; `PROJECT_BOARD` §1 tarih/commit; mobil `typecheck` + `test` tekrar koşuldu (15/59).
+- **2026-04-24 (2):** A5 tamamlama: `getUserByUsername`, `follows.api` (follow/unfollow, `checkIsFollowingUser`), `UserProfile` + `UserProfile:home/story` navigasyon, `changePasswordRequest` + `ChangePasswordScreen`, `linking` `user/:username` ve `settings/password`.
+- **2026-04-24 (1):** Oturum handoff: `SESSION_HANDOFF.md` mobil özet tablosu; bu belgeye **§7 Nerede kaldık**; `PROJECT_BOARD` §1 tarih/commit; mobil `typecheck` + `test` tekrar koşuldu (15/59).
 - **2026-04-23 (5):** P5: `updateCurrentUser` (`PATCH /users/me`); `blocks.api`; `notification-preferences` GET/PATCH; acil `contacts` CRUD; `SettingsScreen` + `EditProfile` + tercihler + engellenenler + `AccountDeletionScreen`; `ProfileScreen` i18n + ayar; `linking` `settings/*`; `parseRidingStyleCommas` Jest.
 - **2026-04-23 (4):** P3 kapanış: `stories.api` (`/stories/feed`, `/stories/:id/views`), `StoryRail` + `StoryViewer` (`AppStack`), `groupStoryFeedByUser` test; bildirim `mark-read` ekran çıkışında; `motogram://story/:initialStoryId` link; **video** şimdilik bilgi metni (expo-av ileri faz).
 - **2026-04-23 (3):** P4: `AppStackNavigator` (MainTabs + Inbox + Notifications), 4 sekmeli tab, `linking` AppStack. P3: Home üst bar (gelen + bildirim), `GET /notifications` + `unread-count`, feed beğeni `likedByMe` düzeltmesi, `Inbox`→Harita `MainTabs/Map` geçişi.
@@ -92,8 +93,8 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 
 | Nerede? | Ne yapıldı (özet) | Sırada |
 |--------|-------------------|--------|
-| **P1–P5** | Auth, Inbox, Home + story, 4 tab + AppStack, **Settings** + `PATCH /me` + tercihler + acil + blocks + hesap silme | Kapanı kabul: `typecheck` + `test` yeşil |
-| **A5** | Kendi profil + ayarlar uçtan uçta; public `GET /users/:username` **yok** (ardıl) | Kullanıcı adı ile başka profil ekranı |
+| **P1–P5** | Yukarıdakiler + **UserProfile** (`GET /users/:username`) + takip/engel + **ChangePassword** | Kapanı kabul: `typecheck` + `test` yeşil |
+| **A5** | P5 + `UserProfile` + `follows` + şifre ekranı | Cihaz listesi, e-posta değişim UI (ardıl) |
 | **A6** | Harita / parti / topluluk kısmi | **P6** polish + contract hizası |
 | **Hikâye video** | Placeholder + i18n | `expo-av` (opsiyonel faz) |
 | **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |

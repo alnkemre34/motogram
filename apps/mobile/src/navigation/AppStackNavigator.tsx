@@ -9,6 +9,8 @@ import { BlockedUsersScreen } from '../screens/settings/BlockedUsersScreen';
 import { EditProfileScreen } from '../screens/settings/EditProfileScreen';
 import { EmergencyContactsScreen } from '../screens/settings/EmergencyContactsScreen';
 import { NotificationPreferencesScreen } from '../screens/settings/NotificationPreferencesScreen';
+import { UserProfileScreen } from '../screens/profile/UserProfileScreen';
+import { ChangePasswordScreen } from '../screens/settings/ChangePasswordScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { StoryViewerScreen } from '../screens/story/StoryViewerScreen';
 
@@ -62,6 +64,16 @@ export function AppStackNavigator() {
       <Stack.Screen
         name="AccountDeletion"
         component={AccountDeletionScreen}
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="UserProfile"
+        component={UserProfileScreen}
+        options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
         options={{ headerShown: false, animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

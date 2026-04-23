@@ -1,12 +1,13 @@
 import type {
   AppleSignInDto,
   AuthResult,
+  ChangePasswordDto,
   GoogleSignInDto,
   LoginDto,
   RefreshTokenDto,
   RegisterDto,
 } from '@motogram/shared';
-import { AuthResultSchema, TokenPairSchema } from '@motogram/shared';
+import { AuthResultSchema, ChangePasswordResponseSchema, TokenPairSchema } from '@motogram/shared';
 
 import { authPaths } from './auth-paths';
 import { apiRequest } from '../lib/api-client';
@@ -57,5 +58,13 @@ export function logoutRequest(allDevices = false): Promise<void> {
   return apiRequest<void>('/auth/logout', {
     method: 'POST',
     body: { allDevices },
+  });
+}
+
+/** POST /auth/password/change — B-04. */
+export function changePasswordRequest(dto: ChangePasswordDto) {
+  return apiRequest('/auth/password/change', ChangePasswordResponseSchema, {
+    method: 'POST',
+    body: dto,
   });
 }

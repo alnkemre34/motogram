@@ -40,6 +40,13 @@ export const linking: LinkingOptions<AppStackParamList> = {
       EmergencyContacts: 'settings/emergency',
       BlockedUsers: 'settings/blocks',
       AccountDeletion: 'settings/account',
+      UserProfile: {
+        path: 'user/:username',
+        parse: {
+          username: (u: string) => decodeURIComponent(u),
+        },
+      },
+      ChangePassword: 'settings/password',
     },
   },
 };

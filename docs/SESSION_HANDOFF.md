@@ -13,26 +13,25 @@
 | Konu | Durum |
 |------|--------|
 | **Mobil yol haritasi (P1–P7)** | **P1–P5 tamam; sirada P6** (harita + topluluk/parti polish), sonra P7 (WS + gam). |
-| **Son yapit mobil commit** | `4b54e62` — P5: Settings hub, `PATCH /users/me`, bildirim tercihleri, acil kisiler, engellenenler, hesap silme, `linking` `settings/*`. |
-| **Onceki mobil commitler** | `37718f7` — P3 story rail + StoryViewer; `88ee21c` — P4 AppStack 4 tab + bildirimler. |
-| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — son kosum: **15 suite / 59 test** gecer. |
-| **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` (rev. gunlugu), `docs/FRONTEND_UI_UX_BLUEPRINT.md` v1.5, `docs/PROJECT_BOARD.md` §1. |
+| **A5 (profil + public)** | `UserProfile` (`GET /users/:username`), `follows.api`, feed baslik + story **uzun bas** → profil; `ChangePassword` (`POST /auth/password/change`); derin link `motogram://user/:username`, `.../settings/password`. |
+| **Onceki ref. commit** | P5 paketi: `4b54e62`; son ozellik bu oturumda — `git log -1 --oneline` ile dogrula. |
+| **Test (yerel)** | `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` — **15 suite / 59 test** (son kosum 2026-04-24). |
+| **Belge** | `docs/FRONTEND_IMPLEMENTATION_ROADMAP.md` §7, `docs/FRONTEND_UI_UX_BLUEPRINT.md` v1.5+, `docs/PROJECT_BOARD.md` §1. |
 
 **Ardil / acik isler (oncelik secimi):**
 
-- `GET /v1/users/:username` — baska kullanici profil ekrani (A5’te kalan parca).
 - Hikâye **video** in-app: `expo-av` (P3’te sadece placeholder + metin).
-- Ayarlar §11.5: sifre / e-posta / cihaz ekranlari (endpoint’ler mevcut, UI yok).
+- Ayarlar §11.5: **e-posta** / **push cihaz** listeleri (endpoint mevcut, UI yok); istege bagli: `PATCH /users/me/username` ekrani.
 - **P6:** Map / Community / Party ekranlari contract + polish (yol haritasi A6).
 
-**Kod giris noktalari (mobil):** `AppStackParamList` → `Settings`, `EditProfile`, …; `apps/mobile/src/navigation/`; `apps/mobile/src/screens/settings/`.
+**Kod giris noktalari (mobil):** `UserProfile` + `ChangePassword` `AppStack`; `getUserByUsername` `users.api.ts`; `follows.api.ts`; `HomeScreen` / `StoryRail` navigasyon.
 
 ---
 
 ## Son Guncelleme
 
 - **Tarih:** 2026-04-24 (ustteki tablo + bu blok senkron)
-- **Repo durumu:** Yerel / `main` — `git log -1 --oneline` en son commit (genelde doc veya fix); **son mobil ozellik paketi (P5):** `4b54e62`
+- **Repo durumu:** Yerel / `main` — `git log -1 --oneline`; P5: `4b54e62`; A5 public + sifre bu oturum commit’inde.
 - **Zod R9 (backend contract):** `apps/api/src/contract/public.contract.spec.ts` — health +
   auth hatalari + kayit/JWT ile feed + map (`shards`, `nearby`) + media 401/404;
   CI’da **`prisma migrate deploy`** + `pnpm test` (contract haric) + `pnpm run test:contract`

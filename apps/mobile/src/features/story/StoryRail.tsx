@@ -76,6 +76,11 @@ export function StoryRail() {
                   initialStoryId: latest.id,
                 })
               }
+              onLongPress={() => {
+                if (latest.user.username) {
+                  rootNav?.navigate('UserProfile', { username: latest.user.username });
+                }
+              }}
               accessibilityLabel={t('home.storyOpenUser', { user: label })}
               accessibilityRole="button"
             >

@@ -17,4 +17,11 @@ export async function updateCurrentUser(dto: UpdateProfileDto) {
   return apiRequest('/users/me', UserPublicApiResponseSchema, { method: 'PATCH', body: dto });
 }
 
+/** `GET /users/:username` — büyük/küçük harf API’de case-insensitive eşleşir; path segment encode. */
+export async function getUserByUsername(username: string) {
+  const path = encodeURIComponent(username.trim());
+  return apiRequest(`/users/${path}`, UserPublicApiResponseSchema);
+}
+
 export type MeResponse = z.infer<typeof UserMeResponseSchema>;
+export type PublicUserResponse = z.infer<typeof UserPublicApiResponseSchema>;

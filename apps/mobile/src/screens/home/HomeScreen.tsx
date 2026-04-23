@@ -115,14 +115,24 @@ export function HomeScreen() {
           const avatarUrl = author?.avatarUrl ?? null;
           return (
             <View style={styles.postCard}>
-              <View style={styles.postHeader}>
+              <Pressable
+                onPress={() => {
+                  if (author?.username) {
+                    rootNav?.navigate('UserProfile', { username: author.username });
+                  }
+                }}
+                style={({ pressed }) => [styles.postHeader, pressed && styles.pressed]}
+                disabled={!author?.username}
+                accessibilityRole="button"
+                accessibilityLabel={t('home.a11yOpenProfile', { user: username })}
+              >
                 {avatarUrl ? (
                   <Image source={{ uri: avatarUrl }} style={styles.avatar} />
                 ) : (
                   <View style={[styles.avatar, styles.avatarFallback]} />
                 )}
                 <Text style={styles.username}>{username}</Text>
-              </View>
+              </Pressable>
 
               {item.mediaUrls[0] ? (
                 <Image

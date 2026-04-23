@@ -84,6 +84,7 @@
   },
   "home": {
     "a11yOpenInbox": "Gelen kutusunu aç",
+    "a11yOpenProfile": "{{user}} profilini aç",
     "a11yOpenNotifications": "Bildirimleri aç",
     "notificationsTitle": "Bildirimler",
     "notificationsEmpty": "Bildirimin yok.",
@@ -177,7 +178,27 @@
     "deletionScheduled": "Planlanan: {{at}}",
     "deletionDays": "Bekleme süresinde kalan: {{n}} gün",
     "deletionCancelCta": "Silmekten vazgeç",
-    "deletionError": "İşlem başarısız. Tekrar dene."
+    "deletionError": "İşlem başarısız. Tekrar dene.",
+    "rowChangePassword": "Parola değiştir",
+    "rowChangePasswordDesc": "Hesap parolanı güncelle",
+    "changePasswordTitle": "Parola değiştir",
+    "changePasswordIntro": "Bu cihazda oturum açık kalır; sunucu kuralına göre diğer oturumlar kapanabilir.",
+    "currentPassword": "Mevcut parola",
+    "newPassword": "Yeni parola",
+    "confirmPassword": "Yeni parolayı onayla",
+    "passwordValidation": "Parolalar aynı ve en az uzunlukta mı kontrol et.",
+    "passwordWrong": "Mevcut parola hatalı veya istek tamamlanamadı."
+  },
+  "userProfile": {
+    "notFound": "Bu profil yok veya kapalı olabilir.",
+    "itsMeCta": "Kendi profilim (sekme)",
+    "follow": "Takip et",
+    "unfollow": "Takipten çık",
+    "block": "Engelle",
+    "blockTitle": "Kullanıcı engellensin mi?",
+    "blockBody": "Akış, mesaj ve haritada birbirinizi göremezsiniz. Daha sonra ayarlardan kaldırabilirsiniz.",
+    "blockCta": "Engelle",
+    "private": "Gizli hesap"
   },
   "map": {
     "segments": {
