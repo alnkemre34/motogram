@@ -1,6 +1,6 @@
 # Motogram — Frontend UI/UX Blueprint
 
-> Sürüm: 1.4  
+> Sürüm: 1.5  
 > Tarih: 2026-04-23  
 > Kapsam: `apps/mobile` odaklı frontend şartnamesi, `apps/web-admin` için görünür olmayan backend yüzeyleri notları  
 > Ana hedef: mobil uygulamanın ekran, navigasyon, state, veri akışı ve UX davranışlarını backend sözleşmesine birebir oturtmak  
@@ -837,6 +837,10 @@ Frontend tek bir silme akışı seçmelidir:
 
 `DELETE /v1/users/me` kullanıcıya açık ana yol olmamalı; ikincil veya eski yol olarak kalabilir.
 
+### Mobil uygulama (v1.5)
+
+- `AppStack` içinde **Settings** hub; alt ekranlar: profil düzenleme (`PATCH /v1/users/me`), bildirim tercihleri (`GET/PATCH /v1/notification-preferences`), acil kişiler (`/v1/emergency/contacts*`), engellenenler (`GET /v1/blocks`, `DELETE /v1/blocks/:userId`), hesap silme (`/v1/account/deletion*`). **Profil** sekmesinden üst sağda erişim. Derin link: `motogram://settings`, `motogram://settings/profile`, `.../settings/notifications`, `.../settings/emergency`, `.../settings/blocks`, `.../settings/account`. Şifre/e-posta/cihaz yönetimi bu sürümde ayrı ekran olarak eklenmedi (§11.5 endpoint listesi ardıl).
+
 ---
 
 ## 12. Bildirimler
@@ -969,8 +973,8 @@ Bugünkü mobil taramada görülen önemli farklar:
    - **video hikâye:** tam oynatıcı sonraki iterasyon (şimdilik bilgi metni)
 4. `InboxStack` ayrı root ekran: **DM** + **Topluluk** + **Parti**; B-02; cam üst sekmeler.
 5. `ProfileScreen` şu an:
-   - ayarlar butonu içermiyor
-   - logout doğrudan profil altında
+   - üst sağda ayarlar (Settings) ile `AppStack` hub’a gider (v1.5+)
+   - logout doğrudan profil altında (ayrıca hesap silme ekranında da)
    - gönderiler / topluluklar sekmesi yok
 6. `MapScreen` zaten en olgun alanlardan biri; fakat son hedefte UI polish ve right-panel davranışı daha net tanımlanmalı.
 
@@ -995,7 +999,7 @@ Bu farklar belgeye göre giderilmelidir.
 | Community | `/v1/communities*` | hazır |
 | Inbox | `GET /v1/conversations?type=` (DIRECT, GROUP_CHAT, COMMUNITY_CHAT), diğer `/v1/conversations*`, `/v1/messages*`, `/v1/parties/invites*`, WS `/messaging` | A2 uygulandı (v1.2) |
 | Profile | `/v1/users/me`, `/v1/users/:username`, `/v1/posts/user/:userId`, `/v1/motorcycles*`, `/v1/gamification*` | hazır |
-| Settings | `/v1/auth/password/change`, `/v1/auth/email/*`, `/v1/users/me/username`, `/v1/blocks*`, `/v1/devices*`, `/v1/account/deletion*`, `/v1/emergency/contacts*` | hazır |
+| Settings | `/v1/auth/password/change`, `/v1/auth/email/*`, `/v1/users/me/username`, `/v1/blocks*`, `/v1/devices*`, `/v1/account/deletion*`, `/v1/emergency/contacts*` | P5: tercihler + acil + blocks + hesap silme + `PATCH /users/me`; şifre/e-posta/cihaz ardıl |
 
 ---
 

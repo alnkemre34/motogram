@@ -1,3 +1,5 @@
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,14 +17,19 @@ import { BadgesTab } from '../../features/profile/BadgesTab';
 import { GarageTab } from '../../features/profile/GarageTab';
 import { QuestsTab } from '../../features/profile/QuestsTab';
 import { getCurrentUser, type MeResponse } from '../../api/users.api';
+import type { AppStackParamList } from '../../navigation/types';
 import { useAuthStore } from '../../store/auth.store';
 
 type ProfileTab = 'badges' | 'garage' | 'quests';
 
 // Spec 2.6 - Profil: sticky garaj banner + sayilar + ridingStyle chipleri; `GET /users/me` = UserMeResponseSchema
 
+type RootNav = NativeStackNavigationProp<AppStackParamList>;
+
 export function ProfileScreen() {
   const { t } = useTranslation();
+  const navigation = useNavigation();
+  const rootNav = navigation.getParent<RootNav>();
   const clearSession = useAuthStore((s) => s.clearSession);
   const [tab, setTab] = useState<ProfileTab>('badges');
 
@@ -34,9 +41,9 @@ export function ProfileScreen() {
   if (isError) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text style={styles.errorText}>Profil yuklenemedi. Tekrar dene.</Text>
+        <Text style={styles.errorText}>{t('profile.errorLoad')}</Text>
         <Pressable style={styles.signOut} onPress={() => void refetch()}>
-          <Text style={styles.signOutText}>Yenile</Text>
+          <Text style={styles.signOutText}>{t('common.retry')}</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -52,6 +59,17 @@ export function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
+      <View style={styles.topBar}>
+        <View style={styles.topBarSpacer} />
+        <Pressable
+          onPress={() => rootNav?.navigate('Settings')}
+          style={({ pressed }) => [styles.settingsBtn, pressed && styles.pressedTop]}
+          accessibilityRole="button"
+          accessibilityLabel={t('settings.title')}
+        >
+          <Text style={styles.settingsCog}>⚙</Text>
+        </Pressable>
+      </View>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View style={styles.avatar} />
@@ -86,9 +104,9 @@ export function ProfileScreen() {
         ) : null}
 
         <View style={styles.tabBar}>
-          <TabButton label="Rozetler" active={tab === 'badges'} onPress={() => setTab('badges')} />
-          <TabButton label="Garaj" active={tab === 'garage'} onPress={() => setTab('garage')} />
-          <TabButton label="Gorevler" active={tab === 'quests'} onPress={() => setTab('quests')} />
+          <TabButton label={t('profile.tabBadges')} active={tab === 'badges'} onPress={() => setTab('badges')} />
+          <TabButton label={t('profile.tabGarage')} active={tab === 'garage'} onPress={() => setTab('garage')} />
+          <TabButton label={t('profile.tabQuests')} active={tab === 'quests'} onPress={() => setTab('quests')} />
         </View>
 
         <View style={styles.tabContent}>
@@ -124,6 +142,17 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#0b0b0d' },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 12,
+    paddingTop: 4,
+  },
+  topBarSpacer: { flex: 1 },
+  settingsBtn: { padding: 8, borderRadius: 8 },
+  settingsCog: { color: '#ff6a00', fontSize: 22, fontWeight: '600' },
+  pressedTop: { opacity: 0.7 },
   center: { flex: 1, backgroundColor: '#0b0b0d', alignItems: 'center', justifyContent: 'center' },
   content: { padding: 16 },
   header: { alignItems: 'center', marginBottom: 24 },

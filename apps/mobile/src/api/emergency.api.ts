@@ -1,11 +1,14 @@
 import type {
   CreateEmergencyAlertDto,
+  CreateEmergencyContactDto,
   RespondEmergencyAlertDto,
   ResolveEmergencyAlertDto,
 } from '@motogram/shared';
 import {
   EmergencyAlertDtoSchema,
   EmergencyAlertsListResponseSchema,
+  EmergencyContactRowSchema,
+  EmergencyContactsListResponseSchema,
   EmergencyResponderDtoSchema,
 } from '@motogram/shared';
 
@@ -40,4 +43,18 @@ export async function resolveEmergencyAlert(id: string, dto: ResolveEmergencyAle
     method: 'POST',
     body: dto,
   });
+}
+
+// B-15 — acil kişi listesi (ayarlar ekranı).
+
+export async function listEmergencyContacts() {
+  return apiRequest('/emergency/contacts', EmergencyContactsListResponseSchema);
+}
+
+export async function createEmergencyContact(dto: CreateEmergencyContactDto) {
+  return apiRequest('/emergency/contacts', EmergencyContactRowSchema, { method: 'POST', body: dto });
+}
+
+export async function deleteEmergencyContact(id: string) {
+  await apiRequest<void>(`/emergency/contacts/${id}`, { method: 'DELETE' });
 }

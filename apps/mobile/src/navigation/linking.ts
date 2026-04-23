@@ -34,6 +34,12 @@ export const linking: LinkingOptions<AppStackParamList> = {
           initialStoryId: (id: string) => id,
         },
       },
+      Settings: 'settings',
+      EditProfile: 'settings/profile',
+      NotificationPreferences: 'settings/notifications',
+      EmergencyContacts: 'settings/emergency',
+      BlockedUsers: 'settings/blocks',
+      AccountDeletion: 'settings/account',
     },
   },
 };

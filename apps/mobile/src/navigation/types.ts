@@ -11,6 +11,12 @@ export type AppStackParamList = {
   Inbox: undefined;
   Notifications: undefined;
   StoryViewer: { initialStoryId: string };
+  Settings: undefined;
+  EditProfile: undefined;
+  NotificationPreferences: undefined;
+  EmergencyContacts: undefined;
+  BlockedUsers: undefined;
+  AccountDeletion: undefined;
 };
 
 export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<

@@ -1,5 +1,7 @@
 import {
+  type UpdateNotificationPreferencesDto,
   NotificationListPageResponseSchema,
+  NotificationPreferencesSchema,
   NotificationUnreadCountResponseSchema,
   SuccessTrueSchema,
 } from '@motogram/shared';
@@ -25,5 +27,16 @@ export async function markNotificationsRead(ids: string[]) {
   return apiRequest('/notifications/mark-read', SuccessTrueSchema, {
     method: 'POST',
     body: { notificationIds: ids },
+  });
+}
+
+export async function fetchNotificationPreferences() {
+  return apiRequest('/notification-preferences', NotificationPreferencesSchema);
+}
+
+export async function updateNotificationPreferences(dto: UpdateNotificationPreferencesDto) {
+  return apiRequest('/notification-preferences', NotificationPreferencesSchema, {
+    method: 'PATCH',
+    body: dto,
   });
 }

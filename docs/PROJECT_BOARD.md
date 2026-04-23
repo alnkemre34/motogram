@@ -31,9 +31,9 @@
 
 | Alan | Deger |
 |---|---|
-| **Aktif Faz** | Faz 7 + mobil **P5** (Profil + ayarlar) öncelik; P1–P4 mobil yol haritası kapanış |
-| **Son Tamamlanan** | **P3:** `GET /v1/stories/feed`, `StoryRail` + `StoryViewer`, görüntülenme `POST .../views`; bildirim `mark-read` ekran blur; `groupStoryFeedByUser` Jest |
-| **Son Guncelleme** | 2026-04-23 — P3 tam; A3 satırı kapanış; story video → ileri faz notu |
+| **Aktif Faz** | Faz 7 + mobil **P6** (harita + topluluk/parti polish) öncelik |
+| **Son Tamamlanan** | **P5 (mobil):** Ayarlar (`AppStack`), `PATCH /v1/users/me`, bildirim tercihleri, acil kişi + engellenenler, `account/deletion` akışı; `blocks.api`; profil sekmeleri i18n |
+| **Son Guncelleme** | 2026-04-23 — P5 kapanış; yol haritası + `riding-style` Jest |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,12 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] Mobil P5 — Profil ayarları (Settings) + sözleşme uyumlu API
+
+**Kod:** `apps/mobile/src/api/{users,blocks}.api.ts`; `notifications.api` tercihler; `emergency` contacts; `SettingsScreen` + `EditProfile` + tercih/acil/engel/hesap silme; `AppStack` + `linking` `settings/*`; `ProfileScreen` ⚙. **Not:** `GET /v1/users/:username` (başka profil) P6+.
+
+---
 
 ### [2026-04-23] Mobil P3 — Story rail + StoryViewer + bildirim okundu
 
