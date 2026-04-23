@@ -32,8 +32,8 @@
 | Alan | Deger |
 |---|---|
 | **Aktif Faz** | Faz 7 - Enterprise Prod Hardening (Asama 0 + Asama 1 kismi TAMAMLANDI; TLS ertelendi) |
-| **Son Tamamlanan** | BACKEND_GAP B-10: `GET/POST/DELETE /v1/blocks` + feed/post blok filtresi + `BlocksListResponseSchema` / surface E2E |
-| **Son Guncelleme** | 2026-04-23 — B-10; `BlocksModule`, `PostsService` + `openapi:generate` / `API_Contract.md` |
+| **Son Tamamlanan** | BACKEND_GAP B-11: `POST /v1/reports` + dedup 409 + throttle; `ReportsModule` / surface E2E |
+| **Son Guncelleme** | 2026-04-23 — B-11; `CreateReportSchema` / `ReportDtoSchema` + OpenAPI / `API_Contract.md` |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,20 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] BACKEND_GAP — B-11 kullanıcı raporu `POST /v1/reports`
+
+**Kod:** `ReportsModule` / `ReportsService` / `ReportsController`; 24 saat `(reporterId, targetType, targetId)` dedup → `ConflictException`; throttle 5/dk.
+
+**Shared:** `CreateReportSchema.targetId` UUID; `ReportDtoSchema` `DateLikeSchema`; `report.schema.spec.ts`.
+
+**Test:** `reports.service.spec.ts`, surface E2E B-11; admin `GET/PATCH /admin/reports` değişmedi.
+
+**OpenAPI:** `pnpm openapi:generate` → `docs/openapi.json`, `docs/API_Contract.md`.
+
+**Dokuman:** `BACKEND_GAP_ROADMAP.md` B-11 tamam; `FRONTEND_BLUEPRINT.md` §17 B9 tamam.
+
+---
 
 ### [2026-04-23] BACKEND_GAP — B-10 Blocks REST + feed filtresi
 

@@ -3751,6 +3751,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateReportSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ReportDtoSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/stories": {
         parameters: {
             query?: never;
@@ -5061,6 +5100,7 @@ export interface components {
         CreateReportSchema: {
             description?: string;
             reason: string;
+            /** Format: uuid */
             targetId: string;
             /** @enum {string} */
             targetType: "USER" | "POST" | "COMMENT" | "MESSAGE" | "GROUP" | "EVENT";
@@ -6748,6 +6788,7 @@ export interface components {
             reporterId: string;
             /** @enum {string} */
             status: "PENDING" | "REVIEWING" | "RESOLVED" | "DISMISSED";
+            /** Format: uuid */
             targetId: string;
             /** @enum {string} */
             targetType: "USER" | "POST" | "COMMENT" | "MESSAGE" | "GROUP" | "EVENT";

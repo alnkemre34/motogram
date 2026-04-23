@@ -1,7 +1,7 @@
 # Motogram — Backend Gap Closure Roadmap (B‑01 → B‑18)
 
-> **Sürüm:** 1.3 — 2026-04-23  
-> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑09** (önceki tur); **B‑10** (`BlocksListResponseSchema`, `GET/POST/DELETE /v1/blocks`, feed + `GET /v1/posts/:id` blok filtresi, `userPosts` 403).  
+> **Sürüm:** 1.4 — 2026-04-23  
+> **Tamamlanan (kod):** **B‑01** … **B‑03** (önceki commit); **B‑04** … **B‑09** (önceki tur); **B‑10** … **B‑11** (`POST /v1/reports`, `CreateReportSchema` → `ReportDtoSchema`, 24 saat dedup 409, throttle 5/dk).  
 > **Kapsam:** `FRONTEND_BLUEPRINT.md` §17 “Backend Eksikleri” listesini (B1–B17) mevcut Zod / OpenAPI pipeline’ı **hiç bozmadan** kapatmak. Hayalet ekran üretmemek için öncelik burada; frontend’in F0/F1 sprintleri bu liste bittikten sonra güvenle açılır.  
 > **Anayasa (asla dışına çıkılmaz):**  
 > 1. **Zod SSOT** — şema önce `packages/shared/src/schemas/*.ts` içine, oradan export.  
@@ -66,7 +66,7 @@ Her B‑XX **tek commit + tek PR**. CI kırmızıya dönerse `git revert` ile ge
 | 8 | **B‑08** ✅ | User search (`GET /users/search?q=`) | NewConversation, invite flows | S |
 | 9 | **B‑09** ✅ | Followers / Following (`GET /users/:userId/followers` / `/following` + `me/…`) | Profile sekmeleri | S |
 | 10 | **B‑10** ✅ | Blocks modülü (`GET/POST/DELETE /blocks`) | Settings ▸ Engellenmiş kullanıcılar | S (yarı hazır) |
-| 11 | **B‑11** | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
+| 11 | **B‑11** ✅ | Reports modülü (`POST /reports`) | PostCard/Comment ▸ Rapor et | S (yarı hazır) |
 | 12 | **B‑12** | Communities search (`GET /communities/search?q=`) | Discover ▸ arama | S |
 | 13 | **B‑13** | Events search (`GET /events/search?q=`) | Discover ▸ arama | S |
 | 14 | **B‑14** | Notification preferences (`/notification-preferences`) | Settings ▸ Bildirimler | S |
@@ -309,26 +309,13 @@ export const UserSearchResponseSchema = z.object({
 
 ---
 
-### B‑11 · Reports modülü
+### B‑11 · Reports modülü ✅ (kodlandı)
 
-**Mevcut durum:** `Report` Prisma modeli ve `CreateReportSchema` / `ReportDtoSchema` **zaten var**; admin tarafında listeleme/inceleme var; kullanıcı tarafı **yok**.
+**Durum:** `ReportsModule` — `POST /v1/reports` (`CreateReportSchema` / `ZodBody`) → `ReportDtoSchema` (201). Prisma `ReportTargetType` (`USER` … `EVENT`) ile uyumlu.
 
-**Yeni dosyalar:**
+**Kurallar:** `@Throttle` 5/dk; aynı `(reporterId, targetType, targetId)` için son **24 saat** içinde ikinci kayıt → **409** (`report_duplicate`). Opsiyonel BullMQ moderation yok.
 
-- `apps/api/src/modules/reports/reports.module.ts`
-- `apps/api/src/modules/reports/reports.service.ts`
-- `apps/api/src/modules/reports/reports.controller.ts`
-
-**Endpoint:**
-- `POST /v1/reports` (`CreateReportSchema`) → `ReportDtoSchema`
-
-**Kural:**
-- `@Throttle({ default: { ttl: 60_000, limit: 5 } })`.
-- `targetType` enum: `POST | COMMENT | USER | COMMUNITY | MESSAGE`.
-- Aynı `(reporterId, targetType, targetId)` son 24 saatte ikinci defa → 409.
-- Başarılı kayıtta: WS gateway’i yok (admin panelden görülür), ama BullMQ `moderation` kuyruğuna job push (opsiyonel, var ise).
-
-**Testler:** duplicate 409, happy 201, schema invalid 400, admin listeleme çalışmaya devam.
+**Şema:** `targetId` UUID; `ReportDtoSchema.createdAt` → `DateLikeSchema`.
 
 **PR başlığı:** `feat(reports): user content report endpoint (B-11)`
 

@@ -38,6 +38,7 @@ import { PostsModule } from './modules/posts/posts.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { PrismaService } from './modules/prisma/prisma.service';
 import { PushModule } from './modules/push/push.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { REDIS_CLIENT } from './modules/redis/redis.service';
 import { StoriesModule } from './modules/stories/stories.module';
@@ -101,6 +102,7 @@ class OpenApiPrismaService extends PrismaClient {
     EventModule,
     MessagingModule,
     PushModule,
+    ReportsModule,
     // Faz 5 - Acil Durum, Gamification, Medya, Hesap Silme (Spec 2.3.2, 3.4, 3.6, 4.4, 5.2)
     EmergencyModule,
     GamificationModule,

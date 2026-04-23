@@ -44,6 +44,7 @@ import {
   NotificationListPageResponseSchema,
   NotificationUnreadCountResponseSchema,
   PostFeedPageSchema,
+  ReportDtoSchema,
   StoryFeedResponseSchema,
   StoryRowResponseSchema,
   SuccessTrueSchema,
@@ -652,6 +653,43 @@ describeE2E('E2E: HTTP surface (USER rolleri + RBAC)', () => {
       .delete(`/v1/follows/${userIdB}`)
       .set('Authorization', `Bearer ${tokenA}`)
       .expect(200);
+  });
+
+  it('B-11 — POST /v1/reports 201, duplicate 409, invalid body 400', async () => {
+    const first = await request(app.getHttpServer())
+      .post('/v1/reports')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({
+        targetType: 'USER',
+        targetId: userIdB,
+        reason: 'E2E rapor',
+        description: 'detay',
+      })
+      .expect(201);
+    ReportDtoSchema.parse(first.body);
+    expect(first.body.targetId).toBe(userIdB);
+
+    const dup = await request(app.getHttpServer())
+      .post('/v1/reports')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({
+        targetType: 'USER',
+        targetId: userIdB,
+        reason: 'ikinci deneme',
+      })
+      .expect(409);
+    ApiErrorSchema.parse(dup.body);
+
+    const bad = await request(app.getHttpServer())
+      .post('/v1/reports')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({
+        targetType: 'USER',
+        targetId: userIdA,
+        reason: 'x',
+      })
+      .expect(400);
+    ApiErrorSchema.parse(bad.body);
   });
 
   it('location — session start/stop, sharing, tek konum pingi', async () => {

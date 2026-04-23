@@ -3291,7 +3291,7 @@
             "type": "string"
           },
           "targetId": {
-            "minLength": 1,
+            "format": "uuid",
             "type": "string"
           },
           "targetType": {
@@ -10342,7 +10342,15 @@
       "ReportDtoSchema": {
         "properties": {
           "createdAt": {
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "description": {
             "type": [
@@ -10371,6 +10379,7 @@
             "type": "string"
           },
           "targetId": {
+            "format": "uuid",
             "type": "string"
           },
           "targetType": {
@@ -16500,6 +16509,38 @@
             "description": "OK"
           }
         }
+      }
+    },
+    "/reports": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReportSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportDtoSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+            ]
+          }
+        ]
       }
     },
     "/stories": {

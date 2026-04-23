@@ -659,7 +659,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | ~~B6~~ | ~~`GET /v1/users/search?q=`~~ | **TAMAMLANDI (2026-04-23)** — blok filtresi + sayfalama | — |
 | ~~B7~~ | ~~`GET /v1/users/:userId/followers` & `/following`~~ | **TAMAMLANDI (2026-04-23)** — `me/…` kolaylığı + `FollowListPageResponseSchema` | — |
 | ~~B8~~ | ~~`GET/POST/DELETE /v1/blocks`~~ | **TAMAMLANDI (2026-04-23)** — liste + idempotent engel; feed / post detay blok filtresi | — |
-| B9 | `POST /v1/reports` (post/comment/user/community) | İçerik raporlama | YES |
+| ~~B9~~ | ~~`POST /v1/reports`~~ | **TAMAMLANDI (2026-04-23)** — `CreateReportSchema` → `ReportDtoSchema`; 24 saat dedup 409; `GROUP`/`EVENT` Prisma enum ile | — |
 | B10 | `GET/POST/DELETE /v1/emergency/contacts` | Acil durum kişileri | OPSIYONEL |
 | B11 | `GET/POST /v1/notification-preferences` | Bildirim tercihleri | OPSIYONEL |
 | B12 | `GET /v1/users/me/data-export` | KVKK / veri indirme | OPSIYONEL |
@@ -669,7 +669,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | ~~B16~~ | ~~`?type=` filtresi `GET /v1/conversations`~~ | **TAMAMLANDI (2026-04-23)** — `ListConversationsQuerySchema` | — |
 | B17 | Sosyal giriş (Apple/Google) | İsteğe bağlı | OPSIYONEL |
 
-> Bu liste, frontend’in **hayalet ekran açmaması** için bir koruma kapısıdır. B1–B9 arası **mobil GA için zorunludur**; gerisi v1.1.
+> Bu liste, frontend’in **hayalet ekran açmaması** için bir koruma kapısıdır. **B5 (OTP)** hâlâ mobil GA için zorunlu; B1–B4 ve B6–B9 backend uçları tamam; gerisi v1.1.
 
 ---
 

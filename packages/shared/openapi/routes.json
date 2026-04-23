@@ -867,6 +867,14 @@
   },
   {
     "method": "POST",
+    "path": "/reports",
+    "requestBodySchema": "CreateReportSchema",
+    "responseSchema": "ReportDtoSchema",
+    "responseStatus": 201,
+    "auth": true
+  },
+  {
+    "method": "POST",
     "path": "/stories",
     "requestBodySchema": "CreateStorySchema",
     "responseSchema": "StoryRowResponseSchema",
