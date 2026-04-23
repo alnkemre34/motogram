@@ -31,9 +31,9 @@
 
 | Alan | Deger |
 |---|---|
-| **Aktif Faz** | Faz 7 - Enterprise Prod Hardening; paralel: mobil A2 Inbox (DM/Topluluk/Parti) tamam |
-| **Son Tamamlanan** | Mobil Inbox: `GET /v1/conversations?type=` ile DIRECT + GROUP_CHAT (bölümlü) + COMMUNITY_CHAT (ayrı sekme); `expo-blur` sekmeler; i18n; `messaging-path` Jest |
-| **Son Guncelleme** | 2026-04-23 — `FRONTEND_UI_UX_BLUEPRINT` v1.2; `FRONTEND_IMPLEMENTATION_ROADMAP.md`; Inbox ekran kodu + testler |
+| **Aktif Faz** | Faz 7 + mobil **P1** (Auth OAuth) uygulandı; sırada P3–P4 (ürün planına göre) |
+| **Son Tamamlanan** | **P1:** Apple/Google `POST /auth/oauth/*`, `SocialAuthBlock`, `expo-auth-session` + `expo-web-browser`, EULA, `auth-paths` + i18n; `.env.example` Google client alanları |
+| **Son Guncelleme** | 2026-04-23 — `FRONTEND_IMPLEMENTATION_ROADMAP` P1–P7 faz tablosu; OAuth CTA (Login/Register) |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,14 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] Mobil P1 — OAuth (Apple / Google) + sözleşme hizası
+
+**API:** `appleSignInRequest` / `googleSignInRequest` → `authPaths.oauthApple|oauthGoogle`; yanıt `AuthResultSchema`. **Google:** `expo-auth-session` `useIdTokenAuthRequest` + `EXPO_PUBLIC_GOOGLE_*_CLIENT_ID`. **App:** `WebBrowser.maybeCompleteAuthSession()`. **Ekran:** `LoginScreen` + `RegisterScreen` (EULA üstte, `SocialAuthBlock`).
+
+**Doküman:** `FRONTEND_IMPLEMENTATION_ROADMAP` §2.1 (P1–P7), §4 P1 kabul. **Test:** `auth-paths.spec.ts`.
+
+---
 
 ### [2026-04-23] Mobil Inbox (A2) — DM + Gruplar + Topluluk + Parti
 

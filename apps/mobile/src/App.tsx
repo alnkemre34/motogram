@@ -1,5 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
+import * as WebBrowser from 'expo-web-browser';
 import { useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -14,6 +15,7 @@ import { useAuthStore } from './store/auth.store';
 
 // Spec 9.7 - Sentry initialization at app start
 initSentry();
+WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
   const hydrate = useAuthStore((s) => s.hydrate);

@@ -47,6 +47,12 @@
       "resend": "Resend code",
       "verify": "Verify"
     },
+    "social": {
+      "apple": "Continue with Apple",
+      "google": "Continue with Google",
+      "or": "or with email",
+      "eulaA11y": "Accept the agreement for social sign-in"
+    },
     "errors": {
       "email_invalid": "Invalid email",
       "username_too_short": "Username must be at least 3 characters",
@@ -58,7 +64,14 @@
       "password_required": "Password required",
       "eula_required": "You must accept the agreement",
       "invalid_credentials": "Invalid email or password",
-      "user_already_exists": "User already exists"
+      "user_already_exists": "User already exists",
+      "apple_token_invalid": "Apple sign-in data is invalid",
+      "google_token_invalid": "Google sign-in data is invalid",
+      "oauth_apple_not_configured": "Apple sign-in is not configured on the server.",
+      "oauth_google_not_configured": "Google sign-in is not configured on the server.",
+      "oauth_token_invalid": "Authentication token invalid",
+      "oauth_email_provider_mismatch": "This email is linked to a different sign-in method",
+      "oauth_username_exhausted": "Could not create a username. Please contact support"
     }
   },
   "tabs": {

@@ -47,6 +47,12 @@
       "resend": "Kodu tekrar gönder",
       "verify": "Doğrula"
     },
+    "social": {
+      "apple": "Apple ile devam et",
+      "google": "Google ile devam et",
+      "or": "veya e-posta ile",
+      "eulaA11y": "Sosyal giriş için sözleşmeyi kabul et"
+    },
     "errors": {
       "email_invalid": "Geçersiz e-posta",
       "username_too_short": "Kullanıcı adı en az 3 karakter olmalı",
@@ -58,7 +64,14 @@
       "password_required": "Şifre gerekli",
       "eula_required": "Sözleşmeyi kabul etmelisiniz",
       "invalid_credentials": "E-posta veya şifre hatalı",
-      "user_already_exists": "Bu kullanıcı zaten kayıtlı"
+      "user_already_exists": "Bu kullanıcı zaten kayıtlı",
+      "apple_token_invalid": "Apple oturum bilgisi geçersiz",
+      "google_token_invalid": "Google oturum bilgisi geçersiz",
+      "oauth_apple_not_configured": "Apple girişi sunucuda yapılandırılmamış. Yöneticinize başvurun.",
+      "oauth_google_not_configured": "Google girişi sunucuda yapılandırılmamış. Yöneticinize başvurun.",
+      "oauth_token_invalid": "Oturum doğrulaması başarısız",
+      "oauth_email_provider_mismatch": "Bu e-posta farklı bir giriş yöntemine bağlı",
+      "oauth_username_exhausted": "Kullanıcı adı üretilemedi. Destekle iletişime geçin"
     }
   },
   "tabs": {

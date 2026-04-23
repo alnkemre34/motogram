@@ -31,6 +31,24 @@ Detay: Blueprint §17.4 “İdeal uygulama sırası” ile uyumludur; Inbox aşa
 
 ---
 
+## 2.1 Uygulama fazları (P1–P7) — kodlama emri
+
+Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu tablodaki “Durum” sütunu.
+
+| Faz | Ad | Teslim (belge) | Doğrulama |
+|-----|----|-----------------|-----------|
+| **P1** | Auth OAuth + sözleşme | `FRONTEND_UI_UX_BLUEPRINT` §6; `auth.schema` Apple/Google | Apple/Google/şifre giriş; EULA; hata i18n |
+| **P2** | (A2) Gelen kutusu | §10 Inbox | `?type=` DM / topluluk / parti; i18n |
+| **P3** | Home + üst bar | Story rail, bildirim/mesaj kısayolu (modal stack) | Feed + WS/story; loading/empty/error |
+| **P4** | Tab navigasyon 4 | `FRONTEND_UI_UX_BLUEPRINT` §5; Inbox tab’dan kaldır | 4 tab; Inbox/notification Home’dan |
+| **P5** | Profil + ayarlar | §11, Settings | `users/me`, public user, account API |
+| **P6** | Harita + topluluk/parti polish | §8–9 | Mapbox; ekranlar contract ile |
+| **P7** | WS + gamification + acil | §14 | Namespace’ler blueprint ile |
+
+**Aktif sıra (2026-04-23):** P1 uygulandı (OAuth CTA, API, i18n, `expo-web-browser` + Google env). Sırada: P1 tamamlandı mı cihaz testi; sonra P3 veya P4 (ürün tercihine göre—tablo önce Home mu navigation mu).
+
+---
+
 ## 3. Test stratejisi (mobil)
 
 - **Birim (Jest, `ts-jest`, `node` ortamı):** Saf mantık — örn. `messaging-path.ts` URL inşası; form şemaları (`zodResolver`); store/reducer; navigasyon `linking` eşlemesi. `api-client` veya `expo-constants` çeken modülleri testten **ayır** (saf yardımcı modül + re-export).
@@ -40,7 +58,16 @@ Detay: Blueprint §17.4 “İdeal uygulama sırası” ile uyumludur; Inbox aşa
 
 ---
 
-## 4. Inbox (A2) kabul kriterleri
+## 4. P1 (Auth) kabul kriterleri
+
+- [x] `POST /v1/auth/oauth/apple` / `.../google` `AuthResultSchema` ile parse
+- [x] `SocialAuthBlock` + EULA; kayıtta form EULA’sı ile hizalı
+- [x] `EXPO_PUBLIC_GOOGLE_*` yoksa Google CTA yok; Apple yalnız `isAvailableAsync`
+- [ ] Üretim: iOS `apple`, Android/iOS `google` client id’leri doldurulduğunda cihaz testi (manuel)
+
+---
+
+## 5. Inbox (A2) kabul kriterleri
 
 - [x] `GET /v1/conversations?type=DIRECT` ve `GROUP_CHAT` DM ekranında; `COMMUNITY_CHAT` ayrı sekmede.
 - [x] `inbox.*` i18n anahtarları (TR/EN).
@@ -49,6 +76,7 @@ Detay: Blueprint §17.4 “İdeal uygulama sırası” ile uyumludur; Inbox aşa
 
 ---
 
-## 5. Revizyon günlüğü
+## 6. Revizyon günlüğü
 
+- **2026-04-23 (2):** P1 faz tablosu (P1–P7), OAuth implementasyonu, `auth-path` test.
 - **2026-04-23:** A2 (Inbox) yol haritası ve test stratejisi eklendi; Blueprint v1.2 ile eşgüdüm.

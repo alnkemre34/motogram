@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { loginRequest } from '../../api/auth.api';
+import { SocialAuthBlock } from '../../features/auth/SocialAuthBlock';
 import { useZodForm } from '../../hooks/useZodForm';
 import { ApiClientError } from '../../lib/api-client';
 import type { AuthStackParamList } from '../../navigation/AuthNavigator';
@@ -47,6 +48,8 @@ export function LoginScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <Text style={styles.title}>{t('auth.login.title')}</Text>
+
+      <SocialAuthBlock />
 
       <Controller
         control={control}

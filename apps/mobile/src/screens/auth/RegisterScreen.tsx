@@ -2,7 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RegisterSchema } from '@motogram/shared';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import {
   ActivityIndicator,
   Pressable,
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { registerRequest } from '../../api/auth.api';
+import { SocialAuthBlock } from '../../features/auth/SocialAuthBlock';
 import { useZodForm } from '../../hooks/useZodForm';
 import { ApiClientError } from '../../lib/api-client';
 import type { AuthStackParamList } from '../../navigation/AuthNavigator';
@@ -38,6 +39,7 @@ export function RegisterScreen({ navigation }: Props) {
     },
   });
   const { errors } = formState;
+  const eulaWatch = useWatch({ control, name: 'eulaAccepted' });
 
   const mutation = useMutation({
     mutationFn: registerRequest,
@@ -57,6 +59,22 @@ export function RegisterScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <Text style={styles.title}>{t('auth.register.title')}</Text>
+
+      <Controller
+        control={control}
+        name="eulaAccepted"
+        render={({ field: { value, onChange } }) => (
+          <Pressable style={styles.eulaRow} onPress={() => onChange(!value)}>
+            <View style={[styles.checkbox, value ? styles.checkboxOn : null]} />
+            <Text style={styles.eulaText}>{t('auth.register.eula')}</Text>
+          </Pressable>
+        )}
+      />
+      {fieldMsg('eulaAccepted') ? (
+        <Text style={styles.fieldError}>{fieldMsg('eulaAccepted')}</Text>
+      ) : null}
+
+      <SocialAuthBlock eulaSatisfiedByParent={Boolean(eulaWatch)} />
 
       <Controller
         control={control}
@@ -125,20 +143,6 @@ export function RegisterScreen({ navigation }: Props) {
         )}
       />
       {fieldMsg('name') ? <Text style={styles.fieldError}>{fieldMsg('name')}</Text> : null}
-
-      <Controller
-        control={control}
-        name="eulaAccepted"
-        render={({ field: { value, onChange } }) => (
-          <Pressable style={styles.eulaRow} onPress={() => onChange(!value)}>
-            <View style={[styles.checkbox, value ? styles.checkboxOn : null]} />
-            <Text style={styles.eulaText}>{t('auth.register.eula')}</Text>
-          </Pressable>
-        )}
-      />
-      {fieldMsg('eulaAccepted') ? (
-        <Text style={styles.fieldError}>{fieldMsg('eulaAccepted')}</Text>
-      ) : null}
 
       {serverError ? <Text style={styles.error}>{serverError}</Text> : null}
 

@@ -9,6 +9,10 @@ interface AppEnv {
   mapboxStyleUrl: string;       // Spec 9.1 - koyu tema default
   /** R12: `expo.extra.strictSchema` (EAS); true iken parse hata fırlatır — `docs/DEPLOY_RUNBOOK.md`. */
   strictSchema: boolean;
+  /** Google id-token akışı — `expo-auth-session` platform uygun client. Boşsa Google butonu gizlenir. */
+  googleWebClientId?: string;
+  googleIosClientId?: string;
+  googleAndroidClientId?: string;
 }
 
 function deriveWsUrl(apiUrl: string): string {
@@ -43,4 +47,13 @@ export const env: AppEnv = {
     (typeof extra.mapboxStyleUrl === 'string' ? extra.mapboxStyleUrl : undefined) ??
     'mapbox://styles/mapbox/dark-v11',
   strictSchema: extra.strictSchema === true,
+  googleWebClientId:
+    process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ??
+    (typeof extra.googleWebClientId === 'string' ? extra.googleWebClientId : undefined),
+  googleIosClientId:
+    process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ??
+    (typeof extra.googleIosClientId === 'string' ? extra.googleIosClientId : undefined),
+  googleAndroidClientId:
+    process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ??
+    (typeof extra.googleAndroidClientId === 'string' ? extra.googleAndroidClientId : undefined),
 };

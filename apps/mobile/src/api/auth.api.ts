@@ -1,11 +1,14 @@
 import type {
+  AppleSignInDto,
   AuthResult,
+  GoogleSignInDto,
   LoginDto,
   RefreshTokenDto,
   RegisterDto,
 } from '@motogram/shared';
 import { AuthResultSchema, TokenPairSchema } from '@motogram/shared';
 
+import { authPaths } from './auth-paths';
 import { apiRequest } from '../lib/api-client';
 
 export type { AuthResult };
@@ -20,6 +23,22 @@ export function registerRequest(dto: RegisterDto): Promise<AuthResult> {
 
 export function loginRequest(dto: LoginDto): Promise<AuthResult> {
   return apiRequest('/auth/login', AuthResultSchema, {
+    method: 'POST',
+    body: dto,
+    skipAuth: true,
+  });
+}
+
+export function appleSignInRequest(dto: AppleSignInDto): Promise<AuthResult> {
+  return apiRequest(authPaths.oauthApple, AuthResultSchema, {
+    method: 'POST',
+    body: dto,
+    skipAuth: true,
+  });
+}
+
+export function googleSignInRequest(dto: GoogleSignInDto): Promise<AuthResult> {
+  return apiRequest(authPaths.oauthGoogle, AuthResultSchema, {
     method: 'POST',
     body: dto,
     skipAuth: true,
