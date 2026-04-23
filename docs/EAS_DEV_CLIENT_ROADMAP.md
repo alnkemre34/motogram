@@ -89,6 +89,7 @@ eas secret:delete --id <SECRET_ID>
 1. **`npx expo prebuild` tam üretimde android ağacını oluşturamadı** (Mapbox / config plugin: EAS’te **development** ortamı için `RNMAPBOX_MAPS_DOWNLOAD_TOKEN` ve gerekirse `EXPO_PUBLIC_MAPBOX_TOKEN` [Expo proje değişkenleri](https://expo.dev) ile tanımlı olmalı; sadece `production`’a yazmak development build’i kırar).
 2. **Eski / bozuk EAS cache** — bir kez `eas build --profile development --platform android --clear-cache` dene.
 3. **Imzalama adımı** — dev/preview profilleri için [eas.json](../apps/mobile/eas.json) içinde `android.withoutCredentials: true` kullanılır (Expo `development` profil önerisi; debug imza, mağaza AAB değil).
+4. **Uzak sürüm (`cli.appVersionSource: "remote"`)** — EAS, `Configure Android version` aşamasında `eas-build-configure-version.gradle` yazar; **prebuild henüz `android/app` oluşturmadıysa** aynı sınıf `ENOENT` hatası verir. Monorepo’da en stabil yol: **`appVersionSource: "local"`** + `app.json` içinde `expo.android.versionCode` (ve iOS için `expo.ios.buildNumber`).
 
 **Kontrol:** Build her zaman `apps/mobile` kökünden: `cd apps\mobile` → `eas build` (tüm monorepo upload edilir, komut yeri doğru olsun).
 
