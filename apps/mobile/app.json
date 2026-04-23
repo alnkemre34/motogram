@@ -5,7 +5,6 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
     "scheme": "motogram",
     "ios": {
       "supportsTablet": false,
@@ -34,10 +33,18 @@
         "android.permission.ACCESS_BACKGROUND_LOCATION",
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_LOCATION"
-      ],
-      "usesCleartextTraffic": true
+      ]
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true,
+            "newArchEnabled": false
+          }
+        }
+      ],
       "expo-secure-store",
       "expo-localization",
       "expo-notifications",
