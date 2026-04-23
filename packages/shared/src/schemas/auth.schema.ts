@@ -133,3 +133,25 @@ export const ResetPasswordResponseSchema = z.object({
   revokedSessions: z.number().int().nonnegative(),
 });
 export type ResetPasswordResponse = z.infer<typeof ResetPasswordResponseSchema>;
+
+/** POST /auth/email/change (B-07) — JWT + mevcut şifre. */
+export const ChangeEmailRequestSchema = z.object({
+  newEmail: z.string().email(),
+  password: PasswordSchema,
+});
+export type ChangeEmailRequestDto = z.infer<typeof ChangeEmailRequestSchema>;
+
+export const ChangeEmailResponseSchema = z.object({
+  success: z.literal(true),
+  pendingEmail: z.string().email(),
+});
+export type ChangeEmailResponse = z.infer<typeof ChangeEmailResponseSchema>;
+
+/** POST /auth/email/verify (B-07) — public; maildeki tek kullanımlık token. */
+export const ChangeEmailVerifySchema = z.object({
+  token: z.string().min(32).max(128),
+});
+export type ChangeEmailVerifyDto = z.infer<typeof ChangeEmailVerifySchema>;
+
+export const ChangeEmailVerifyResponseSchema = z.object({ success: z.literal(true) });
+export type ChangeEmailVerifyResponse = z.infer<typeof ChangeEmailVerifyResponseSchema>;

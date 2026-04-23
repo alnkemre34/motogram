@@ -7,6 +7,8 @@ import {
 import {
   AuthLoginSuccessEventSchema,
   ErrorCodes,
+  type ChangeEmailRequestDto,
+  type ChangeEmailVerifyDto,
   type ChangePasswordDto,
   type ForgotPasswordDto,
   type LoginDto,
@@ -20,6 +22,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { ZodEventBus } from '../../common/events/zod-event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 
+import { EmailChangeMailQueue } from './email-change-mail.queue';
 import { PasswordResetMailQueue } from './password-reset-mail.queue';
 import { TokenService } from './token.service';
 
@@ -34,6 +37,7 @@ export interface AuthLoginEventPayload {
 const BCRYPT_ROUNDS = 12;
 
 const PASSWORD_RESET_TTL_MS = 30 * 60 * 1000;
+const EMAIL_CHANGE_TTL_MS = 48 * 60 * 60 * 1000;
 
 function hashPasswordResetToken(plain: string): string {
   return createHash('sha256').update(plain, 'utf8').digest('hex');
@@ -46,16 +50,19 @@ export class AuthService {
     private readonly tokens: TokenService,
     private readonly events: ZodEventBus,
     private readonly passwordResetMail: PasswordResetMailQueue,
+    private readonly emailChangeMail: EmailChangeMailQueue,
   ) {}
 
   // Spec 9.2 - Email+sifre register. EULA zorunlu (Zod sema literal(true) ile
   // garanti altinda).
   async register(dto: RegisterDto): Promise<{ userId: string; tokens: TokenPair }> {
     const usernameNorm = dto.username.trim().toLowerCase();
+    const emailNorm = dto.email.trim().toLowerCase();
     const existing = await this.prisma.user.findFirst({
       where: {
         OR: [
-          { email: dto.email },
+          { email: { equals: emailNorm, mode: 'insensitive' } },
+          { pendingEmail: { equals: emailNorm, mode: 'insensitive' } },
           { username: { equals: usernameNorm, mode: 'insensitive' } },
         ],
       },
@@ -71,7 +78,7 @@ export class AuthService {
 
     const user = await this.prisma.user.create({
       data: {
-        email: dto.email,
+        email: emailNorm,
         username: usernameNorm,
         passwordHash,
         name: dto.name ?? null,
@@ -97,7 +104,7 @@ export class AuthService {
     const user = await this.prisma.user.findFirst({
       where: {
         OR: [
-          { email: identifier },
+          { email: { equals: identifier, mode: 'insensitive' } },
           { username: { equals: identifier, mode: 'insensitive' } },
         ],
       },
@@ -257,7 +264,7 @@ export class AuthService {
   async forgotPassword(dto: ForgotPasswordDto): Promise<{ success: true }> {
     const email = dto.email.trim().toLowerCase();
     const user = await this.prisma.user.findFirst({
-      where: { email },
+      where: { email: { equals: email, mode: 'insensitive' } },
       select: {
         id: true,
         email: true,
@@ -336,5 +343,126 @@ export class AuthService {
     });
     const revokedSessions = await this.tokens.revokeAllForUser(rec.userId);
     return { success: true as const, revokedSessions };
+  }
+
+  /** B-07 — Mevcut şifre + benzersiz yeni e-posta; doğrulama linki mevcut adrese (kuyruk). */
+  async requestEmailChange(
+    userId: string,
+    dto: ChangeEmailRequestDto,
+  ): Promise<{ success: true; pendingEmail: string }> {
+    const newNorm = dto.newEmail.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, passwordHash: true },
+    });
+    if (!user?.passwordHash) {
+      throw new UnauthorizedException({
+        error: 'invalid_credentials',
+        code: ErrorCodes.INVALID_CREDENTIALS,
+      });
+    }
+    const ok = await bcrypt.compare(dto.password, user.passwordHash);
+    if (!ok) {
+      throw new UnauthorizedException({
+        error: 'invalid_credentials',
+        code: ErrorCodes.INVALID_CREDENTIALS,
+      });
+    }
+    const currentNorm = user.email.trim().toLowerCase();
+    if (newNorm === currentNorm) {
+      throw new BadRequestException({
+        error: 'email_unchanged',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+    const taken = await this.prisma.user.findFirst({
+      where: {
+        id: { not: userId },
+        deletedAt: null,
+        OR: [
+          { email: { equals: newNorm, mode: 'insensitive' } },
+          { pendingEmail: { equals: newNorm, mode: 'insensitive' } },
+        ],
+      },
+      select: { id: true },
+    });
+    if (taken) {
+      throw new ConflictException({
+        error: 'email_taken',
+        code: ErrorCodes.CONFLICT,
+      });
+    }
+
+    await this.prisma.emailChangeToken.deleteMany({
+      where: { userId: user.id, usedAt: null },
+    });
+    const plainToken = randomBytes(32).toString('hex');
+    const tokenHash = hashPasswordResetToken(plainToken);
+    const expiresAt = new Date(Date.now() + EMAIL_CHANGE_TTL_MS);
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { pendingEmail: newNorm },
+      });
+      await tx.emailChangeToken.create({
+        data: { userId: user.id, newEmail: newNorm, tokenHash, expiresAt },
+      });
+    });
+    await this.emailChangeMail.enqueue({
+      userId: user.id,
+      email: user.email,
+      newEmail: newNorm,
+      verifyToken: plainToken,
+    });
+    return { success: true as const, pendingEmail: newNorm };
+  }
+
+  /** B-07 — Public; token geçerliyse `email` güncellenir, pending temizlenir, refresh oturumları düşer. */
+  async verifyEmailChange(dto: ChangeEmailVerifyDto): Promise<{ success: true }> {
+    const tokenHash = hashPasswordResetToken(dto.token);
+    const rec = await this.prisma.emailChangeToken.findFirst({
+      where: {
+        tokenHash,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            pendingEmail: true,
+            isBanned: true,
+            deletedAt: true,
+          },
+        },
+      },
+    });
+    if (!rec || rec.user.isBanned || rec.user.deletedAt) {
+      throw new BadRequestException({
+        error: 'email_change_token_invalid',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+    const pendingNorm = rec.user.pendingEmail?.trim().toLowerCase();
+    const newNorm = rec.newEmail.trim().toLowerCase();
+    if (!pendingNorm || pendingNorm !== newNorm) {
+      throw new BadRequestException({
+        error: 'email_change_token_invalid',
+        code: ErrorCodes.VALIDATION_FAILED,
+      });
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.emailChangeToken.update({
+        where: { id: rec.id },
+        data: { usedAt: new Date() },
+      });
+      await tx.user.update({
+        where: { id: rec.userId },
+        data: { email: newNorm, pendingEmail: null },
+      });
+    });
+    await this.tokens.revokeAllForUser(rec.userId);
+    return { success: true as const };
   }
 }

@@ -480,6 +480,84 @@ export interface paths {
         };
         trace?: never;
     };
+    "/auth/email/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeEmailRequestSchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChangeEmailResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/email/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeEmailVerifySchema"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChangeEmailVerifyResponseSchema"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -4186,6 +4264,24 @@ export interface components {
             swLat: number;
             swLng: number;
         };
+        ChangeEmailRequestSchema: {
+            /** Format: email */
+            newEmail: string;
+            password: string;
+        };
+        ChangeEmailResponseSchema: {
+            /** Format: email */
+            pendingEmail: string;
+            /** @enum {boolean} */
+            success: true;
+        };
+        ChangeEmailVerifyResponseSchema: {
+            /** @enum {boolean} */
+            success: true;
+        };
+        ChangeEmailVerifySchema: {
+            token: string;
+        };
         ChangePasswordResponseSchema: {
             revokedSessions: number;
             /** @enum {boolean} */
@@ -4749,6 +4845,15 @@ export interface components {
             radiusMeters: number;
             /** @default [] */
             ridingStyle: string[];
+        };
+        EmailChangeMailJobSchema: {
+            /** Format: email */
+            email: string;
+            /** Format: email */
+            newEmail: string;
+            /** Format: uuid */
+            userId: string;
+            verifyToken: string;
         };
         EmergencyAlertDtoSchema: {
             accuracyMeters: number | null;
@@ -6815,6 +6920,8 @@ export interface components {
             isVerified: boolean;
             level: number;
             name: string | null;
+            /** Format: email */
+            pendingEmail?: string | null;
             postsCount: number;
             ridingStyle: string[];
             settings?: unknown;

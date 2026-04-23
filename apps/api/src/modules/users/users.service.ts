@@ -38,7 +38,7 @@ export class UsersService {
   async getMe(userId: string) {
     const user = await this.prisma.user.findFirst({
       where: { id: userId, deletedAt: null },
-      select: { ...this.publicSelect(), email: true, settings: true },
+      select: { ...this.publicSelect(), email: true, pendingEmail: true, settings: true },
     });
     if (!user) {
       throw new NotFoundException({ error: 'user_not_found', code: ErrorCodes.NOT_FOUND });

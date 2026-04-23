@@ -2,6 +2,10 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   AuthResultSchema,
+  ChangeEmailRequestSchema,
+  ChangeEmailResponseSchema,
+  ChangeEmailVerifyResponseSchema,
+  ChangeEmailVerifySchema,
   ChangePasswordResponseSchema,
   ChangePasswordSchema,
   ForgotPasswordResponseSchema,
@@ -13,6 +17,8 @@ import {
   ResetPasswordResponseSchema,
   ResetPasswordSchema,
   TokenPairResponseSchema,
+  type ChangeEmailRequestDto,
+  type ChangeEmailVerifyDto,
   type ChangePasswordDto,
   type ForgotPasswordDto,
   type LoginDto,
@@ -107,5 +113,26 @@ export class AuthController {
     @Body(new ZodBody(ChangePasswordSchema)) dto: ChangePasswordDto,
   ) {
     return this.auth.changePassword(user.userId, dto);
+  }
+
+  /** B-07 — JWT + şifre; `pendingEmail` + doğrulama maili (mevcut adrese). */
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 5 } })
+  @HttpCode(200)
+  @Post('email/change')
+  @ZodResponse(ChangeEmailResponseSchema)
+  async requestEmailChange(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body(new ZodBody(ChangeEmailRequestSchema)) dto: ChangeEmailRequestDto,
+  ) {
+    return this.auth.requestEmailChange(user.userId, dto);
+  }
+
+  @Public()
+  @Throttle({ default: { ttl: 15 * 60_000, limit: 20 } })
+  @HttpCode(200)
+  @Post('email/verify')
+  @ZodResponse(ChangeEmailVerifyResponseSchema)
+  async verifyEmailChange(@Body(new ZodBody(ChangeEmailVerifySchema)) dto: ChangeEmailVerifyDto) {
+    return this.auth.verifyEmailChange(dto);
   }
 }

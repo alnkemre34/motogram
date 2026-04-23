@@ -30,3 +30,14 @@ export const PasswordResetEmailJobSchema = z.object({
   resetToken: z.string().min(32).max(128),
 });
 export type PasswordResetEmailJob = z.infer<typeof PasswordResetEmailJobSchema>;
+
+/** BullMQ AUTH_EMAIL_CHANGE_MAIL — mevcut adrese doğrulama linki (B-07). */
+export const EmailChangeMailJobSchema = z.object({
+  userId: z.string().uuid(),
+  /** Mevcut hesap e-postası (doğrulama linki buraya gider). */
+  email: z.string().email(),
+  /** Hedef yeni adres (log / şablon metni). */
+  newEmail: z.string().email(),
+  verifyToken: z.string().min(32).max(128),
+});
+export type EmailChangeMailJob = z.infer<typeof EmailChangeMailJobSchema>;

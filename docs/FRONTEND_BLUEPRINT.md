@@ -654,7 +654,7 @@ Web‑admin için aynı çıktı standardı: hayalet sayfa kaldırılacak, sadec
 | ~~B1~~ | ~~`POST /v1/auth/password/forgot` + `/reset`~~ | **TAMAMLANDI (2026-04-23)** — `PasswordResetToken` + mail kuyruğu | — |
 | ~~B2~~ | ~~`POST /v1/auth/password/change`~~ | **TAMAMLANDI (2026-04-23)** | — |
 | ~~B3~~ | ~~`PATCH /v1/users/me/username`~~ | **TAMAMLANDI (2026-04-23)** — 30 gün cooldown + rezerv liste + küçük harf | — |
-| B4 | `POST /v1/auth/email/change` + `/verify` | E‑posta değiştir + doğrulama | YES |
+| ~~B4~~ | ~~`POST /v1/auth/email/change` + `/verify`~~ | **TAMAMLANDI (2026-04-23)** — `pendingEmail` + `EmailChangeToken` + mail kuyruğu | — |
 | B5 | `POST /v1/auth/otp/request` + `/verify` | Telefon/email OTP | EVET (Otp ekranı için) |
 | B6 | `GET /v1/users/search?q=` | Mesaj/grup için kullanıcı arama | YES |
 | B7 | `GET /v1/users/:id/followers` & `/following` | Takipçi/takip listesi | YES |

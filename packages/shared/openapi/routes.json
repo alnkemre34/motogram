@@ -148,6 +148,22 @@
   },
   {
     "method": "POST",
+    "path": "/auth/email/change",
+    "requestBodySchema": "ChangeEmailRequestSchema",
+    "responseSchema": "ChangeEmailResponseSchema",
+    "responseStatus": 200,
+    "auth": true
+  },
+  {
+    "method": "POST",
+    "path": "/auth/email/verify",
+    "requestBodySchema": "ChangeEmailVerifySchema",
+    "responseSchema": "ChangeEmailVerifyResponseSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
+    "method": "POST",
     "path": "/auth/login",
     "requestBodySchema": "LoginSchema",
     "responseSchema": "AuthResultSchema",

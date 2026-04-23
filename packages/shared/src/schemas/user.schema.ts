@@ -34,6 +34,8 @@ export const UserPublicApiResponseSchema = UserPublicSchema.extend({
 
 export const UserMeResponseSchema = UserPublicApiResponseSchema.extend({
   email: z.string().email(),
+  /** B-07 — Doğrulanmayı bekleyen yeni e-posta; yoksa null/omit. */
+  pendingEmail: z.string().email().nullable().optional(),
   settings: z.unknown().nullable(),
 }).passthrough();
 

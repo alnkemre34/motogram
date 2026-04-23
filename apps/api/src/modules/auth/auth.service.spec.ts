@@ -32,6 +32,12 @@ function createPrismaMock() {
       findFirst: jest.Mock;
       update: jest.Mock;
     };
+    emailChangeToken: {
+      deleteMany: jest.Mock;
+      create: jest.Mock;
+      findFirst: jest.Mock;
+      update: jest.Mock;
+    };
     $transaction: jest.Mock;
   } = {
     user: {
@@ -42,6 +48,12 @@ function createPrismaMock() {
     },
     accountDeletion: { findUnique: jest.fn() },
     passwordResetToken: {
+      deleteMany: jest.fn(),
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    emailChangeToken: {
       deleteMany: jest.fn(),
       create: jest.fn(),
       findFirst: jest.fn(),
@@ -71,13 +83,21 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
 
   let events: { emit: jest.Mock };
   let passwordResetMail: { enqueue: jest.Mock };
+  let emailChangeMail: { enqueue: jest.Mock };
 
   beforeEach(() => {
     prisma = createPrismaMock();
     tokens = createTokenServiceMock();
     events = { emit: jest.fn(() => true) };
     passwordResetMail = { enqueue: jest.fn().mockResolvedValue(undefined) };
-    service = new AuthService(prisma as never, tokens, events as never, passwordResetMail as never);
+    emailChangeMail = { enqueue: jest.fn().mockResolvedValue(undefined) };
+    service = new AuthService(
+      prisma as never,
+      tokens,
+      events as never,
+      passwordResetMail as never,
+      emailChangeMail as never,
+    );
   });
 
   describe('register (Spec 9.2)', () => {
@@ -415,6 +435,123 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
       expect(tokens.revokeAllForUser).toHaveBeenCalledWith('u1');
       expect(out.success).toBe(true);
       expect(out.revokedSessions).toBe(2);
+    });
+  });
+
+  describe('requestEmailChange (B-07)', () => {
+    it('rejects wrong password', async () => {
+      const hash = await bcrypt.hash('good', 4);
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'old@example.com',
+        passwordHash: hash,
+      } as never);
+      await expect(
+        service.requestEmailChange('u1', { newEmail: 'new@example.com', password: 'bad' }),
+      ).rejects.toMatchObject({
+        response: { error: 'invalid_credentials', code: ErrorCodes.INVALID_CREDENTIALS },
+      });
+    });
+
+    it('rejects when new email equals current', async () => {
+      const hash = await bcrypt.hash('pw', 4);
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'Same@Example.com',
+        passwordHash: hash,
+      } as never);
+      await expect(
+        service.requestEmailChange('u1', { newEmail: 'same@example.com', password: 'pw' }),
+      ).rejects.toMatchObject({
+        response: { error: 'email_unchanged', code: ErrorCodes.VALIDATION_FAILED },
+      });
+    });
+
+    it('rejects when email is taken', async () => {
+      const hash = await bcrypt.hash('pw', 4);
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'old@example.com',
+        passwordHash: hash,
+      } as never);
+      prisma.user.findFirst.mockResolvedValue({ id: 'u2' } as never);
+      await expect(
+        service.requestEmailChange('u1', { newEmail: 'taken@example.com', password: 'pw' }),
+      ).rejects.toMatchObject({
+        response: { error: 'email_taken', code: ErrorCodes.CONFLICT },
+      });
+    });
+
+    it('creates token, sets pendingEmail, enqueues mail', async () => {
+      const hash = await bcrypt.hash('pw', 4);
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'old@example.com',
+        passwordHash: hash,
+      } as never);
+      prisma.user.findFirst.mockResolvedValue(null);
+      prisma.emailChangeToken.deleteMany.mockResolvedValue({ count: 0 } as never);
+
+      const out = await service.requestEmailChange('u1', {
+        newEmail: 'New@Example.com',
+        password: 'pw',
+      });
+
+      expect(out.success).toBe(true);
+      expect(out.pendingEmail).toBe('new@example.com');
+      expect(prisma.emailChangeToken.deleteMany).toHaveBeenCalled();
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'u1' },
+          data: { pendingEmail: 'new@example.com' },
+        }),
+      );
+      expect(prisma.emailChangeToken.create).toHaveBeenCalled();
+      expect(emailChangeMail.enqueue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'u1',
+          email: 'old@example.com',
+          newEmail: 'new@example.com',
+          verifyToken: expect.stringMatching(/^[a-f0-9]{64}$/),
+        }),
+      );
+    });
+  });
+
+  describe('verifyEmailChange (B-07)', () => {
+    it('rejects invalid token', async () => {
+      prisma.emailChangeToken.findFirst.mockResolvedValue(null);
+      await expect(service.verifyEmailChange({ token: 'x'.repeat(32) })).rejects.toMatchObject({
+        response: { error: 'email_change_token_invalid', code: ErrorCodes.VALIDATION_FAILED },
+      });
+    });
+
+    it('applies new email and revokes refresh sessions', async () => {
+      const plain = 'y'.repeat(32);
+      prisma.emailChangeToken.findFirst.mockResolvedValue({
+        id: 'ec1',
+        userId: 'u1',
+        newEmail: 'next@example.com',
+        user: {
+          id: 'u1',
+          pendingEmail: 'next@example.com',
+          isBanned: false,
+          deletedAt: null,
+        },
+      } as never);
+      prisma.emailChangeToken.update.mockResolvedValue({} as never);
+      prisma.user.update.mockResolvedValue({} as never);
+      tokens.revokeAllForUser.mockResolvedValue(1);
+
+      const out = await service.verifyEmailChange({ token: plain });
+
+      expect(out.success).toBe(true);
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'u1' },
+        data: { email: 'next@example.com', pendingEmail: null },
+      });
+      expect(tokens.revokeAllForUser).toHaveBeenCalledWith('u1');
     });
   });
 });

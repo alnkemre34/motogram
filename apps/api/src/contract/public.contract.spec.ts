@@ -169,6 +169,22 @@ describeContract('Contract: public HTTP', () => {
     ApiErrorSchema.parse(res.body);
   });
 
+  it('POST /v1/auth/email/change — JWT yok 401', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/email/change')
+      .send({ newEmail: 'x@example.com', password: 'Contract1!z' })
+      .expect(401);
+    ApiErrorSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/email/verify — geçersiz token 400 + ApiErrorSchema', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/email/verify')
+      .send({ token: 'd'.repeat(32) })
+      .expect(400);
+    ApiErrorSchema.parse(res.body);
+  });
+
   it('POST /v1/auth/password/change — JWT yok 401', async () => {
     const res = await request(app.getHttpServer())
       .post('/v1/auth/password/change')

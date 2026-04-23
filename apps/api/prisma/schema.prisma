@@ -20,6 +20,8 @@ model User {
   id              String    @id @default(uuid())
   username        String    @unique
   email           String    @unique
+  // B-07 — Doğrulanmamış yeni e-posta (verify sonrası `email` güncellenir).
+  pendingEmail    String?
   phoneNumber     String?   @unique
   passwordHash    String?
   name            String?
@@ -93,6 +95,7 @@ model User {
   mediaAssets          MediaAsset[]             @relation("MediaOwner")
   accountDeletion      AccountDeletion?
   passwordResetTokens  PasswordResetToken[]
+  emailChangeTokens    EmailChangeToken[]
 
   @@index([username])
   @@index([email])
@@ -1072,6 +1075,21 @@ model PasswordResetToken {
 
   @@index([userId, expiresAt])
   @@map("password_reset_tokens")
+}
+
+// ============ AUTH - E-POSTA DEGISIMI (B-07) ============
+model EmailChangeToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  newEmail  String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+  @@map("email_change_tokens")
 }
 
 // ============ FAZ 5 - VERI IMHA POLITIKASI (Spec 5.2 + 8.11.4) ============

@@ -1,4 +1,6 @@
 import {
+  ChangeEmailRequestSchema,
+  ChangeEmailVerifySchema,
   ChangePasswordSchema,
   ForgotPasswordSchema,
   LoginSchema,
@@ -132,6 +134,30 @@ describe('ResetPasswordSchema (B-05)', () => {
     expect(
       ResetPasswordSchema.safeParse({ token: 'x'.repeat(31), newPassword: 'validpass1' }).success,
     ).toBe(false);
+  });
+});
+
+describe('ChangeEmailRequestSchema (B-07)', () => {
+  it('accepts newEmail + password', () => {
+    expect(
+      ChangeEmailRequestSchema.safeParse({
+        newEmail: 'a@b.co',
+        password: 'password1',
+      }).success,
+    ).toBe(true);
+  });
+
+  it('rejects invalid newEmail', () => {
+    expect(
+      ChangeEmailRequestSchema.safeParse({ newEmail: 'bad', password: 'password1' }).success,
+    ).toBe(false);
+  });
+});
+
+describe('ChangeEmailVerifySchema (B-07)', () => {
+  it('requires token min 32', () => {
+    expect(ChangeEmailVerifySchema.safeParse({ token: 't'.repeat(32) }).success).toBe(true);
+    expect(ChangeEmailVerifySchema.safeParse({ token: 's'.repeat(31) }).success).toBe(false);
   });
 });
 
