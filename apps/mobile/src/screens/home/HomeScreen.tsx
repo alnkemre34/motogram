@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fetchUnreadCount } from '../../api/notifications.api';
 import { fetchFeed, type FeedPage } from '../../api/posts.api';
+import { StoryRail } from '../../features/story/StoryRail';
 import { useLikePost } from '../../hooks/useLikePost';
 import type { AppStackParamList } from '../../navigation/types';
 
@@ -25,13 +26,13 @@ type RootNav = NativeStackNavigationProp<AppStackParamList>;
 
 export function HomeScreen() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const navigation = useNavigation();
   const rootNav = navigation.getParent<RootNav>();
   const { data, isLoading, refetch, isRefetching } = useQuery<FeedPage>({
     queryKey: ['feed'],
     queryFn: () => fetchFeed({ limit: 20 }),
   });
-
   const unreadQ = useQuery({
     queryKey: ['notifications', 'unread'],
     queryFn: () => fetchUnreadCount(),
@@ -93,12 +94,14 @@ export function HomeScreen() {
       <FlatList
         data={data?.items ?? []}
         keyExtractor={(item) => item.id}
+        ListHeaderComponent={<StoryRail />}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={() => {
               void refetch();
               void unreadQ.refetch();
+              void queryClient.refetchQueries({ queryKey: ['stories', 'feed'] });
             }}
             tintColor="#ff6a00"
           />

@@ -4,6 +4,7 @@ import { InboxStackNavigator } from './InboxStackNavigator';
 import { TabNavigator } from './TabNavigator';
 import type { AppStackParamList } from './types';
 import { NotificationsScreen } from '../screens/home/NotificationsScreen';
+import { StoryViewerScreen } from '../screens/story/StoryViewerScreen';
 
 // FRONTEND_UI_UX_BLUEPRINT §5 — 4 sekmeli tab; Inbox + Notifications stack üstünde
 
@@ -21,6 +22,11 @@ export function AppStackNavigator() {
         name="Notifications"
         component={NotificationsScreen}
         options={{ headerShown: false, animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="StoryViewer"
+        component={StoryViewerScreen}
+        options={{ headerShown: false, animation: 'fade' }}
       />
     </Stack.Navigator>
   );

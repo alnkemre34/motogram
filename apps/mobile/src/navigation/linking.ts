@@ -28,6 +28,12 @@ export const linking: LinkingOptions<AppStackParamList> = {
         },
       },
       Notifications: 'notifications',
+      StoryViewer: {
+        path: 'story/:initialStoryId',
+        parse: {
+          initialStoryId: (id: string) => id,
+        },
+      },
     },
   },
 };

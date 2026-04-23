@@ -1,4 +1,8 @@
-import { NotificationListPageResponseSchema, NotificationUnreadCountResponseSchema } from '@motogram/shared';
+import {
+  NotificationListPageResponseSchema,
+  NotificationUnreadCountResponseSchema,
+  SuccessTrueSchema,
+} from '@motogram/shared';
 
 import { apiRequest } from '../lib/api-client';
 
@@ -14,4 +18,12 @@ export async function fetchNotificationsList(opts: { cursor?: string; limit?: nu
 
 export async function fetchUnreadCount() {
   return apiRequest('/notifications/unread-count', NotificationUnreadCountResponseSchema);
+}
+
+export async function markNotificationsRead(ids: string[]) {
+  if (ids.length === 0) return;
+  return apiRequest('/notifications/mark-read', SuccessTrueSchema, {
+    method: 'POST',
+    body: { notificationIds: ids },
+  });
 }

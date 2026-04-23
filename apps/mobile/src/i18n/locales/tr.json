@@ -88,10 +88,17 @@
     "notificationsTitle": "Bildirimler",
     "notificationsEmpty": "Bildirimin yok.",
     "storiesTitle": "Hikayeler",
+    "storiesEmpty": "Henüz hikâye yok. Takip ettiklerin paylaştığında burada görünür.",
+    "storiesLoadingA11y": "Hikâyeler yükleniyor",
+    "storyOpenUser": "{{user}} kullanıcısının hikâyesini aç",
     "emptyFeed": "Henüz gönderi yok. Birilerini takip ederek akışını doldur.",
     "like": "Beğen",
     "comment": "Yorum",
     "share": "Paylaş"
+  },
+  "story": {
+    "unavailable": "Bu hikâyeye ulaşılamıyor veya silinmiş olabilir.",
+    "videoHint": "Video oynatma bir sonraki sürümde. Şimdilik önizleme yok."
   },
   "profile": {
     "editProfile": "Profili Düzenle",

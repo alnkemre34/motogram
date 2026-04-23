@@ -88,10 +88,17 @@
     "notificationsTitle": "Notifications",
     "notificationsEmpty": "No notifications yet.",
     "storiesTitle": "Stories",
+    "storiesEmpty": "No stories yet. They’ll show when people you follow post.",
+    "storiesLoadingA11y": "Loading stories",
+    "storyOpenUser": "Open story from {{user}}",
     "emptyFeed": "No posts yet. Follow someone to fill your feed.",
     "like": "Like",
     "comment": "Comment",
     "share": "Share"
+  },
+  "story": {
+    "unavailable": "This story is unavailable or may have expired.",
+    "videoHint": "In-app video playback is planned for a later release."
   },
   "profile": {
     "editProfile": "Edit Profile",

@@ -31,9 +31,9 @@
 
 | Alan | Deger |
 |---|---|
-| **Aktif Faz** | Faz 7 + mobil **P3/P4** (Home üst bar + 4 sekmeli nav); sırada P3 kalan: story rail |
-| **Son Tamamlanan** | **P4:** `AppStackNavigator` (4 tab, Inbox + Notifications root); **P3 (kısmi):** `GET /v1/notifications*`, `NotificationsScreen`, Home rozet, `likedByMe`; `linking` AppStack; `Inbox`→`MainTabs/Map` |
-| **Son Guncelleme** | 2026-04-23 — navigasyon + bildirim; `FRONTEND_IMPLEMENTATION_ROADMAP` A3–A4/P3–P4 |
+| **Aktif Faz** | Faz 7 + mobil **P5** (Profil + ayarlar) öncelik; P1–P4 mobil yol haritası kapanış |
+| **Son Tamamlanan** | **P3:** `GET /v1/stories/feed`, `StoryRail` + `StoryViewer`, görüntülenme `POST .../views`; bildirim `mark-read` ekran blur; `groupStoryFeedByUser` Jest |
+| **Son Guncelleme** | 2026-04-23 — P3 tam; A3 satırı kapanış; story video → ileri faz notu |
 | **Son Commit** | `main` uzerinde `alnkemre34/motogram-fixed` - guncel hash icin `git log -1 --oneline` |
 | **Aktif Ise Yarar Dokuman** | `docs/SESSION_HANDOFF.md` (oturumlar arasi hizli ozet) |
 | **Bekleyen Milestone** | Android `preview` APK build'inin kuyruktan cikmasi ve cihaza kurulup dogrulanmasi; sonuc pozitifse Asama 2 (backup stratejisi) |
@@ -113,6 +113,12 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-23] Mobil P3 — Story rail + StoryViewer + bildirim okundu
+
+**Kod:** `apps/mobile/src/api/stories.api.ts`; `features/story/{StoryRail,group-story-feed}`; `screens/story/StoryViewerScreen`; `AppStack` `StoryViewer`; `notifications.api` `markNotificationsRead` + `NotificationsScreen` `useFocusEffect` çıkış. **Not:** `mediaType===VIDEO` için tam oynatıcı yok (metin + ardıl `expo-av`).
+
+---
 
 ### [2026-04-23] Mobil P3/P4 — 4 tab + Gelen/ Bildirim Home’dan
 

@@ -1,5 +1,6 @@
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -12,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { fetchNotificationsList } from '../../api/notifications.api';
+import { fetchNotificationsList, markNotificationsRead } from '../../api/notifications.api';
 import { queryClient } from '../../lib/query-client';
 
 // Blueprint §5 — Inbox/Notifications Home üst bardan; REST tabanlı liste
@@ -26,6 +27,29 @@ export function NotificationsScreen() {
     queryFn: () => fetchNotificationsList({ limit: 40 }),
     staleTime: 15_000,
   });
+
+  const dataRef = useRef<typeof q.data | undefined>(undefined);
+  useEffect(() => {
+    dataRef.current = q.data;
+  }, [q.data]);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        const items = dataRef.current?.items ?? [];
+        const ids = items.filter((n) => !n.isRead).map((n) => n.id);
+        if (ids.length === 0) return;
+        void (async () => {
+          try {
+            await markNotificationsRead(ids);
+            void queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+          } catch {
+            // rozet tazeleme hatası: sessiz
+          }
+        })();
+      };
+    }, []),
+  );
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>

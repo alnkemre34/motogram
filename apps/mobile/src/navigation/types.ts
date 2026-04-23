@@ -10,6 +10,7 @@ export type AppStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   Inbox: undefined;
   Notifications: undefined;
+  StoryViewer: { initialStoryId: string };
 };
 
 export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<
