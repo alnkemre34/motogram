@@ -14,30 +14,49 @@ jobs:
   lint-typecheck-test:
     name: Lint + Typecheck + Test
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    services:
-      postgres:
-        image: postgis/postgis:15-3.4
-        env:
-          POSTGRES_USER: motogram
-          POSTGRES_PASSWORD: motogram_test_password
-          POSTGRES_DB: motogram_test
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd="pg_isready -U motogram -d motogram_test"
-          --health-interval=10s --health-timeout=5s --health-retries=10
-      redis:
-        image: redis:7-alpine
-        ports: ["6379:6379"]
-        options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=10s --health-timeout=5s --health-retries=5
-      # MinIO: jobs.services cannot pass "server /data" reliably; a bare minio
-      # image will not listen on :9000. We start it explicitly in a step (see below).
+    timeout-minutes: 25
+    # Postgres/Redis: services: ile pull init aşamasında tek deneme + Docker Hub
+    # zaman aşımı olabiliyor. Checkout sonrası pull (retry) + docker run kullanıyoruz.
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Docker Hub login (isteğe bağlı; rate limit / pull güvenilirliği)
+        if: ${{ secrets.DOCKERHUB_TOKEN != '' }}
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Start Postgres & Redis (retry docker pull)
+        run: |
+          set -euo pipefail
+          retry_pull() {
+            local img="$1" n=1
+            while [ "$n" -le 8 ]; do
+              if docker pull "$img"; then return 0; fi
+              echo "::warning::docker pull $img failed (attempt $n/8), retrying in 25s..." >&2
+              sleep 25
+              n=$((n+1))
+            done
+            return 1
+          }
+          docker rm -f postgres_ci redis_ci 2>/dev/null || true
+          retry_pull postgis/postgis:15-3.4
+          retry_pull redis:7-alpine
+          docker run -d --name postgres_ci -p 5432:5432 \
+            -e POSTGRES_USER=motogram \
+            -e POSTGRES_PASSWORD=motogram_test_password \
+            -e POSTGRES_DB=motogram_test \
+            postgis/postgis:15-3.4
+          docker run -d --name redis_ci -p 6379:6379 redis:7-alpine
+          for i in $(seq 1 60); do
+            if docker exec postgres_ci pg_isready -U motogram -d motogram_test >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker exec postgres_ci pg_isready -U motogram -d motogram_test
+          for i in $(seq 1 30); do
+            if docker exec redis_ci redis-cli ping 2>/dev/null | grep -q PONG; then break; fi
+            sleep 1
+          done
+          docker exec redis_ci redis-cli ping | grep -q PONG
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
