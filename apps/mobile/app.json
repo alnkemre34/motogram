@@ -6,6 +6,10 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "scheme": "motogram",
+    "splash": {
+      "backgroundColor": "#0B0B0B",
+      "resizeMode": "contain"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.motogram.app",
