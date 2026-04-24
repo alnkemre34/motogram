@@ -15,7 +15,7 @@ Bu dosya `docker-compose.prod.yml` + `scripts/deploy.sh` ile **sorunsuz tek hat*
 ## Sunucuda ilk / tekrar deploy (önerilen)
 
 1. Repoyu klonla veya güncelle: `git pull origin main`
-2. Kök dizinde `.env.prod` oluştur: **`cp .env.prod.example .env.prod`** sonra düzenle (`SUNUCU_IP` → gerçek IP veya domain; tüm boş sırları doldur). Ayrıntılı alan listesi dosya içi yorumlarda.
+2. Kök dizinde `.env.prod`: **`bash scripts/init-env-prod.sh <IP>`** (tüm sırları openssl üretir) **veya** `cp .env.prod.example .env.prod` + elle doldur.
 3. **OAuth (isteğe bağlı):** `APPLE_CLIENT_ID`, `GOOGLE_CLIENT_IDS` — boş bırakılırsa OAuth uçları 503 döner (bilinçli).
 4. Çalıştır:
 
