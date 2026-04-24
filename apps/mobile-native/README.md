@@ -2,7 +2,7 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 
 ## API ortamı (`react-native-config`)
 
-1. `cp .env.development.example .env.development` — `API_URL` `/v1` ile bitsin, `WS_URL` aynı host (path yok).
+1. `cp .env.development.example .env.development` — `API_URL` `/v1` ile bitsin, `WS_URL` aynı host (path yok). `MAP_STYLE_URL`: MapLibre uyumlu `style.json` adresi; örnek dosyada ücretsiz demo tile URL’i var (MapTiler / kendi JSON’un ile değiştirilebilir).
 2. Android: `android` klasöründe `ENVFILE=.env.development ./gradlew installDebug` (veya Android Studio’da env dosyasını seç).
 3. Sunucu sırları (JWT, Postgres, MinIO) **buraya yazılmaz**; sadece backend `.env.prod`.
 
