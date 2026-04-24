@@ -1,5 +1,11 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+## API ortamı (`react-native-config`)
+
+1. `cp .env.development.example .env.development` — `API_URL` `/v1` ile bitsin, `WS_URL` aynı host (path yok).
+2. Android: `android` klasöründe `ENVFILE=.env.development ./gradlew installDebug` (veya Android Studio’da env dosyasını seç).
+3. Sunucu sırları (JWT, Postgres, MinIO) **buraya yazılmaz**; sadece backend `.env.prod`.
+
 # Getting Started
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.

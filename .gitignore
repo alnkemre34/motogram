@@ -55,6 +55,8 @@ lerna-debug.log*
 .env.prod
 .env.*.local
 !.env.example
+apps/mobile-native/.env.development
+apps/mobile-native/.env.production
 
 # IDE
 *.swp
