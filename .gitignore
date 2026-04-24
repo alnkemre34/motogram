@@ -52,10 +52,12 @@ lerna-debug.log*
 # Environment
 .env
 .env.local
+.env.prod
 .env.*.local
 !.env.example
 
 # IDE
+*.swp
 .idea/
 .vscode/*
 !.vscode/settings.json
