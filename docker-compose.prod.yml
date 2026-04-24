@@ -1,10 +1,9 @@
 # Motogram Production Stack - Spec 8.11
 # Usage: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 #
-# .env.prod icindeki minimum degiskenler:
-#   POSTGRES_PASSWORD, REDIS_PASSWORD, MINIO_ROOT_USER, MINIO_ROOT_PASSWORD
-#   JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, NEXTAUTH_SECRET
-#   FCM_CREDENTIALS_PATH, APNS_AUTH_KEY_PATH, SENTRY_DSN (opsiyonel)
+# .env.prod: kökteki .env.prod.example dosyasini kopyalayip doldur (chmod 600).
+# Minimum: POSTGRES_PASSWORD, REDIS_PASSWORD, MINIO_ROOT_*, JWT_*, INTERNAL_*,
+#   NEXTAUTH_SECRET; TLS yoksa NGINX_CONF=nginx.http.conf
 
 services:
   postgres:

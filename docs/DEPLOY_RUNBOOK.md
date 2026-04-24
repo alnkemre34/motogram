@@ -7,7 +7,7 @@ Bu doküman tam entegrasyon planı (Zod roadmap + production backend formülü) 
 
 ## Ön deploy kontrol listesi
 
-1. `diff .env.example .env.prod` — eksik anahtar yok.
+1. `.env.prod` alanları: kök **`.env.prod.example`** ile karşılaştır; zorunlu sırlar dolu, `NGINX_CONF` TLS durumuna uygun.
 2. VPS’te `.env.prod` için `chmod 600 .env.prod` ve owner `motogram` (root dışı).
 3. `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` / `INTERNAL_API_SHARED_SECRET` ≥ 32 karakter.
 4. BullMQ DLQ boş: `redis-cli LLEN bull:location-dead-letter:wait` (veya ilgili kuyruk).
