@@ -126,6 +126,8 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://api.motogram.app}
       APPLE_CLIENT_ID: ${APPLE_CLIENT_ID:-}
       GOOGLE_CLIENT_IDS: ${GOOGLE_CLIENT_IDS:-}
+      # OTP akışı kapalıyken mobil sadece e-posta/parola; açmak için .env.prod: OTP_AUTH_ENABLED=true
+      OTP_AUTH_ENABLED: ${OTP_AUTH_ENABLED:-false}
     networks:
       - motogram
     healthcheck:
