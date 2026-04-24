@@ -47,7 +47,10 @@
       "@sentry/browser": "7.119.1",
       "@xmldom/xmldom": "0.8.13",
       "send": "0.19.0",
-      "tar": "6.2.1"
+      "tar": "7.5.11"
+    },
+    "patchedDependencies": {
+      "@expo/cli@0.18.31": "patches/@expo__cli@0.18.31.patch"
     }
   }
 }
