@@ -67,6 +67,8 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod up -d api
 
 ## Sorun giderme
 
+- **`variable is not set. Defaulting to a blank string`:** `.env.prod` içinde ilgili `KEY=değer` satırları yok veya boş. `cp .env.prod.example .env.prod` ile doldur; `scripts/deploy.sh` artık build öncesi zorunlu alanları kontrol eder.
+- **Postgres `unhealthy` (daha önce boş şifirle `up` yapıldıysa):** veri önemli değilse `docker compose -f docker-compose.prod.yml --env-file .env.prod down` sonra `docker volume rm motogram_postgres_data` (veya `docker volume ls | grep motogram`) ile ilk kurulumu temizle; `.env.prod` doldurulduktan sonra yeniden `deploy.sh`.
 - **Migrate hata veriyor:** Postgres ayakta mı, `POSTGRES_PASSWORD` `.env.prod` ile aynı mı, volume ilk kurulumda mı?
 - **OAuth 503:** `.env.prod` içine `APPLE_CLIENT_ID` / `GOOGLE_CLIENT_IDS` ekleyip API konteynerini yeniden başlat.
 - Tam operasyon listesi: [DEPLOY_RUNBOOK.md](./DEPLOY_RUNBOOK.md).
