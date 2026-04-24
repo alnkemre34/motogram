@@ -29,9 +29,10 @@
 - [ ] `apps/mobile/eas.json`:
       - `development` profili `developmentClient: true` + `distribution: internal` doğrulanacak
       - `env.EXPO_PUBLIC_API_URL` ve `env.EXPO_PUBLIC_WS_URL` VPS’i gösteriyor mu kontrol
-- [ ] `apps/mobile/app.json`:
-      - `@rnmapbox/maps` plugin içindeki placeholder token kaldırılacak; token EAS secret
-        üzerinden enjekte edilecek.
+- [ ] `apps/mobile/app.json` + `apps/mobile/app.config.js`:
+      - Mapbox **download** tokenı repoda yok; `RNMAPBOX_MAPS_DOWNLOAD_TOKEN` (EAS secret) →
+        `app.config.js` bu değeri `@rnmapbox/maps` config plugin’ine `RNMapboxMapsDownloadToken`
+        olarak verir; böylece prebuild `gradle.properties` içine `MAPBOX_DOWNLOADS_TOKEN` yazar.
 - [ ] `.gitignore`:
       - `apps/mobile/android/` ve `apps/mobile/ios/` ignore edilmiş mi doğrula (EAS
         her build’de üretecek).
