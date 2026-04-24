@@ -87,20 +87,11 @@
 
 ### Mobil Uygulama
 
-- `apps/mobile/.env` olusturuldu (`EXPO_PUBLIC_API_URL=http://85.235.74.203/v1`)
-- `apps/mobile/app.json` `android.usesCleartextTraffic=true` (Android 9+ HTTP izin)
-- `apps/mobile/app.json` `extra.apiUrl` VPS'e yonlendirildi
-- `apps/mobile/eas.json` yeni: development / preview / production profilleri
-- EAS project link tamamlandi: `@alnkemre/motogram`
-- EAS Android worker uyumu icin `apps/mobile/eas.json` icinde `pnpm=10.20.0`
-  sabitlendi
-- Expo Go gecici workaround'u geri alindi; `@rnmapbox/maps` plugin'i native
-  build icin `app.json` icine explicit `@rnmapbox/maps/app.plugin.js` yolu ile
-  restore edildi.
-- **Aktif mobil blocker:** Mapbox download token / `RNMapboxMapsDownloadToken`
-  EAS secret'i olmadan APK build baslamayabilir.
-- `preview` Android build'i tetiklendi; kuyrukta bekleyen build URL'si:
-  `expo.dev/accounts/alnkemre/projects/motogram/builds/dc069560-6103-4e3b-ad64-7afeecc21115`
+- **Aktif:** `apps/mobile-native` (React Native CLI, MapLibre, `react-native-config`).
+- Ortam: kök `.env.example` mobil bölümündeki `API_URL`, `WS_URL`, isteğe bağlı
+  `MAP_STYLE_URL` / `SENTRY_DSN` / `GOOGLE_*_CLIENT_ID` (eski `EXPO_PUBLIC_*` kaldırıldı).
+- Eski Expo tabanlı `apps/mobile` repo’da yok; EAS/Expo Go notları geçmiş oturum
+  kalıntısıdır — yeni build: Gradle/Xcode ile `mobile-native`.
 
 ### Bilinen Hotfix'ler (Faz 6 sonrasi)
 
@@ -121,13 +112,9 @@
 
 ### Kullanici Tarafi
 
-1. **Android APK / dev build testi:**
-   ```powershell
-   cd C:\Users\Jeyrus\Desktop\motogram-final\apps\mobile
-   pnpm exec eas build --profile preview --platform android
-   ```
-   Build tamamlaninca APK'yi cihaza kur, OTP `986877`, ekranlari dolas. Mapbox
-   download token secret'i yoksa build yine durabilir.
+1. **Android yerel build:** `apps/mobile-native` içinde `pnpm android` (veya
+   Android Studio). Gerekirse `.env.development` ile `API_URL` / `WS_URL` VPS’e
+   yönlendirilir.
 2. VPS'te UFW + SSH hardening (RUNBOOK 12)
 3. VPS'te `chmod 600 .env.prod`
 4. Opsiyonel: Mapbox token + Firebase FCM config (prod icin)
@@ -145,8 +132,8 @@
    docker compose -f docker-compose.prod.yml --env-file .env.prod ps
    curl -i http://85.235.74.203/v1/healthz
    ```
-3. **Mapbox EAS secret hazir mi?** `RNMapboxMapsDownloadToken` yoksa Android
-   APK / dev build takilabilir; once bu blocker'i temizle.
+3. **Mobil API adresi:** `mobile-native` `.env*` içinde `API_URL` (ör. `http://…/v1`)
+   prod/staging ile uyumlu mu?
 
 ---
 
@@ -169,8 +156,8 @@
 ## Guncel Yapilandirma Degerleri
 
 - `NGINX_CONF=nginx.http.conf` (TLS'e gecince `nginx.prod.conf`)
-- `EXPO_PUBLIC_API_URL=http://85.235.74.203/v1`
-- `EXPO_PUBLIC_WS_URL=http://85.235.74.203`
+- `API_URL=http://85.235.74.203/v1` (mobile-native react-native-config)
+- `WS_URL=http://85.235.74.203`
 - Dev OTP bypass: `986877`
 - API healthcheck: `GET /v1/healthz`
 

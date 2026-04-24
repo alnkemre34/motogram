@@ -228,9 +228,9 @@ curl -i http://85.235.74.203/v1/healthz
 curl -i http://85.235.74.203/         # admin panel
 ```
 
-Mobil uygulama config:
-- `EXPO_PUBLIC_API_URL=http://85.235.74.203` (port yok)
-- `EXPO_PUBLIC_WS_URL=http://85.235.74.203` (socket.io ayni port)
+Mobil uygulama config (`apps/mobile-native`, react-native-config):
+- `API_URL=http://85.235.74.203/v1`
+- `WS_URL=http://85.235.74.203` (Socket.IO aynı origin; boşsa `API_URL`’den türetilir)
 
 ### 11.2 HTTPS/TLS Mode (production gerekli oldugunda)
 

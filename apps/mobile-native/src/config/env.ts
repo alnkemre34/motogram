@@ -29,18 +29,21 @@ function deriveWsUrl(apiUrl: string): string {
   }
 }
 
-const apiUrl = (Config.API_URL || Config.EXPO_PUBLIC_API_URL || 'http://localhost:3000/v1') as string;
+const apiUrl = (Config.API_URL || 'http://localhost:3000/v1') as string;
+
+function optionalString(v: string | undefined): string | undefined {
+  const t = v?.trim();
+  return t ? t : undefined;
+}
 
 export const env: AppEnv = {
   apiUrl,
-  wsUrl: (Config.WS_URL || Config.EXPO_PUBLIC_WS_URL || deriveWsUrl(apiUrl)) as string,
-  mapStyleUrl: (Config.MAP_STYLE_URL || Config.EXPO_PUBLIC_MAP_STYLE_URL || DEMO_MAP_STYLE) as string,
-  sentryDsn: (Config.SENTRY_DSN || Config.EXPO_PUBLIC_SENTRY_DSN) as string | undefined,
+  wsUrl: (Config.WS_URL || deriveWsUrl(apiUrl)) as string,
+  mapStyleUrl: (optionalString(Config.MAP_STYLE_URL) ?? DEMO_MAP_STYLE) as string,
+  sentryDsn: optionalString(Config.SENTRY_DSN),
   strictSchema: (Config.STRICT_SCHEMA === 'true') as boolean,
-  googleWebClientId: (Config.GOOGLE_WEB_CLIENT_ID || Config.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID) as string | undefined,
-  googleIosClientId: (Config.GOOGLE_IOS_CLIENT_ID || Config.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID) as string | undefined,
-  googleAndroidClientId: (Config.GOOGLE_ANDROID_CLIENT_ID || Config.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID) as
-    | string
-    | undefined,
+  googleWebClientId: optionalString(Config.GOOGLE_WEB_CLIENT_ID),
+  googleIosClientId: optionalString(Config.GOOGLE_IOS_CLIENT_ID),
+  googleAndroidClientId: optionalString(Config.GOOGLE_ANDROID_CLIENT_ID),
 };
 
