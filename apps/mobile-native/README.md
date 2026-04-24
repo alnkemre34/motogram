@@ -1,5 +1,17 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+## Android build: `What went wrong: 25.0.1`
+
+Bu çıktı çoğunlukla **JDK 25** (veya çok yeni bir JDK) kullanıldığı anlamına gelir. **JDK 17** kur (ör. [Eclipse Temurin 17](https://adoptium.net/)), sonra:
+
+```powershell
+$env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-17.0.13.11-hotspot"
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+java -version
+```
+
+`java -version` satırında **17** göründükten sonra `npx react-native run-android` veya `.\gradlew installDebug` tekrar dene. Kalıcı olsun diye Windows’ta **Sistem ortam değişkenleri**nden `JAVA_HOME`’u 17’ye ayarla; Android Studio **Settings → Build → Gradle JDK** de 17 olsun.
+
 ## API ortamı (`react-native-config`)
 
 1. `cp .env.development.example .env.development` — `API_URL` `/v1` ile bitsin, `WS_URL` aynı host (path yok). `MAP_STYLE_URL`: MapLibre uyumlu `style.json` adresi; örnek dosyada ücretsiz demo tile URL’i var (MapTiler / kendi JSON’un ile değiştirilebilir).
