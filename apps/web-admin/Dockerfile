@@ -1,5 +1,5 @@
 # Motogram Web Admin - Production Dockerfile (Spec 5.4)
-# Next.js 14 standalone output icin multi-stage.
+# Next.js standalone output (multi-stage).
 
 FROM node:20-bullseye-slim AS deps
 WORKDIR /workspace

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
+import { Providers } from '@/components/providers';
 import { Sidebar } from '@/components/sidebar';
 import { authOptions } from '@/lib/auth';
 
@@ -17,9 +18,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
-    </div>
+    <Providers>
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      </div>
+    </Providers>
   );
 }
