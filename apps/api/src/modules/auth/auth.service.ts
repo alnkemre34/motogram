@@ -81,6 +81,20 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
+  /** Pre-login: hangi auth yüzeyleri açık (OTP bayrağı `OTP_AUTH_ENABLED` ile). */
+  getCapabilities(): { otpAuthEnabled: boolean } {
+    return { otpAuthEnabled: this.config.get<boolean>('OTP_AUTH_ENABLED') === true };
+  }
+
+  private assertOtpEnabled(): void {
+    if (this.config.get<boolean>('OTP_AUTH_ENABLED') !== true) {
+      throw new ForbiddenException({
+        error: 'otp_disabled',
+        code: ErrorCodes.FORBIDDEN,
+      });
+    }
+  }
+
   // Spec 9.2 - Email+sifre register. EULA zorunlu (Zod sema literal(true) ile
   // garanti altinda).
   async register(dto: RegisterDto): Promise<{ userId: string; tokens: TokenPair }> {
@@ -496,6 +510,7 @@ export class AuthService {
 
   /** B-16 — Kayıtlı telefon için OTP üretir; 60 sn throttle; enumeration yok (her zaman success). */
   async requestOtp(dto: OtpRequestDto): Promise<{ success: true }> {
+    this.assertOtpEnabled();
     const phone = dto.phoneNumber.trim();
     const user = await this.prisma.user.findFirst({
       where: { phoneNumber: phone, deletedAt: null, isBanned: false },
@@ -537,6 +552,7 @@ export class AuthService {
 
   /** B-16 — Kod doğrulanırsa eşleşen kullanıcıda `phoneVerifiedAt` set edilir. */
   async verifyOtp(dto: OtpVerifyDto): Promise<{ success: true; phoneVerified: boolean }> {
+    this.assertOtpEnabled();
     const phone = dto.phoneNumber.trim();
     const code = dto.code.trim();
     const now = new Date();

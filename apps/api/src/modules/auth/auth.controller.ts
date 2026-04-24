@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   AppleSignInSchema,
+  AuthCapabilitiesSchema,
   AuthResultSchema,
   ChangeEmailRequestSchema,
   ChangeEmailResponseSchema,
@@ -54,6 +55,15 @@ import { AuthService } from './auth.service';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
+
+  /** Hangi auth yüzeylerinin açık olduğu (OTP için `OTP_AUTH_ENABLED`). */
+  @Public()
+  @HttpCode(200)
+  @Get('capabilities')
+  @ZodResponse(AuthCapabilitiesSchema)
+  authCapabilities() {
+    return this.auth.getCapabilities();
+  }
 
   /** B-16 — Telefon OTP isteği (enumeration yok; 60 sn servis içi throttle). */
   @Public()

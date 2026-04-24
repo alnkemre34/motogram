@@ -2,13 +2,14 @@
 
 > Sürüm: 1.7  
 > Tarih: 2026-04-24  
-> Kapsam: `apps/mobile` odaklı frontend şartnamesi, `apps/web-admin` için görünür olmayan backend yüzeyleri notları  
+> Kapsam: `apps/mobile-native` odaklı frontend şartnamesi, `apps/web-admin` için görünür olmayan backend yüzeyleri notları  
 > Ana hedef: mobil uygulamanın ekran, navigasyon, state, veri akışı ve UX davranışlarını backend sözleşmesine birebir oturtmak  
 > Tek gerçek kaynaklar:
 > - `motogram-spec.md`
 > - `docs/API_Contract.md`
 > - `packages/shared/src/schemas/*`
-> - `apps/mobile/src/*`
+> - `apps/mobile-native/src/*` (güncel)
+> - `apps/mobile/src/*` (legacy: Expo/EAS + Mapbox)
 
 ---
 

@@ -4,6 +4,9 @@
 > Surus Modu HUD, Redis parti setleri, lider secimi, sinyal sistemi.
 > Tahmini Sure: 2 hafta.
 
+> **LEGACY (2026-04-24+)**: Bu faz dokümanındaki mobil `expo-task-manager` gibi Expo odaklı notlar tarihsel kayıttır.
+> Güncel mobil uygulama: `apps/mobile-native` (React Native CLI).
+
 ## 1. Baslangic Kontrolu (Pre-Flight Check) - SIHIRLI ADIM
 - [x] `.cursorrules` dosyasi bastan sona okundu. (2026-04-20)
 - [x] `motogram-spec.md` dosyasindaki asagidaki bolumler dikkatlice analiz edildi:

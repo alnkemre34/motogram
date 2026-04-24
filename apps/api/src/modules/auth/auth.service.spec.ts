@@ -583,7 +583,20 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
     });
   });
 
+  describe('getCapabilities', () => {
+    it('returns otpAuthEnabled from OTP_AUTH_ENABLED', () => {
+      config.get.mockImplementation((k: string) => (k === 'OTP_AUTH_ENABLED' ? true : undefined));
+      expect(service.getCapabilities()).toEqual({ otpAuthEnabled: true });
+      config.get.mockImplementation((k: string) => (k === 'OTP_AUTH_ENABLED' ? false : undefined));
+      expect(service.getCapabilities()).toEqual({ otpAuthEnabled: false });
+    });
+  });
+
   describe('requestOtp / verifyOtp (B-16)', () => {
+    beforeEach(() => {
+      config.get.mockImplementation((k: string) => (k === 'OTP_AUTH_ENABLED' ? true : undefined));
+    });
+
     it('requestOtp no-op when phone not registered', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
       const r = await service.requestOtp({ phoneNumber: '+905551234567' });
@@ -615,6 +628,18 @@ describe('AuthService (Spec 8.6, 9.2, 9.4)', () => {
       const out = await service.verifyOtp({ phoneNumber: '+905551234567', code: '654321' });
       expect(out.success).toBe(true);
       expect(out.phoneVerified).toBe(true);
+    });
+
+    it('rejects requestOtp and verifyOtp when OTP_AUTH_ENABLED is false', async () => {
+      config.get.mockImplementation((k: string) => (k === 'OTP_AUTH_ENABLED' ? false : undefined));
+      await expect(service.requestOtp({ phoneNumber: '+905551234567' })).rejects.toMatchObject({
+        response: { error: 'otp_disabled', code: ErrorCodes.FORBIDDEN },
+      });
+      await expect(
+        service.verifyOtp({ phoneNumber: '+905551234567', code: '123456' }),
+      ).rejects.toMatchObject({
+        response: { error: 'otp_disabled', code: ErrorCodes.FORBIDDEN },
+      });
     });
   });
 

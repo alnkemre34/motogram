@@ -24,8 +24,8 @@ Uzun soluklu görevlerde bağlamı kaybetmeni önlemek için **her yeni faza vey
 Bu araçlar dışında alternatif kullanmak KESİNLİKLE YASAKTIR:
 - **Altyapı:** Monorepo mimarisi, `pnpm` ve `Turborepo` ile kurulacak.
 - **Backend:** NestJS, Prisma, PostgreSQL (PostGIS zorunlu), Redis (GEO komutları zorunlu).
-- **Frontend (Mobil):** React Native (Expo). 
-- **Harita/Lokasyon:** Kesinlikle **Mapbox (@rnmapbox/maps)** kullanılacak. Google Maps kullanılamaz.
+- **Frontend (Mobil):** React Native. 
+- **Harita/Lokasyon:** Kesinlikle **MapLibre (OSM)** kullanılacak. Google Maps kullanılamaz.
 - **State & Storage (Mobil):** Global UI state için `Zustand`, veri çekme/önbellek için `react-query`, cihaz içi depolama için `react-native-mmkv` kullanılacak (AsyncStorage yasak).
 - **Dil Desteği:** `react-i18next` kullanılacak. Koda doğrudan metin yazmak (hardcoding) yasaktır.
 - **Hata İzleme:** Frontend için `sentry-react-native` zorunludur.

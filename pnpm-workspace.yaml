@@ -2,5 +2,4 @@ packages:
   - "apps/*"
   - "packages/*"
 
-# Required for EAS Android: pnpm isolated layout breaks React Native settings.gradle (includeBuild .../null)
 nodeLinker: hoisted

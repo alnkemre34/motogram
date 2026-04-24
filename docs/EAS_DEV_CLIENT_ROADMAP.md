@@ -1,11 +1,16 @@
 # Motogram — EAS Build + Dev Client Yol Haritası
 
+> **LEGACY (2026-04-24+)**: Mobil hedef artık **`apps/mobile-native` (React Native CLI, Expo/EAS yok)**.
+> Bu doküman eski **Expo/EAS + Mapbox** akışını anlatır ve **dondurulmuştur** (tarihsel referans).
+> **`apps/mobile` klasörü repodan kaldırıldı**; aşağıdaki `apps/mobile/...` yolları ve `cd .../apps/mobile` komutları yalnızca git geçmişindeki anlık görüntüye referanstır.
+> Güncel geliştirme yolu: `pnpm --filter @motogram/mobile-native start` + `pnpm --filter @motogram/mobile-native android`.
+
 > Amaç: Windows’ta yerel native build (Gradle/CMake/NDK/path-length) sorunlarından
 > tamamen kurtulup, **hot reload** ile geliştirmeye devam etmek. Mevcut mobil kodu
 > baştan yazmıyoruz — sadece build adımını **Expo cloud (EAS)**’a taşıyoruz.
 >
-> `.cursorrules` Madde 3 (React Native + Expo) ve `apps/mobile/eas.json` bu yol
-> haritasıyla %100 uyumludur.
+> **Tarihsel not:** Bu doküman yazıldığı dönemde `.cursorrules` Expo/EAS + Mapbox varsayıyordu.
+> Güncel anayasa: bare **React Native CLI** + **MapLibre (OSM)** (`apps/mobile-native`).
 
 ---
 
@@ -89,7 +94,7 @@ eas secret:delete --id <SECRET_ID>
 
 1. **`npx expo prebuild` tam üretimde android ağacını oluşturamadı** (Mapbox / config plugin: EAS’te **development** ortamı için `RNMAPBOX_MAPS_DOWNLOAD_TOKEN` ve gerekirse `EXPO_PUBLIC_MAPBOX_TOKEN` [Expo proje değişkenleri](https://expo.dev) ile tanımlı olmalı; sadece `production`’a yazmak development build’i kırar).
 2. **Eski / bozuk EAS cache** — bir kez `eas build --profile development --platform android --clear-cache` dene.
-3. **Imzalama adımı** — dev/preview profilleri için [eas.json](../apps/mobile/eas.json) içinde `android.withoutCredentials: true` kullanılır (Expo `development` profil önerisi; debug imza, mağaza AAB değil).
+3. **Imzalama adımı** — dev/preview profilleri için git geçmişindeki `apps/mobile/eas.json` içinde `android.withoutCredentials: true` kullanılırdı (Expo `development` profil önerisi; debug imza, mağaza AAB değil).
 4. **Uzak sürüm (`cli.appVersionSource: "remote"`)** — EAS, `Configure Android version` aşamasında `eas-build-configure-version.gradle` yazar; **prebuild henüz `android/app` oluşturmadıysa** aynı sınıf `ENOENT` hatası verir. Monorepo’da en stabil yol: **`appVersionSource: "local"`** + `app.json` içinde `expo.android.versionCode` (ve iOS için `expo.ios.buildNumber`).
 
 **Kontrol:** Build her zaman `apps/mobile` kökünden: `cd apps\mobile` → `eas build` (tüm monorepo upload edilir, komut yeri doğru olsun).

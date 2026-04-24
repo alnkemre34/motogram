@@ -5,6 +5,9 @@
 > yeri kaybetmezsin. Toplam aktif iş süresi: ~25 dk, geri kalan cloud build
 > beklemesi (~15 dk).
 
+> **Güncel (2026-04-24+)**: Mobil hedef artık **`apps/mobile-native` (React Native CLI, Expo yok)**.
+> Bu dokümandaki `apps/mobile` / EAS / Mapbox adımları **legacy** kabul edilir.
+
 ---
 
 ## 0) Elinde olması gereken bilgiler
@@ -213,8 +216,9 @@ Expo panel → build sayfası → APK indir → emulator penceresine sürükle-b
 
 ```powershell
 cd C:\motogram
-pnpm --filter @motogram/mobile dev
-# = expo start --dev-client
+pnpm --filter @motogram/mobile-native start
+# Ayrı terminalde (Android):
+pnpm --filter @motogram/mobile-native android
 ```
 
 Terminal’de:
@@ -293,11 +297,11 @@ pnpm install                      # yeni dep varsa
 pnpm --filter @motogram/shared build
 
 # Emülatör açık, Metro başlat
-pnpm --filter @motogram/mobile dev
+pnpm --filter @motogram/mobile-native start
 
 # Çalışırken
 # - JS/TS değiştir → hot reload
-# - yeni native paket → yeni eas build
+# - yeni native paket → Android/iOS native rebuild
 
 # Akşam
 git add -A

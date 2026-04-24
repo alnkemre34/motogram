@@ -433,6 +433,9 @@ VPS komple kaybi playbook:
 
 ## 17. EAS Mobil Prod Build (Faz 7 Asama 5 - ADR-033)
 
+> **Not (2026-04-24+)**: Mobil istemci hedefi **`apps/mobile-native` (React Native CLI, Expo/EAS yok)**.
+> Bu bölümdeki `apps/mobile` + EAS adımları **legacy** kabul edilir.
+
 ```bash
 cd apps/mobile
 

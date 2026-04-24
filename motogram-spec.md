@@ -1579,7 +1579,7 @@ Prisma migration'ları geri alınabilir olmalıdır. Her migration için up ve d
 Geliştirme aşamasında AI kodlama asistanlarının (Cursor vb.) aşağıdaki standartları varsayılan olarak kabul etmesi ve uygulaması zorunludur:
 
 ### 9.1 Harita ve Lokasyon Motoru
-- **Sağlayıcı:** Harita altyapısı ve özel koyu tema (NFS stili HUD) için kesinlikle **Mapbox (veya @rnmapbox/maps)** kullanılacaktır. Google Maps veya Apple Maps default bırakılmamalıdır.
+- **Sağlayıcı:** Harita altyapısı ve özel koyu tema (NFS stili HUD) için **MapLibre (OSM / vektör tile tabanlı)** kullanılacaktır. Google Maps veya Apple Maps default bırakılmamalıdır.
 - Harita stilleri, dikkat dağıtmayacak şekilde minimalist ve yüksek kontrastlı (örneğin siyah/koyu gri zemin üzerine altın sarısı/turuncu rotalar) tasarlanmalıdır.
 
 ### 9.2 Kimlik Doğrulama (Auth) ve Kayıt Akışı
@@ -1596,7 +1596,7 @@ Geliştirme aşamasında AI kodlama asistanlarının (Cursor vb.) aşağıdaki s
 - Cursor, backend servislerini oluştururken varsayılan olarak hata yakalama (try/catch blokları) ve hata durumunda standart formatta API yanıtı dönme (`{ error: string, code: number }`) prensibini uygulamalıdır.
 
 ### 9.5 Çevresel Değişkenler ve Güvenlik (Env Vars)
-- Hiçbir API anahtarı (Mapbox token, AWS/MinIO key, Redis URL) koda hardcoded yazılmayacak, kesinlikle `.env` dosyalarından okunacak şekilde yapılandırılacaktır. Cursor, projeyi oluştururken örnek bir `.env.example` dosyası hazırlamak zorundadır.
+- Hiçbir API anahtarı / URL (Map style URL, tile provider anahtarları, AWS/MinIO key, Redis URL) koda hardcoded yazılmayacak, kesinlikle `.env` dosyalarından okunacak şekilde yapılandırılacaktır. Cursor, projeyi oluştururken örnek bir `.env.example` dosyası hazırlamak zorundadır.
 
 ### 9.6 Frontend State, Storage ve i18n Mimarisisi
 - **Global State:** Asenkron veri çekme ve optimistic UI için `react-query` kullanılacak olup, uygulamanın senkron global state yönetimi (UI durumları, aktif filtreler) için kesinlikle **Zustand** kullanılacaktır. Redux veya Context API kullanılmayacaktır.
@@ -1604,7 +1604,7 @@ Geliştirme aşamasında AI kodlama asistanlarının (Cursor vb.) aşağıdaki s
 - **Çok Dilli Destek:** Mobil uygulamanın arayüzü `react-i18next` kullanılarak en başından itibaren çok dilli (i18n) mimariye uygun tasarlanacaktır. Hiçbir metin (string) koda doğrudan yazılmayacak, dil dosyalarından okunacaktır.
 
 ### 9.7 Altyapı: Monorepo, Paket Yönetimi ve Hata İzleme
-- **Workspace:** Proje; `apps/mobile`, `apps/api`, `apps/web-admin` ve `packages/shared` yapısını içeren bir Monorepo olarak kurulacaktır. Bu yapılandırma için paket yöneticisi olarak **pnpm** ve görev koşucusu olarak **Turborepo** kullanılacaktır.
+- **Workspace:** Proje; `apps/mobile-native` (React Native CLI), `apps/api`, `apps/web-admin` ve `packages/shared` yapısını içeren bir Monorepo olarak kurulacaktır. Bu yapılandırma için paket yöneticisi olarak **pnpm** ve görev koşucusu olarak **Turborepo** kullanılacaktır.
 - **Crash Reporting:** Mobil uygulama canlı ortamda çökmeleri ve performans sorunlarını izlemek üzere **Sentry** (sentry-react-native) entegrasyonu ile başlatılmalıdır.
 
 Deployment öncesi staging ortamında migration test edilmelidir.

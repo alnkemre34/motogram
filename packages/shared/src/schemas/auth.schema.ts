@@ -63,6 +63,12 @@ export const OtpVerifyResponseSchema = z.object({
 });
 export type OtpVerifyResponse = z.infer<typeof OtpVerifyResponseSchema>;
 
+/** Public auth feature surface (pre-login). Server `OTP_AUTH_ENABLED` ile senkron. */
+export const AuthCapabilitiesSchema = z.object({
+  otpAuthEnabled: z.boolean(),
+});
+export type AuthCapabilities = z.infer<typeof AuthCapabilitiesSchema>;
+
 export const AppleSignInSchema = z.object({
   identityToken: z.string().min(10, 'apple_token_invalid'),
   authorizationCode: z.string().optional(),

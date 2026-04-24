@@ -7,6 +7,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import {
   ApiErrorSchema,
+  AuthCapabilitiesSchema,
   AuthResultSchema,
   ChangePasswordResponseSchema,
   ConversationsListResponseSchema,
@@ -129,6 +130,20 @@ describeContract('Contract: public HTTP', () => {
     ApiErrorSchema.parse(res.body);
     expect(res.body.error).toBeDefined();
     expect(res.body.code).toBeDefined();
+  });
+
+  it('GET /v1/auth/capabilities — AuthCapabilitiesSchema', async () => {
+    const res = await request(app.getHttpServer()).get('/v1/auth/capabilities').expect(200);
+    AuthCapabilitiesSchema.parse(res.body);
+  });
+
+  it('POST /v1/auth/otp/request — OTP_AUTH_ENABLED=false iken 403 otp_disabled', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/v1/auth/otp/request')
+      .send({ phoneNumber: '+905551112233' })
+      .expect(403);
+    ApiErrorSchema.parse(res.body);
+    expect(res.body.error).toBe('otp_disabled');
   });
 
   it('POST /v1/auth/register — EULA olmadan 400 + ApiErrorSchema', async () => {

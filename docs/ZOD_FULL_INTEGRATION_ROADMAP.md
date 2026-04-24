@@ -20,6 +20,10 @@
 
 ---
 
+> **Not (2026-04-24+)**: Mobil istemci hedefi artık **`apps/mobile-native`**. Bu yol haritasındaki
+> eski `apps/mobile` / `@motogram/mobile` referansları **legacy** kabul edilmelidir; yeni işler için
+> doğrulama komutları `@motogram/mobile-native` üzerinden yürütülür.
+
 ## 0) Genel prensipler
 
 - **Backward compatible**: Hiçbir API contract’ı KIRILMAZ. Yeni response

@@ -6,6 +6,9 @@
 > **Asistan kurali:** Yeni oturum acilinca ILK OKUNACAK dosya.
 > Guncel degilse tarih/commit kontrolu yapip uyari ver.
 
+> **Güncel (2026-04-24+)**: Mobil istemci hedefi artık **`apps/mobile-native` (React Native CLI, Expo yok)**.
+> `apps/mobile` (Expo/EAS + Mapbox) içeren bölümler **legacy** kabul edilir.
+
 ---
 
 ## Mobil on uc — nerede kaldik? (2026-04-23 guncel)

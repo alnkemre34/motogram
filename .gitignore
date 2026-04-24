@@ -22,15 +22,23 @@ out/
 *.orig.*
 web-build/
 
-# Native platform builds (Expo + EAS generates these on demand; never commit)
-apps/mobile/android/
-apps/mobile/ios/
+# Native platform builds (local RN / Gradle; never commit large artifacts)
 android/app/build/
 android/build/
 android/.gradle/
 ios/Pods/
 ios/build/
 ios/DerivedData/
+
+# Native platform builds (mobile-native)
+apps/mobile-native/android/app/build/
+apps/mobile-native/android/build/
+apps/mobile-native/android/.gradle/
+apps/mobile-native/android/.cxx/
+apps/mobile-native/android/app/debug.keystore
+apps/mobile-native/ios/Pods/
+apps/mobile-native/ios/build/
+apps/mobile-native/ios/DerivedData/
 
 # Logs & caches
 *.log

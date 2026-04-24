@@ -147,6 +147,13 @@
     ]
   },
   {
+    "method": "GET",
+    "path": "/auth/capabilities",
+    "responseSchema": "AuthCapabilitiesSchema",
+    "responseStatus": 200,
+    "auth": false
+  },
+  {
     "method": "POST",
     "path": "/auth/email/change",
     "requestBodySchema": "ChangeEmailRequestSchema",

@@ -65,7 +65,7 @@
 |---|---|---|
 | Paket Yoneticisi | pnpm 10+ | 0 |
 | Gorev Kosucusu | Turborepo 2+ | 0 |
-| Mobil | React Native (Expo) | 1+ |
+| Mobil | React Native (CLI / bare) | 1+ |
 | Web Admin | Next.js 14 (App Router) + shadcn/ui + Tailwind | 6 |
 | Backend | NestJS (TypeScript) | 1+ |
 | Veritabani | PostgreSQL 15+ (PostGIS) | 1+ |
@@ -73,7 +73,7 @@
 | Onbellek / Kuyruk | Redis + BullMQ | 1+ |
 | Gercek Zaman | Socket.IO | 3+ |
 | Medya | MinIO + Sharp | 5 |
-| Harita | Mapbox (@rnmapbox/maps) | 2+ |
+| Harita | MapLibre (OSM) | 2+ |
 | Dogrulama (SSOT) | Zod (packages/shared) | 1+ |
 | Mobil State | Zustand + react-query + react-native-mmkv | 1+ |
 | i18n | react-i18next | 1+ |
@@ -89,7 +89,7 @@
 ```
 Final-Motogram/
   apps/
-    mobile/       -> @motogram/mobile    (React Native + Expo)
+    mobile-native/ -> @motogram/mobile-native (React Native CLI, no Expo)
     api/          -> @motogram/api       (NestJS)
     web-admin/    -> @motogram/web-admin (Next.js 14)
   packages/
@@ -113,6 +113,63 @@ Final-Motogram/
 ---
 
 ## 5. Faz Log Girdileri (Kronolojik - Yeni olan en ustte)
+
+### [2026-04-24] Mobil — Phase 4 (MapLibre): parti WS + RIDE HUD + SOS + konum yayini (REST)
+
+**Durum:** `socket.io-client` + `lib/socket.ts` / `ws-typed.ts`; `party.store` + `useParty` (Expo ile ayni WS semalari); `party.api.ts` (REST); `PartyCreateModal`, `RideModeHUD`, `PartySignalFeed`, `SosButton` (Expo haptics yerine `Vibration`); `useLocationBroadcast` (UserLocation fix + interval ile `PUT /location/update`); `MapScreen` Discover sheet CTA + RIDE canli uye pinleri + ayril onayi. i18n: cift `map` blogu kaldirildi; `fallback` MapLibre stil URL metnine cekildi.  
+**Gate:** `pnpm --filter @motogram/mobile-native typecheck` + `jest` yesil.  
+**Sonraki:** WS `partyUpdateLocation` ile konum emit (istege bagli); Phase 5 `react-native-geolocation-service` ile izin/arka plan; `DiscoverModeSheet` PARTIES/EVENTS liste kartlari (ayri endpoint varsa).  
+
+### [2026-04-24] Mobil — Phase 4 (MapLibre): nearby + filtreler + env style URL
+
+**Durum:** `map.api.ts` + `useNearbyRiders` ile `GET /v1/map/nearby` (shared `NearbyRidersResponseSchema` / `NearbyRiderSchema` degismedi); `map.store` + `map-filters` + `MapFilterBar`; `MapScreen` Discover modunda `PointAnnotation` ile yakin surucu pinleri; `env.mapStyleUrl` (`MAP_STYLE_URL` veya geriye uyum `EXPO_PUBLIC_MAP_STYLE_URL`, yoksa MapLibre demo `style.json`). RIDE segmenti aktif party yokken kapali + bilgilendirici overlay. Android `ACCESS_*_LOCATION` + iOS `NSLocationWhenInUseUsageDescription` (UserLocation / Phase 5 on-hazirlik).  
+**Gate:** `pnpm --filter @motogram/mobile-native typecheck` + `pnpm --filter @motogram/mobile-native test` yesil (2026-04-24).  
+**Sonraki:** party pinleri + RIDE HUD / SOS; `DiscoverModeSheet`; prod harita stili; Phase 5 `react-native-geolocation-service` ile merkez + konum yayini paritesi.  
+
+### [2026-04-24] Mobil — Phase 4 (MapLibre): ilk harita + Android dogrulama
+
+**Durum:** `@maplibre/maplibre-react-native@10.4.2` (RN 0.74 uyumlu) eklendi; `MapScreen` artik MapLibre `MapView` ile **demo** `style.json` (`demotiles.maplibre.org`) gosteriyor. iOS `Podfile` post_install icinde `$MLRN.post_install` (SwiftPM MapLibre Native) kosullu eklendi.  
+**Gate:** `pnpm --filter @motogram/mobile-native typecheck` + `jest` yesil; Android `assembleDebug` yesil (MapLibre modulu derlendi).  
+**Sonraki:** backend ile ayni harita davranisi (markerlar, filtreler, konum yayini) Phase 4/5 ile; prod tile/style URL `react-native-config` uzerinden.  
+
+### [2026-04-24] Mobil — RN CLI migrasyonu: Phase 3 (nav shell) baslangic + ENV notu
+
+**Durum:** `apps/mobile-native` icin temel navigasyon kabugu (Auth stack + 4-tab) ayaga kalkti; map ekrani bu fazda placeholder (MapLibre Phase 4).  
+**Gate:** `pnpm --filter @motogram/mobile-native typecheck` + `pnpm --filter @motogram/mobile-native test` yesil.  
+
+**Not (unutma):** Expo'daki `EXPO_PUBLIC_*` ortam degiskenleri yerine bare RN'de `react-native-config` kullaniliyor. Phase 4/5'e gecmeden once **`.env.production` / `.env.staging` / `.env.development` dosyalari + build sirasinda `ENVFILE` secimi** netlestirilecek (CI + local run).  
+
+**Ek:** Phase 3 icinde `ProfileScreen` icin minimum backend uyumlu `GET /v1/users/me` baglantisi eklendi (`apps/mobile-native/src/api/users.api.ts`). Discover/Home ekranlari bu fazda placeholder kalacak; Discover'daki konum bagimliligi Phase 5 (RN geolocation) ile cozulunce tasinacak.  
+
+**Ek (Home):** Phase 3 icinde `HomeScreen` icin minimum feed akisi portlandi: `GET /v1/posts/feed` + `GET /v1/notifications/unread-count` + optimistik like (`POST/DELETE /v1/likes/:postId`). Story rail `GET /v1/stories/feed` ile gorunur; StoryViewer navigasyonu sonraya (Phase 6) ertelendi. Gate testleri yesil tutuldu.  
+
+**Ek (Nav):** Oturum acik durumda `AppStack` yapisi eklendi: `MainTabs` uzerine `Inbox` + `Notifications` stack ekranlari. Home ust bardaki ✉/🔔 butonlari artik bu ekranlara gider. (Inbox su an placeholder; Messaging Phase 6'da portlanacak.)  
+
+**Ek (Settings):** `Settings` ekrani Phase 3'te minimum kabuk olarak eklendi ve `Profile` icindeki ⚙ butonu bu ekrana baglandi. Settings altinda **NotificationPreferences + EmergencyContacts + BlockedUsers + AccountDeletion** portlandi; auth alt akislari (parola / e-posta / kullanici adi) ve **EditProfile** eklendi. **Devices & push** (Expo push token) bare RN push stratejisi netlesince Phase 6'da portlanacak. Gate testleri yesil.  
+
+**Ek (NotificationPreferences):** Phase 3 icinde `NotificationPreferences` ekrani eklendi ve `Settings -> Bildirim tercihleri` menusu bu ekrana baglandi. Backend uyumu: `GET/PATCH /v1/notification-preferences` (shared Zod: `NotificationPreferencesSchema`). Gate testleri yesil.  
+
+**Ek (EmergencyContacts):** Phase 3 icinde `EmergencyContacts` ekrani ve API portlandi. Settings menusu bu ekrana baglandi. Backend uyumu: `GET/POST/DELETE /v1/emergency/contacts` (shared Zod: `EmergencyContactsListResponseSchema`, `EmergencyContactRowSchema`, DTO: `CreateEmergencyContactDto`). Gate testleri yesil.  
+
+**Ek (BlockedUsers + AccountDeletion):** Phase 3 icinde `BlockedUsers` + `AccountDeletion` ekranlari ve API portlandi; Settings menusunden erisiliyor. Backend uyumu: `GET /v1/blocks` + `DELETE /v1/blocks/:userId` (shared: `BlocksListResponseSchema`); `GET/POST/DELETE /v1/account/deletion` (shared: `AccountDeletionStatusSchema`, DTO: `RequestAccountDeletionDto`). Gate testleri yesil.  
+
+**Ek (ChangePassword):** Phase 3 icinde `ChangePasswordScreen` portlandi ve `Settings -> Parola degistir` menusu bu ekrana baglandi. Backend uyumu: `POST /v1/auth/password/change` (shared: `ChangePasswordSchema` / `ChangePasswordResponseSchema`). Gate testleri yesil.  
+
+**Ek (ChangeEmail + VerifyEmail + ChangeUsername):** Phase 3 icinde `ChangeEmailScreen`, `VerifyEmailScreen`, `ChangeUsernameScreen` portlandi ve Settings menusu altindan erisilebilir hale getirildi. Backend uyumu: `POST /v1/auth/email/change`, `POST /v1/auth/email/verify`, `PATCH /v1/users/me/username`. Gate testleri yesil.  
+
+**Ek (EditProfile):** Phase 3 icinde `EditProfileScreen` portlandi; `Settings -> Profili duzenle` bu ekrana baglandi. Backend uyumu: `GET /v1/users/me` + `PATCH /v1/users/me` (`UpdateProfileSchema` / `UserMeResponseSchema` / `UserPublicApiResponseSchema`). Gate testleri yesil.  
+
+### [2026-04-24] Mobil — Expo/EAS'ten RN CLI'ya gecis + MapLibre (OSM) migrasyonu (kickoff)
+
+**Karar:** Mobil istemci **Expo/EAS olmadan** saf **React Native CLI (bare)** uzerine tasinacak. Harita katmani **Mapbox (@rnmapbox/maps)** yerine **MapLibre + OpenStreetMap** tabanli olacak (ucretsiz).  
+
+**Kisitlar (pazarliksiz):**
+- Backend, REST/WS endpoint'leri, request/response shape'leri ve `packages/shared` **Zod semalari degismeyecek** (SSOT: `docs/API_Contract.md` + `packages/shared/src/schemas/*`).  
+- Migrasyon fazli ilerleyecek; her faz sonunda `pnpm --filter @motogram/shared build`, `pnpm typecheck`, ilgili mobil testleri yesil olmadan sonraki faza gecilmeyecek.  
+
+**Golden flow (manuel QA):** login → map → discover → create event → location broadcast (konum yayini).  
+
+**Takip:** Bu migrasyonun fazlari ve teknik notlari `docs/FRONTEND_BLUEPRINT.md` ve `docs/FRONTEND_UI_UX_BLUEPRINT.md` ile senkron tutulacak.
 
 ### [2026-04-23] Mobil P7 — Kod kapanış (AppState, Sentry, i18n) + P7.5 doc
 
@@ -150,7 +207,7 @@ Final-Motogram/
 
 ### [2026-04-23] Mobil P3/P4 — 4 tab + Gelen/ Bildirim Home’dan
 
-**Nav:** `AppStackNavigator` → `MainTabs` (Home, Map, Community, Profile) + `Inbox` (stack) + `Notifications`. Eski 5. sekme (Inbox) kaldırıldı. **API:** `notifications.api.ts` (`/notifications`, `/notifications/unread-count`, Zod). **Inbox ekranı:** `PartyInboxScreen` “Haritaya dön” → `navigate('MainTabs', { screen: 'Map' })`. **Kısıt:** P3’te story rail henüz yok. **Test:** `pnpm --filter @motogram/mobile typecheck` + `test` yeşil.
+**Nav:** `AppStackNavigator` → `MainTabs` (Home, Map, Community, Profile) + `Inbox` (stack) + `Notifications`. Eski 5. sekme (Inbox) kaldırıldı. **API:** `notifications.api.ts` (`/notifications`, `/notifications/unread-count`, Zod). **Inbox ekranı:** `PartyInboxScreen` “Haritaya dön” → `navigate('MainTabs', { screen: 'Map' })`. **Kısıt:** P3’te story rail henüz yok. **Test:** `pnpm --filter @motogram/mobile-native typecheck` + `pnpm --filter @motogram/mobile-native test` yeşil.
 
 ---
 
@@ -448,7 +505,7 @@ Final-Motogram/
 | `apps/mobile/src/i18n/locales/tr.json` / `en.json` | `map.partyCreate.*`, `map.ride.*`. |
 | `apps/mobile/src/api/party-zod-guard.spec.ts` | Modal default payload `CreatePartySchema` testi (+1 test). |
 
-**Dogrulama:** `pnpm typecheck`; `pnpm --filter @motogram/mobile test` (53 test).
+**Dogrulama:** `pnpm typecheck`; `pnpm --filter @motogram/mobile-native test`.
 
 **Dokuman:** `docs/ZOD_FULL_INTEGRATION_ROADMAP.md` §7.3, §18.2 **E**, §19.2 R6.
 
@@ -552,7 +609,7 @@ contract)** (`CONTRACT_TESTS=1`, ayni servis env). Dokuman:
 | `apps/mobile/src/api/party.api.ts` | `createParty` -> `CreatePartySchema.parse`; `joinParty` -> `JoinPartySchema.parse`; `invitePartyMember` -> `InviteToPartySchema.parse`; `respondInvite` -> `RespondPartyInviteSchema.parse`. |
 | `apps/mobile/src/api/party-zod-guard.spec.ts` | Jest: Create/Join/Invite/Respond sema smoke (5 test). |
 
-**Dogrulama:** `pnpm --filter @motogram/mobile run typecheck` + `pnpm test` (52 test) yesil; kok `pnpm typecheck` yesil.
+**Dogrulama:** `pnpm --filter @motogram/mobile-native run typecheck` + `pnpm test` yesil; kok `pnpm typecheck` yesil.
 
 **Dokuman:** `docs/ZOD_FULL_INTEGRATION_ROADMAP.md` §7.3 `PartyInboxScreen` satiri, §18.2 **E**, §19.2 R6.
 
@@ -574,7 +631,7 @@ contract)** (`CONTRACT_TESTS=1`, ayni servis env). Dokuman:
 | `apps/mobile/src/screens/community/community-join-form.schema.ts` + `.spec.ts` | Katilim mesaji max 500. |
 | `apps/mobile/src/screens/community/CommunityDetailScreen.tsx` | Opsiyonel mesaj alani; `JoinCommunitySchema.pick({ message })` ile API govdesi. |
 
-**Dogrulama:** `pnpm --filter @motogram/mobile run typecheck` ve `pnpm --filter @motogram/mobile test` (47 test) yesil; kok `pnpm typecheck` yesil.
+**Dogrulama:** `pnpm --filter @motogram/mobile-native run typecheck` ve `pnpm --filter @motogram/mobile-native test` yesil; kok `pnpm typecheck` yesil.
 
 **Dokuman:** `docs/ZOD_FULL_INTEGRATION_ROADMAP.md` §7.3 ilgili satirlar, §18.2 **E**, §19.2 R6.
 
@@ -601,7 +658,7 @@ tablosundaki diger ekranlar + §7.5 `safeParse` sifir hedefi ile surer.
 | `apps/mobile/src/screens/event/EventCreateScreen.tsx` + `event-create-form.schema.ts` | Alanlar `Controller`; `CreateEventSchema.safeParse` + `createEvent`. |
 | `apps/mobile/src/screens/event/event-create-form.schema.spec.ts` | Jest: baslik, koordinat, tarih. |
 
-**Dogrulama:** `pnpm --filter @motogram/mobile run typecheck` ve `pnpm --filter @motogram/mobile test` yesil.
+**Dogrulama:** `pnpm --filter @motogram/mobile-native run typecheck` ve `pnpm --filter @motogram/mobile-native test` yesil.
 
 **Dokuman:** `docs/ZOD_FULL_INTEGRATION_ROADMAP.md` §7.3, §18.2 satir **E**, §19.2 R6, §19.3.
 

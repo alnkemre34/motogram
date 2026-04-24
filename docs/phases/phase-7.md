@@ -8,6 +8,9 @@
 > Bu dosya Kural 4 geregi PLAN belgesidir; kullanici "Plan onaylandi,
 > kodlamaya basla" diyene kadar kod uretilmez.
 
+> **LEGACY (2026-04-24+)**: Bu fazın EAS/Expo/Mapbox maddeleri tarihsel kayıttır ve dondurulmuştur.
+> Güncel mobil hedef `apps/mobile-native` olduğundan, mobil build akışı RN CLI üzerinden yürütülür.
+
 ## 1. Baslangic Kontrolu (Pre-Flight Check) - SIHIRLI ADIM
 
 - [x] `.cursorrules` dosyasi bastan sona yeniden okundu. (2026-04-21)

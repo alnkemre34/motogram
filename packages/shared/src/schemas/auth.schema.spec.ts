@@ -1,4 +1,5 @@
 import {
+  AuthCapabilitiesSchema,
   ChangeEmailRequestSchema,
   ChangeEmailVerifySchema,
   ChangePasswordSchema,
@@ -175,5 +176,13 @@ describe('OtpVerifySchema (Spec 9.2 OTP)', () => {
   it('accepts valid E.164 + 6 digits', () => {
     const res = OtpVerifySchema.safeParse({ phoneNumber: '+905551234567', code: '123456' });
     expect(res.success).toBe(true);
+  });
+});
+
+describe('AuthCapabilitiesSchema', () => {
+  it('accepts otpAuthEnabled boolean', () => {
+    expect(AuthCapabilitiesSchema.safeParse({ otpAuthEnabled: true }).success).toBe(true);
+    expect(AuthCapabilitiesSchema.safeParse({ otpAuthEnabled: false }).success).toBe(true);
+    expect(AuthCapabilitiesSchema.safeParse({}).success).toBe(false);
   });
 });

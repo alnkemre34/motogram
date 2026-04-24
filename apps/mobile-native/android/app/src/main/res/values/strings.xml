@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MotogramNative</string>
+    <string name="ride_location_channel_name">Motogram ride location</string>
+    <string name="ride_location_channel_desc">Keeps location sharing active during Ride mode</string>
+    <string name="ride_location_notification_title">Motogram aktif sürüşte</string>
+    <string name="ride_location_notification_body">Konumunuz paylaşılıyor.</string>
+</resources>

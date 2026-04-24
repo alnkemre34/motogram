@@ -2,8 +2,10 @@
 
 **Rapor sürümü:** 2.0 (tam denetim)  
 **Tarih:** 2026-04-22  
-**Kapsam:** `apps/mobile` (React Native / Expo), `apps/web-admin` (Next.js), backend `apps/api` ile yol/semre çapraz kontrol.  
-**Yöntem:** Tüm ekran/modal/nav import grafiği, `src/api/*.ts` kullanım matrisi, `apps/api` controller yolları ile eşleştirme, statik inceleme, `pnpm --filter @motogram/mobile typecheck` + `test` (CI’da cihaz E2E yok).
+**Kapsam:** `apps/mobile-native` (React Native CLI), `apps/web-admin` (Next.js), backend `apps/api` ile yol/semre çapraz kontrol.  
+**Yöntem:** Tüm ekran/modal/nav import grafiği, `src/api/*.ts` kullanım matrisi, `apps/api` controller yolları ile eşleştirme, statik inceleme, `pnpm --filter @motogram/mobile-native typecheck` + `pnpm --filter @motogram/mobile-native test` (CI’da cihaz E2E yok).
+
+> **Not (2026-04-24+)**: Bu rapordaki eski `apps/mobile` (Expo/EAS) referansları legacy kabul edilmelidir.
 
 > Bu belge, **“backend ile uyumlu, ölü ekran / işlevsiz buton olmayan, ürünü yansıtan”** hedefe göre **mevcut gerçekliği** ve **açık işleri** listeler.
 
@@ -186,4 +188,4 @@ Bu üçü için **R6 belgesinde** geçmek, gerçek rotalar eklenmedikçe “tama
 
 ---
 
-*Üretim kararı öncesi: `pnpm --filter @motogram/mobile typecheck` + `test` ve istenen ortamda manuel tümden tıklama (smoke) önerilir.*
+*Üretim kararı öncesi: `pnpm --filter @motogram/mobile-native typecheck` + `pnpm --filter @motogram/mobile-native test` ve istenen ortamda manuel tümden tıklama (smoke) önerilir.*

@@ -65,6 +65,12 @@ export const envSchema = z.object({
   DISABLE_BULLMQ_WORKER: z.boolean().default(false),
   DISABLE_WS_ADAPTER: z.string().optional(),
 
+  /**
+   * B-16 — Telefon OTP (`POST /auth/otp/*`). `false` iken uçlar 403 `otp_disabled` döner;
+   * istemci `GET /auth/capabilities` ile aynı bayrağı okur.
+   */
+  OTP_AUTH_ENABLED: z.boolean().default(false),
+
   /** Sign in with Apple — boş string (Docker `.env` / Compose) yok sayılır. */
   APPLE_CLIENT_ID: z.preprocess(
     (v) => (v === '' || v === undefined ? undefined : v),
@@ -91,6 +97,7 @@ export function normalizeProcessEnv(e: NodeJS.ProcessEnv): Record<string, unknow
     MINIO_USE_SSL: parseEnvBool(e.MINIO_USE_SSL, false),
     ZOD_RESPONSE_STRICT: parseEnvBool(e.ZOD_RESPONSE_STRICT, false),
     DISABLE_BULLMQ_WORKER: parseEnvBool(e.DISABLE_BULLMQ_WORKER, false),
+    OTP_AUTH_ENABLED: parseEnvBool(e.OTP_AUTH_ENABLED, false),
     SENTRY_TRACES_SAMPLE_RATE: e.SENTRY_TRACES_SAMPLE_RATE ?? '0.1',
     DATABASE_POOL_MIN: e.DATABASE_POOL_MIN ?? '2',
     DATABASE_POOL_MAX: e.DATABASE_POOL_MAX ?? '10',

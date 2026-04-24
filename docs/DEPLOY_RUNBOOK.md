@@ -2,6 +2,9 @@
 
 Bu doküman tam entegrasyon planı (Zod roadmap + production backend formülü) ile uyumludur. Staging yoksa her prod deploy sonrası **24 saat metrik bake** zorunludur.
 
+> **Not (2026-04-24+)**: Mobil tarafı artık **`apps/mobile-native` (React Native CLI)**. Aşağıdaki R12 tablosundaki
+> `apps/mobile/app.json` (Expo) referansı **legacy** kabul edilir; mobil strict için RN CLI build süreci kullanılacaktır.
+
 ## Ön deploy kontrol listesi
 
 1. `diff .env.example .env.prod` — eksik anahtar yok.

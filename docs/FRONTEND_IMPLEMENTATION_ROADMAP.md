@@ -2,8 +2,10 @@
 
 > Tarih: 2026-04-23 — mobil **P1–P7 kod + otomasyon test tamam**; **P7.5** yalnız **§8.4 cihaz**; §8)  
 > İlişkili: `docs/FRONTEND_UI_UX_BLUEPRINT.md` (v1.5+), `docs/API_Contract.md`, `packages/shared`  
-> Amaç: Mobil `apps/mobile` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
+> Amaç: Mobil `apps/mobile-native` ve (ileride) `web-admin` için öncelik sırası, test disiplinini ve kabul kriterlerini sabitlemek.  
 > **Hızlı “nerede kaldık”:** Aşağıdaki §7 + `docs/SESSION_HANDOFF.md` üst bölüm.
+
+> **Not (2026-04-24+)**: `apps/mobile` (Expo/EAS + Mapbox) akışı **legacy**; güncel mobil hedef `apps/mobile-native`.
 
 ---
 
@@ -55,7 +57,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 - **Birim (Jest, `ts-jest`, `node` ortamı):** Saf mantık — örn. `messaging-path.ts` URL inşası; form şemaları (`zodResolver`); store/reducer; navigasyon `linking` eşlemesi. `api-client` veya `expo-constants` çeken modülleri testten **ayır** (saf yardımcı modül + re-export).
 - **Bileşen:** `@testing-library/react-native` (mevcut projede ağırlık formlar ve kritik ekranlarda).
 - **E2E (ileride):** Maestro / Detox — smoke: giriş, Inbox 3 sekmesi, bir sohbet açma (CI’da opsiyonel).
-- **Regresyon:** `pnpm --filter @motogram/mobile typecheck` + `pnpm --filter @motogram/mobile test` her PR’da yeşil.
+- **Regresyon:** `pnpm --filter @motogram/mobile-native typecheck` + `pnpm --filter @motogram/mobile-native test` her PR’da yeşil.
 
 ---
 
@@ -113,7 +115,7 @@ Her faz bitince: `typecheck` + `test` (mobil), gerekirse `PROJECT_BOARD` §5, bu
 | **Hikâye video** | `expo-av` tam ekran oynatıcı | Uygulandı |
 | **Belge eşgüdüm** | `SESSION_HANDOFF` üst tablo, bu §7, `PROJECT_BOARD` §1 | Yeni faza geçerken aynı üçlüyü güncelle |
 
-**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` (**21 suite / 73 test**, 2026-04-23).
+**Son doğrulama (yerel, tekrarlanabilir):** `pnpm --filter @motogram/mobile-native typecheck` ve `pnpm --filter @motogram/mobile-native test`.
 
 ---
 
@@ -143,7 +145,7 @@ Amaç: Dört Socket.IO namespace’in (`/realtime`, `/messaging`, `/gamification
 
 | # | Adım | Beklenen |
 |---|------|----------|
-| 1 | `pnpm --filter @motogram/mobile typecheck` ve `pnpm --filter @motogram/mobile test` | Exit 0 (regresyon) |
+| 1 | `pnpm --filter @motogram/mobile-native typecheck` ve `pnpm --filter @motogram/mobile-native test` | Exit 0 (regresyon) |
 | 2 | Uygulamada giriş yap, ana ekrana gel | Çökme yok; `P7RealtimeHost` oturumdayken `/gamification` + `/emergency` bağlanır (arka plan) |
 | 3 | **/realtime** | Haritada sürüş modu + aktif parti (`useParty`); parti sinyali veya üye konumu/ durum değişimi ekranla uyumlu |
 | 4 | **/messaging** | Gelen kutusundan sohbet aç; mesaj gönder; mümkünse karşı taraftan veya ikinci cihazdan cevap; okundu / liste davranışı anormal değil |

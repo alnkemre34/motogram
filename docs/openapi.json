@@ -937,6 +937,17 @@
         ],
         "type": "object"
       },
+      "AuthCapabilitiesSchema": {
+        "properties": {
+          "otpAuthEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "otpAuthEnabled"
+        ],
+        "type": "object"
+      },
       "AuthLoginSuccessEventSchema": {
         "properties": {
           "ts": {
@@ -14815,6 +14826,22 @@
             ]
           }
         ]
+      }
+    },
+    "/auth/capabilities": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthCapabilitiesSchema"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
       }
     },
     "/auth/email/change": {

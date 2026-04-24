@@ -2,6 +2,9 @@
 
 Bu doküman, **mobil uygulamayı mağazalara** çıkarmak için gereken **backend, yönetim arayüzü, altyapı ve mobil build** adımlarını tek akışta toplar. Ayrıntılı operasyonel detaylar için mevcut runbook’lara referans verir.
 
+> **Güncel (2026-04-24+)**: Mobil istemci hedefi **`apps/mobile-native` (React Native CLI, Expo/EAS yok)**.
+> Bu dokümandaki EAS/Expo/Mapbox akışları **legacy** kabul edilir ve güncellenecektir.
+
 | Ne | Nerede |
 |----|--------|
 | VPS + Docker Compose prod deploy (önerilen hat) | [DEPLOY_QUICKSTART.md](./DEPLOY_QUICKSTART.md), [DEPLOY_RUNBOOK.md](./DEPLOY_RUNBOOK.md) |

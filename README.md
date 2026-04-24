@@ -1,6 +1,6 @@
 # Motogram
 
-Harita öncelikli motosiklet sosyal platformu — monorepo (`apps/api`, `apps/mobile`, `apps/web-admin`, `packages/shared`).
+Harita öncelikli motosiklet sosyal platformu — monorepo (`apps/api`, `apps/mobile-native`, `apps/web-admin`, `packages/shared`).
 
 ## Production deploy disiplini
 
@@ -10,7 +10,7 @@ Tam entegrasyon (Zod %100 + observability + horizontal scaling) için **[docs/DE
 
 ```bash
 pnpm install
-pnpm --filter @motogram/shared build   # API/mobile @motogram/shared tipleri icin zorunlu
+pnpm --filter @motogram/shared build   # API/mobile-native @motogram/shared tipleri icin zorunlu
 pnpm dev
 ```
 

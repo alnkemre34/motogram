@@ -4,6 +4,9 @@
 > Takip, Begeni, Yorum, Hikayeler.
 > Tahmini Sure: 2 hafta.
 
+> **LEGACY (2026-04-24+)**: Bu faz dokümanındaki mobil referansları (`apps/mobile`, Expo/EAS) dondurulmuş tarihsel kayıttır.
+> Güncel mobil uygulama: `apps/mobile-native` (React Native CLI, MapLibre/OSM).
+
 ## 1. Baslangic Kontrolu (Pre-Flight Check) - SIHIRLI ADIM
 - [x] `.cursorrules` dosyasi bastan sona okundu. (2026-04-20)
 - [x] `motogram-spec.md` dosyasindaki asagidaki bolumler dikkatlice analiz edildi:
